@@ -59,7 +59,6 @@ class VinylDNSClient(object):
         self.session = self.__requests_retry_session
         self.session_not_found_ok = self.__requests_retry_not_found_ok_session
 
-    @staticmethod
     def __requests_retry_not_found_ok_session(self,
                                               retries=5,
                                               backoff_factor=0.4,
@@ -79,7 +78,6 @@ class VinylDNSClient(object):
         session.mount(u'https://', adapter)
         return session
 
-    @staticmethod
     def __requests_retry_session(self,
                                  retries=5,
                                  backoff_factor=0.4,
