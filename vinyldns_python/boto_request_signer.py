@@ -34,14 +34,14 @@ class BotoRequestSigner(object):
         """TODO: Add method docstring."""
         url = urlparse.urlparse(index_url)
         self.boto_connection = DynamoDBConnection(
-            host = url.hostname,
-            port = url.port,
-            aws_access_key_id = access_key,
-            aws_secret_access_key = secret_access_key,
-            is_secure = False)
+            host=url.hostname,
+            port=url.port,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            is_secure=False)
 
     @staticmethod
-    def canonical_date(headers):
+    def __canonical_date(headers):
         """
         Derive canonical date (ISO 8601 string).
 
@@ -77,7 +77,7 @@ class BotoRequestSigner(object):
 
         auth_handler = self.boto_connection._auth_handler
 
-        timestamp = BotoRequestSigner.canonical_date(headers)
+        timestamp = BotoRequestSigner.__canonical_date(headers)
         request.timestamp = timestamp[0:8]
 
         request.region_name = u'us-east-1'
