@@ -26,6 +26,11 @@ setup(
     license='Apache 2.0',
     author='vinyldns',
     author_email='vinyldns-core@googlegroups.com',
+    classifiers=[
+        'Topic :: Internet :: Name Service (DNS)',
+        'License :: OSI Approved :: Apache Software License',
+    ],
+    keywords='dns',
     description='Python client library for VinylDNS',
     long_description=long_description,
     long_description_content_type="text/markdown",
