@@ -31,11 +31,11 @@ class BotoRequestSigner(object):
     def __init__(self, index_url, access_key, secret_access_key):
         url = urlparse.urlparse(index_url)
         self.boto_connection = DynamoDBConnection(
-            host = url.hostname,
-            port = url.port,
-            aws_access_key_id = access_key,
-            aws_secret_access_key = secret_access_key,
-            is_secure = False)
+            host=url.hostname,
+            port=url.port,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            is_secure=False)
 
     @staticmethod
     def canonical_date(headers):
