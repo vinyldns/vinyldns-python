@@ -1,0 +1,29 @@
+QUESTION :
+
+
+You have got a shelf and want to put some books on it.
+
+You are given q queries of three types:
+
+L id — put a book having index id on the shelf to the left from the leftmost existing book;
+R id — put a book having index id on the shelf to the right from the rightmost existing book;
+? id — calculate the minimum number of books you need to pop from the left or from the right in such a way that the book with index id will be leftmost or rightmost.
+You can assume that the first book you will put can have any position (it does not matter) and queries of type 3 are always valid (it is guaranteed that the book in each such query is already placed). You can also assume that you don't put the same book on the shelf twice, so  i
+d
+s don't repeat in queries of first two types.
+
+Your problem is to answer all the queries of type 3 in order they appear in the input.
+
+Note that after answering the query of type 
+3
+ all the books remain on the shelf and the relative order of books does not change.
+ 
+ SOLUTION:
+ 
+ l,r=1,0
+d={}
+for _ in[0]*int(input()):
+ o,i=input().split()
+ if'L'==o:l-=1;d[i]=l
+ elif'R'==o:r+=1;d[i]=r
+ else:print(min(d[i]-l,r-d[i]))
