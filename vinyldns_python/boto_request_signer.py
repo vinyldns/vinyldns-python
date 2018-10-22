@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""TODO: Add module docstring."""
 
 import logging
 
@@ -27,8 +28,10 @@ __all__ = [u'BotoRequestSigner']
 
 
 class BotoRequestSigner(object):
+    """TODO: Add class docstring."""
 
     def __init__(self, index_url, access_key, secret_access_key):
+        """TODO: Add method docstring."""
         url = urlparse.urlparse(index_url)
         self.boto_connection = DynamoDBConnection(
             host = url.hostname,
@@ -39,8 +42,11 @@ class BotoRequestSigner(object):
 
     @staticmethod
     def canonical_date(headers):
-        """Derive canonical date (ISO 8601 string) from headers if possible,
-           or synthesize it if no usable header exists."""
+        """
+        Derive canonical date (ISO 8601 string).
+
+        Either from headers (if possible) or synthesize it if no usable header exists.
+        """
         iso_format = u'%Y%m%dT%H%M%SZ'
         http_format = u'%a, %d %b %Y %H:%M:%S GMT'
 
@@ -61,7 +67,6 @@ class BotoRequestSigner(object):
 
     def build_auth_header(self, method, path, headers, body, params=None):
         """Construct an Authorization header, using boto."""
-
         request = self.boto_connection.build_base_http_request(
             method=method,
             path=path,

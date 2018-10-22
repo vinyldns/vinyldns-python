@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""TODO: Add module docstring."""
 
 import json
 import logging
@@ -41,8 +42,10 @@ MAX_RETRIES = 30
 RETRY_WAIT = 0.05
 
 class VinylDNSClient(object):
+    """TODO: Add class docstring."""
 
     def __init__(self, url, access_key, secret_key):
+        """TODO: Add method docstring."""
         self.index_url = url
         self.headers = {
             u'Accept': u'application/json, text/plain',
@@ -61,6 +64,7 @@ class VinylDNSClient(object):
                                             status_forcelist=(500, 502, 504),
                                             session=None,
                                             ):
+        """TODO: Add method docstring."""
         session = session or requests.Session()
         retry = Retry(
             total=retries,
@@ -80,6 +84,7 @@ class VinylDNSClient(object):
                                status_forcelist=(500, 502, 504),
                                session=None,
                                ):
+        """TODO: Add method docstring."""
         session = session or requests.Session()
         retry = Retry(
             total=retries,
@@ -94,7 +99,7 @@ class VinylDNSClient(object):
         return session
 
     def make_request(self, url, method=u'GET', headers=None, body_string=None, sign_request=True, not_found_ok=False, **kwargs):
-
+        """TODO: Add method docstring."""
         # remove retries arg if provided
         kwargs.pop(u'retries', None)
 
@@ -129,7 +134,8 @@ class VinylDNSClient(object):
 
     def ping(self):
         """
-        Simple ping request
+        Perform a simple ping request.
+
         :return: the content of the response, which should be PONG
         """
         url = urljoin(self.index_url, '/ping')
@@ -139,7 +145,8 @@ class VinylDNSClient(object):
 
     def get_status(self):
         """
-        Gets processing status
+        Get processing status.
+
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/status')
@@ -150,7 +157,8 @@ class VinylDNSClient(object):
 
     def post_status(self, status):
         """
-        Update processing status
+        Update processing status.
+
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/status?processingDisabled={}'.format(status))
@@ -160,7 +168,8 @@ class VinylDNSClient(object):
 
     def color(self):
         """
-        Gets the current color for the application
+        Get the current color for the application.
+        
         :return: the content of the response, which should be "blue" or "green"
         """
         url = urljoin(self.index_url, '/color')
@@ -169,19 +178,20 @@ class VinylDNSClient(object):
 
     def health(self):
         """
-        Checks the health of the app, asserts that a 200 should be returned, otherwise
-        this will fail
+        Check the health of the app.
+        
+        Asserts that a 200 should be returned, otherwise this will fail.
         """
         url = urljoin(self.index_url, '/health')
         self.make_request(url, sign_request=False)
 
     def create_group(self, group, **kwargs):
         """
-        Creates a new group
+        Create a new group.
+
         :param group: A group dictionary that can be serialized to json
         :return: the content of the response, which should be a group json
         """
-
         url = urljoin(self.index_url, u'/groups')
         response, data = self.make_request(url, u'POST', self.headers, json.dumps(group), **kwargs)
 
@@ -189,11 +199,11 @@ class VinylDNSClient(object):
 
     def get_group(self, group_id, **kwargs):
         """
-        Gets a group
+        Get a group.
+
         :param group_id: Id of the group to get
         :return: the group json
         """
-
         url = urljoin(self.index_url, u'/groups/' + group_id)
         response, data = self.make_request(url, u'GET', self.headers, **kwargs)
 
@@ -201,11 +211,11 @@ class VinylDNSClient(object):
 
     def delete_group(self, group_id, **kwargs):
         """
-        Deletes a group
+        Delete a group.
+        
         :param group_id: Id of the group to delete
         :return: the group json
         """
-
         url = urljoin(self.index_url, u'/groups/' + group_id)
         response, data = self.make_request(url, u'DELETE', self.headers, not_found_ok=True, **kwargs)
 
@@ -213,12 +223,12 @@ class VinylDNSClient(object):
 
     def update_group(self, group_id, group, **kwargs):
         """
-        Update an existing group
+        Update an existing group.
+
         :param group_id: The id of the group being updated
         :param group: A group dictionary that can be serialized to json
         :return: the content of the response, which should be a group json
         """
-
         url = urljoin(self.index_url, u'/groups/{0}'.format(group_id))
         response, data = self.make_request(url, u'PUT', self.headers, json.dumps(group), not_found_ok=True, **kwargs)
 
@@ -226,13 +236,13 @@ class VinylDNSClient(object):
 
     def list_my_groups(self, group_name_filter=None, start_from=None, max_items=None, **kwargs):
         """
-        Retrieves my groups
+        Retrieve my groups.
+
         :param start_from: the start key of the page
         :param max_items: the page limit
         :param group_name_filter: only returns groups whose names contain filter string
         :return: the content of the response
         """
-
         args = []
         if group_name_filter:
             args.append(u'groupNameFilter={0}'.format(group_name_filter))
@@ -248,11 +258,11 @@ class VinylDNSClient(object):
 
     def list_all_my_groups(self, group_name_filter=None, **kwargs):
         """
-        Retrieves all my groups
+        Retrieve all my groups.
+
         :param group_name_filter: only returns groups whose names contain filter string
         :return: the content of the response
         """
-
         groups = []
         args = []
         if group_name_filter:
@@ -278,7 +288,8 @@ class VinylDNSClient(object):
 
     def list_members_group(self, group_id, start_from=None, max_items=None, **kwargs):
         """
-        List the members of an existing group
+        List the members of an existing group.
+
         :param group_id: the Id of an existing group
         :param start_from: the Id a member of the group
         :param max_items: the max number of items to be returned
@@ -301,7 +312,8 @@ class VinylDNSClient(object):
 
     def list_group_admins(self, group_id, **kwargs):
         """
-        returns the group admins
+        Return the group admins.
+
         :param group_id: the Id of the group
         :return: the user info of the admins
         """
@@ -312,7 +324,8 @@ class VinylDNSClient(object):
 
     def get_group_changes(self, group_id, start_from=None, max_items=None, **kwargs):
         """
-        List the changes of an existing group
+        List the changes of an existing group.
+
         :param group_id: the Id of an existing group
         :param start_from: the Id a group change
         :param max_items: the max number of items to be returned
@@ -335,7 +348,8 @@ class VinylDNSClient(object):
 
     def create_zone(self, zone, **kwargs):
         """
-        Creates a new zone with the given name and email
+        Create a new zone with the given name and email.
+
         :param zone: the zone to be created
         :return: the content of the response
         """
@@ -345,7 +359,8 @@ class VinylDNSClient(object):
 
     def update_zone(self, zone, **kwargs):
         """
-        Updates a zone
+        Update a zone.
+
         :param zone: the zone to be created
         :return: the content of the response
         """
@@ -355,7 +370,8 @@ class VinylDNSClient(object):
 
     def sync_zone(self, zone_id, **kwargs):
         """
-        Syncs a zone
+        Sync a zone.
+
         :param zone: the zone to be updated
         :return: the content of the response
         """
@@ -366,7 +382,8 @@ class VinylDNSClient(object):
 
     def delete_zone(self, zone_id, **kwargs):
         """
-        Deletes the zone for the given id
+        Delete the zone for the given id.
+
         :param zone_id: the id of the zone to be deleted
         :return: nothing, will fail if the status code was not expected
         """
@@ -377,7 +394,8 @@ class VinylDNSClient(object):
 
     def get_zone(self, zone_id, **kwargs):
         """
-        Gets a zone for the given zone id
+        Get a zone for the given zone id.
+
         :param zone_id: the id of the zone to retrieve
         :return: the zone, or will 404 if not found
         """
@@ -388,7 +406,8 @@ class VinylDNSClient(object):
 
     def get_zone_history(self, zone_id, **kwargs):
         """
-        Gets the zone history for the given zone id
+        Get the zone history for the given zone id.
+
         :param zone_id: the id of the zone to retrieve
         :return: the zone, or will 404 if not found
         """
@@ -399,9 +418,9 @@ class VinylDNSClient(object):
 
     def get_zone_change(self, zone_change, **kwargs):
         """
-        Gets a zone change with the provided id
+        Get a zone change with the provided id.
 
-        Unfortunately, there is no endpoint, so we have to get all zone history and parse
+        Unfortunately, there is no endpoint, so we have to get all zone history and parse.
         """
         zone_change_id = zone_change[u'id']
         change = None
@@ -421,7 +440,8 @@ class VinylDNSClient(object):
 
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
-        Gets the zone changes for the given zone id
+        Get the zone changes for the given zone id.
+
         :param zone_id: the id of the zone to retrieve
         :param start_from: the start key of the page
         :param max_items: the page limit
@@ -439,7 +459,8 @@ class VinylDNSClient(object):
 
     def list_recordset_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
-        Gets the recordset changes for the given zone id
+        Get the recordset changes for the given zone id.
+
         :param zone_id: the id of the zone to retrieve
         :param start_from: the start key of the page
         :param max_items: the page limit
@@ -457,7 +478,8 @@ class VinylDNSClient(object):
 
     def list_zones(self, name_filter=None, start_from=None, max_items=None, **kwargs):
         """
-        Gets a list of zones that currently exist
+        Get a list of zones that currently exist.
+
         :return: a list of zones
         """
         url = urljoin(self.index_url, u'/zones')
@@ -480,7 +502,8 @@ class VinylDNSClient(object):
 
     def create_recordset(self, recordset, **kwargs):
         """
-        Creates a new recordset
+        Create a new recordset.
+
         :param recordset: the recordset to be created
         :return: the content of the response
         """
@@ -493,7 +516,8 @@ class VinylDNSClient(object):
 
     def delete_recordset(self, zone_id, rs_id, **kwargs):
         """
-        Deletes an existing recordset
+        Delete an existing recordset.
+
         :param zone_id: the zone id the recordset belongs to
         :param rs_id: the id of the recordset to be deleted
         :return: the content of the response
@@ -505,7 +529,8 @@ class VinylDNSClient(object):
 
     def update_recordset(self, recordset, **kwargs):
         """
-        Deletes an existing recordset
+        Delete an existing recordset.
+
         :param recordset: the recordset to be updated
         :return: the content of the response
         """
@@ -516,7 +541,8 @@ class VinylDNSClient(object):
 
     def get_recordset(self, zone_id, rs_id, **kwargs):
         """
-        Gets an existing recordset
+        Get an existing recordset.
+
         :param zone_id: the zone id the recordset belongs to
         :param rs_id: the id of the recordset to be retrieved
         :return: the content of the response
@@ -528,7 +554,8 @@ class VinylDNSClient(object):
 
     def get_recordset_change(self, zone_id, rs_id, change_id, **kwargs):
         """
-        Gets an existing recordset change
+        Get an existing recordset change.
+
         :param zone_id: the zone id the recordset belongs to
         :param rs_id: the id of the recordset to be retrieved
         :param change_id: the id of the change to be retrieved
@@ -541,7 +568,8 @@ class VinylDNSClient(object):
 
     def list_recordsets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
         """
-        Retrieves all recordsets in a zone
+        Retrieve all recordsets in a zone.
+
         :param zone_id: the zone to retrieve
         :param start_from: the start key of the page
         :param max_items: the page limit
@@ -563,7 +591,8 @@ class VinylDNSClient(object):
 
     def create_batch_change(self, batch_change_input, **kwargs):
         """
-        Creates a new batch change
+        Create a new batch change.
+
         :param batch_change_input: the batchchange to be created
         :return: the content of the response
         """
@@ -573,7 +602,8 @@ class VinylDNSClient(object):
 
     def get_batch_change(self, batch_change_id, **kwargs):
         """
-        Gets an existing batch change
+        Get an existing batch change.
+
         :param batch_change_id: the unique identifier of the batchchange
         :return: the content of the response
         """
@@ -583,7 +613,8 @@ class VinylDNSClient(object):
 
     def list_batch_change_summaries(self, start_from=None, max_items=None, **kwargs):
         """
-        Gets list of user's batch change summaries
+        Get list of user's batch change summaries.
+
         :return: the content of the response
         """
         args = []
@@ -598,7 +629,7 @@ class VinylDNSClient(object):
         return data
 
     def build_vinyldns_request(self, method, path, body_data, params=None, **kwargs):
-
+        """TODO: Add method docstring."""
         if isinstance(body_data, basestring):
             body_string = body_data
         else:
@@ -619,7 +650,6 @@ class VinylDNSClient(object):
     @staticmethod
     def build_headers(new_headers, suppressed_keys):
         """Construct HTTP headers for a request."""
-
         def canonical_header_name(field_name):
             return u'-'.join(word.capitalize() for word in field_name.split(u'-'))
 
@@ -640,7 +670,8 @@ class VinylDNSClient(object):
 
     def add_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
         """
-        Puts an acl rule on the zone
+        Put an acl rule on the zone.
+
         :param zone_id: The id of the zone to attach the acl rule to
         :param acl_rule: The acl rule contents
         :param sign_request: An indicator if we should sign the request; useful for testing auth
@@ -653,7 +684,8 @@ class VinylDNSClient(object):
 
     def delete_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
         """
-        Deletes an acl rule from the zone
+        Delete an acl rule from the zone.
+
         :param zone_id: The id of the zone to remove the acl from
         :param acl_rule: The acl rule to remove
         :param sign_request:  An indicator if we should sign the request; useful for testing auth
