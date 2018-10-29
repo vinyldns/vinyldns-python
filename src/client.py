@@ -56,8 +56,9 @@ class VinylDNSClient(object):
         self.signer = BotoRequestSigner(self.index_url,
                                         access_key, secret_key)
 
-        self.session = self.__requests_retry_session
-        self.session_not_found_ok = self.__requests_retry_not_found_ok_session
+        self.session = self.__requests_retry_session()
+        self.session_not_found_ok = self.__requests_retry_not_found_ok_session()
+
 
     def __requests_retry_not_found_ok_session(self,
                                               retries=5,
