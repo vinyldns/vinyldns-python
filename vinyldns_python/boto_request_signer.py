@@ -34,18 +34,20 @@ class BotoRequestSigner(object):
         """TODO: Add method docstring."""
         url = urlparse.urlparse(index_url)
         self.boto_connection = DynamoDBConnection(
-            host = url.hostname,
-            port = url.port,
-            aws_access_key_id = access_key,
-            aws_secret_access_key = secret_access_key,
-            is_secure = False)
+            host=url.hostname,
+            port=url.port,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            is_secure=False
+        )
 
     @staticmethod
     def canonical_date(headers):
         """
         Derive canonical date (ISO 8601 string).
 
-        Either from headers (if possible) or synthesize it if no usable header exists.
+        Either from headers (if possible) or synthesize it if no
+        usable header exists.
         """
         iso_format = u'%Y%m%dT%H%M%SZ'
         http_format = u'%a, %d %b %Y %H:%M:%S GMT'
@@ -62,7 +64,10 @@ class BotoRequestSigner(object):
         http_date = try_parse(headers.get(u'Date'), http_format)
         fallback_date = datetime.utcnow()
 
-        date = next(d for d in [amz_date, http_date, fallback_date] if d is not None)
+        date = next(
+            d for d in [amz_date, http_date, fallback_date]
+            if d is not None
+        )
         return date.strftime(iso_format)
 
     def build_auth_header(self, method, path, headers, body, params=None):
@@ -83,18 +88,39 @@ class BotoRequestSigner(object):
         request.region_name = u'us-east-1'
         request.service_name = u'VinylDNS'
 
-        credential_scope = u'/'.join([request.timestamp, request.region_name, request.service_name, u'aws4_request'])
+        credential_scope = u'/'.join(
+            [
+                request.timestamp,
+                request.region_name,
+                request.service_name,
+                u'aws4_request'
+            ]
+        )
 
         canonical_request = auth_handler.canonical_request(request)
         hashed_request = sha256(canonical_request.encode(u'utf-8')).hexdigest()
 
-        string_to_sign = u'\n'.join([u'AWS4-HMAC-SHA256', timestamp, credential_scope, hashed_request])
+        string_to_sign = u'\n'.join(
+            [
+                u'AWS4-HMAC-SHA256',
+                timestamp,
+                credential_scope,
+                hashed_request
+            ]
+        )
         signature = auth_handler.signature(request, string_to_sign)
         headers_to_sign = auth_handler.headers_to_sign(request)
 
-        auth_header = u','.join([
-            u'AWS4-HMAC-SHA256 Credential=%s' % auth_handler.scope(request),
-            u'SignedHeaders=%s' % auth_handler.signed_headers(headers_to_sign),
-            u'Signature=%s' % signature])
+        auth_header = u','.join(
+            [
+                u'AWS4-HMAC-SHA256 Credential=%s' % auth_handler.scope(
+                    request
+                ),
+                u'SignedHeaders=%s' % auth_handler.signed_headers(
+                    headers_to_sign
+                ),
+                u'Signature=%s' % signature
+            ]
+        )
 
         return auth_header
