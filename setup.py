@@ -19,7 +19,7 @@ with open('README.md') as f:
 
 setup(
     name='vinyldns-python',
-    version='0.7.0',
+    version='0.0.1',
     packages=['vinyldns_python'],
     package_dir={'vinyldns_python':'src'},
     url='https://github.com/vinyldns/vinyldns-python',
