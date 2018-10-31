@@ -11,6 +11,14 @@ To run, `pip install vinyldns-python` and then:
 >>> from vinyldns_python import *
 >>> local_client = client.VinylDNSClient("ApiEndpoint", "UserAccessKey", "UserSecretKey")
 >>> local_client.list_zones()
+>>>
+>>> # If all of the following environments are set
+>>> # - VINYLDNS_API_URL
+>>> # - VINYLDNS_ACCESS_KEY_ID
+>>> # - VINYLDNS_SECRET_ACCESS_KEY
+>>> from vinyldns_python import *
+>>> local_client = client.VinylDNSClient.from_env()
+>>> local_client.list_zones()
 ```
 
 ## Local Development

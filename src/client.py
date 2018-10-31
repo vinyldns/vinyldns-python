@@ -15,6 +15,7 @@
 
 import json
 import logging
+import os
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -59,6 +60,19 @@ class VinylDNSClient(object):
         self.session = self.__requests_retry_session()
         self.session_not_found_ok = self.__requests_retry_not_found_ok_session()
 
+    @classmethod
+    def from_env(cls):
+        url = cls.__get_from_env('VINYLDNS_API_URL')
+        access_key = cls.__get_from_env('VINYLDNS_ACCESS_KEY_ID')
+        secret_key = cls.__get_from_env('VINYLDNS_SECRET_ACCESS_KEY')
+        return cls(url, access_key, secret_key)
+
+    @staticmethod
+    def __get_from_env(env_key):
+        env_var = os.environ.get(env_key)
+        if env_var is None:
+            raise Exception('Set \'{}\' to use vinyldns-python'.format(env_key))
+        return env_var
 
     def __requests_retry_not_found_ok_session(self,
                                               retries=5,
@@ -209,7 +223,7 @@ class VinylDNSClient(object):
     def color(self):
         """
         Get the current color for the application.
-        
+
         :return: the content of the response, which should be "blue" or "green"
         """
         url = urljoin(self.index_url, '/color')
@@ -219,7 +233,7 @@ class VinylDNSClient(object):
     def health(self):
         """
         Check the health of the app.
-        
+
         Asserts that a 200 should be returned, otherwise this will fail.
         """
         url = urljoin(self.index_url, '/health')
@@ -252,7 +266,7 @@ class VinylDNSClient(object):
     def delete_group(self, group_id, **kwargs):
         """
         Delete a group.
-        
+
         :param group_id: Id of the group to delete
         :return: the group json
         """
