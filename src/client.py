@@ -63,7 +63,7 @@ class VinylDNSClient(object):
     @classmethod
     def from_env(cls):
         """
-        Create client from environtment variables
+        Create client from environtment variables.
 
         :return: a client instance
         """
