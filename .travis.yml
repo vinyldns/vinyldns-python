@@ -7,5 +7,5 @@ install:
   - python -m pip install flake8 pydocstyle
 
 script:
-  - flake8 vinyldns_python
-  - pydocstyle vinyldns_python
+  - flake8 src
+  - pydocstyle src
