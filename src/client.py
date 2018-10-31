@@ -62,6 +62,11 @@ class VinylDNSClient(object):
 
     @classmethod
     def from_env(cls):
+        """
+        Create client from environtment variables
+
+        :return: a client instance
+        """
         url = cls.__get_from_env('VINYLDNS_API_URL')
         access_key = cls.__get_from_env('VINYLDNS_ACCESS_KEY_ID')
         secret_key = cls.__get_from_env('VINYLDNS_SECRET_ACCESS_KEY')
