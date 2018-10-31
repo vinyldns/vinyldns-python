@@ -67,17 +67,15 @@ class VinylDNSClient(object):
 
         :return: a client instance
         """
-        url = cls.__get_from_env('VINYLDNS_API_URL')
-        access_key = cls.__get_from_env('VINYLDNS_ACCESS_KEY_ID')
-        secret_key = cls.__get_from_env('VINYLDNS_SECRET_ACCESS_KEY')
-        return cls(url, access_key, secret_key)
+        url = os.environ.get('VINYLDNS_API_URL')
+        access_key = os.environ.get('VINYLDNS_ACCESS_KEY_ID')
+        secret_key = os.environ.get('VINYLDNS_SECRET_ACCESS_KEY')
 
-    @staticmethod
-    def __get_from_env(env_key):
-        env_var = os.environ.get(env_key)
-        if env_var is None:
-            raise Exception('Set \'{}\' to use vinyldns-python'.format(env_key))
-        return env_var
+        if url is None or access_key is None or secret_key is None:
+            raise Exception('\'VINYLDNS_API_URL\', \'VINYLDNS_ACCESS_KEY_ID\', '
+                            '\'VINYLDNS_SECRET_ACCESS_KEY\' environment variables'
+                            'are required.')
+        return cls(url, access_key, secret_key)
 
     def __requests_retry_not_found_ok_session(self,
                                               retries=5,
