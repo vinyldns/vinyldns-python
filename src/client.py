@@ -22,7 +22,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 # TODO: Didn't like this boto request signer, fix when moving back
-from boto_request_signer import BotoRequestSigner
+from src.boto_request_signer import BotoRequestSigner
 
 # Python 2/3 compatibility
 from requests.compat import urljoin, urlparse, urlsplit
