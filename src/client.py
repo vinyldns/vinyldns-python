@@ -135,7 +135,7 @@ class VinylDNSClient(object):
 
         if sign_request:
             signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
-                                                                   with_headers=headers or {}, **kwargs)
+                                                                        with_headers=headers or {}, **kwargs)
         else:
             signed_headers = headers or {}
             signed_body = body_string
