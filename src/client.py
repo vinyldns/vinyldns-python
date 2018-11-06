@@ -115,7 +115,8 @@ class VinylDNSClient(object):
         session.mount(u'https://', adapter)
         return session
 
-    def __make_request(self, url, method=u'GET', headers=None, body_string=None, sign_request=True, not_found_ok=False, **kwargs):
+    def __make_request(self, url, method=u'GET', headers=None, body_string=None,
+                       sign_request=True, not_found_ok=False, **kwargs):
 
         # remove retries arg if provided
         kwargs.pop(u'retries', None)
@@ -129,24 +130,25 @@ class VinylDNSClient(object):
         if query:
             # the problem with parse_qs is that it will return a list for ALL params, even if they are a single value
             # we need to essentially flatten the params if a param has only one value
-            query = dict((k, v if len(v)>1 else v[0])
+            query = dict((k, v if len(v) > 1 else v[0])
                          for k, v in iteritems(query))
 
         if sign_request:
             signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
-                                                                   with_headers=headers or {}, **kwargs)
+                                                                        with_headers=headers or {}, **kwargs)
         else:
             signed_headers = headers or {}
             signed_body = body_string
 
         if not_found_ok:
-            response = self.session_not_found_ok.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
+            response = self.session_not_found_ok.request(method, url, data=signed_body,
+                                                         headers=signed_headers, **kwargs)
         else:
             response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
         try:
             return response.status_code, response.json()
-        except:
+        except Exception:
             return response.status_code, response.text
 
     def __build_vinyldns_request(self, method, path, body_data, params=None, **kwargs):
@@ -593,7 +595,9 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(recordset[u'zoneId'], recordset[u'id']))
 
-        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(recordset), not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'PUT', self.headers,
+                                             json.dumps(recordset), not_found_ok=True, **kwargs)
+
         return data
 
     def get_recordset(self, zone_id, rs_id, **kwargs):
@@ -695,7 +699,8 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
-        response, data = self.__make_request(url, 'PUT', self.headers, json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+        response, data = self.__make_request(url, 'PUT', self.headers,
+                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
 
         return data
 
@@ -709,6 +714,7 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
-        response, data = self.__make_request(url, 'DELETE', self.headers, json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+        response, data = self.__make_request(url, 'DELETE', self.headers,
+                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
 
         return data
