@@ -1,3 +1,15 @@
-# License information
+graft src
+graft ci
+graft tests
+
+include .coveragerc
+
+include AUTHORS.rst
+include CHANGELOG.rst
+include CONTRIBUTING.rst
 include LICENSE
-include NOTICE
+include README.rst
+
+include tox.ini .travis.yml appveyor.yml
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib

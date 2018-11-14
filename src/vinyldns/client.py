@@ -22,7 +22,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 # TODO: Didn't like this boto request signer, fix when moving back
-from src.boto_request_signer import BotoRequestSigner
+from vinyldns.boto_request_signer import BotoRequestSigner
 
 # Python 2/3 compatibility
 from requests.compat import urljoin, urlparse, urlsplit
@@ -114,7 +114,6 @@ class VinylDNSClient(object):
 
         signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
                                                                     with_headers=headers or {}, **kwargs)
-
         response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
         try:
@@ -161,6 +160,38 @@ class VinylDNSClient(object):
                 del headers[k]
 
         return headers
+
+    def ping(self):
+        """
+        Perform a simple ping request.
+
+        :return: the content of the response, which should be PONG
+        """
+        url = urljoin(self.index_url, '/ping')
+
+        response, data = self.__make_request(url)
+        return data
+
+    def get_status(self):
+        """
+        Get processing status.
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, '/status')
+
+        response, data = self.__make_request(url)
+
+        return data
+
+    def health(self):
+        """
+        Check the health of the app.
+
+        Asserts that a 200 should be returned, otherwise this will fail.
+        """
+        url = urljoin(self.index_url, '/health')
+        self.__make_request(url, sign_request=False)
 
     def create_group(self, group, **kwargs):
         """
@@ -323,7 +354,7 @@ class VinylDNSClient(object):
 
         return data
 
-    def connect_zone(self, zone, **kwargs):
+    def create_zone(self, zone, **kwargs):
         """
         Create a new zone with the given name and email.
 
@@ -357,7 +388,7 @@ class VinylDNSClient(object):
 
         return data
 
-    def abandon_zone(self, zone_id, **kwargs):
+    def delete_zone(self, zone_id, **kwargs):
         """
         Delete the zone for the given id.
 
@@ -607,30 +638,32 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
-    def add_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
+    def add_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
         """
         Put an acl rule on the zone.
 
         :param zone_id: The id of the zone to attach the acl rule to
         :param acl_rule: The acl rule contents
+        :param sign_request: An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'PUT', self.headers,
-                                             json.dumps(acl_rule), **kwargs)
+                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
 
         return data
 
-    def delete_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
+    def delete_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
         """
         Delete an acl rule from the zone.
 
         :param zone_id: The id of the zone to remove the acl from
         :param acl_rule: The acl rule to remove
+        :param sign_request:  An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'DELETE', self.headers,
-                                             json.dumps(acl_rule), **kwargs)
+                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
 
         return data
