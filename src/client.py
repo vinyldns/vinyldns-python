@@ -95,8 +95,7 @@ class VinylDNSClient(object):
         session.mount(u'https://', adapter)
         return session
 
-    def __make_request(self, url, method=u'GET', headers=None, body_string=None,
-                       sign_request=True, **kwargs):
+    def __make_request(self, url, method=u'GET', headers=None, body_string=None, **kwargs):
 
         # remove retries arg if provided
         kwargs.pop(u'retries', None)
@@ -113,18 +112,10 @@ class VinylDNSClient(object):
             query = dict((k, v if len(v) > 1 else v[0])
                          for k, v in iteritems(query))
 
-        if sign_request:
-            signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
-                                                                        with_headers=headers or {}, **kwargs)
-        else:
-            signed_headers = headers or {}
-            signed_body = body_string
+        signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
+                                                                    with_headers=headers or {}, **kwargs)
 
-        if not_found_ok:
-            response = self.session_not_found_ok.request(method, url, data=signed_body,
-                                                         headers=signed_headers, **kwargs)
-        else:
-            response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
+        response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
         try:
             return response.status_code, response.json()
@@ -616,32 +607,30 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
-    def add_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
+    def add_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """
         Put an acl rule on the zone.
 
         :param zone_id: The id of the zone to attach the acl rule to
         :param acl_rule: The acl rule contents
-        :param sign_request: An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'PUT', self.headers,
-                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+                                             json.dumps(acl_rule), **kwargs)
 
         return data
 
-    def delete_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
+    def delete_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """
         Delete an acl rule from the zone.
 
         :param zone_id: The id of the zone to remove the acl from
         :param acl_rule: The acl rule to remove
-        :param sign_request:  An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'DELETE', self.headers,
-                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+                                             json.dumps(acl_rule), **kwargs)
 
         return data
