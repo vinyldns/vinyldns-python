@@ -191,59 +191,6 @@ class VinylDNSClient(object):
 
         return headers
 
-    def ping(self):
-        """
-        Perform a simple ping request.
-
-        :return: the content of the response, which should be PONG
-        """
-        url = urljoin(self.index_url, '/ping')
-
-        response, data = self.__make_request(url)
-        return data
-
-    def get_status(self):
-        """
-        Get processing status.
-
-        :return: the content of the response
-        """
-        url = urljoin(self.index_url, '/status')
-
-        response, data = self.__make_request(url)
-
-        return data
-
-    def post_status(self, status):
-        """
-        Update processing status.
-
-        :return: the content of the response
-        """
-        url = urljoin(self.index_url, '/status?processingDisabled={}'.format(status))
-        response, data = self.__make_request(url, 'POST', self.headers)
-
-        return data
-
-    def color(self):
-        """
-        Get the current color for the application.
-
-        :return: the content of the response, which should be "blue" or "green"
-        """
-        url = urljoin(self.index_url, '/color')
-        response, data = self.__make_request(url)
-        return data
-
-    def health(self):
-        """
-        Check the health of the app.
-
-        Asserts that a 200 should be returned, otherwise this will fail.
-        """
-        url = urljoin(self.index_url, '/health')
-        self.__make_request(url, sign_request=False)
-
     def create_group(self, group, **kwargs):
         """
         Create a new group.
@@ -405,7 +352,7 @@ class VinylDNSClient(object):
 
         return data
 
-    def create_zone(self, zone, **kwargs):
+    def connect_zone(self, zone, **kwargs):
         """
         Create a new zone with the given name and email.
 
@@ -439,7 +386,7 @@ class VinylDNSClient(object):
 
         return data
 
-    def delete_zone(self, zone_id, **kwargs):
+    def abandon_zone(self, zone_id, **kwargs):
         """
         Delete the zone for the given id.
 
