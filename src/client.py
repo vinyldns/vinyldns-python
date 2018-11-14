@@ -58,7 +58,6 @@ class VinylDNSClient(object):
                                         access_key, secret_key)
 
         self.session = self.__requests_retry_session()
-        self.session_not_found_ok = self.__requests_retry_not_found_ok_session()
 
     @classmethod
     def from_env(cls):
@@ -76,25 +75,6 @@ class VinylDNSClient(object):
                             '\'VINYLDNS_SECRET_ACCESS_KEY\' environment variables'
                             'are required.')
         return cls(url, access_key, secret_key)
-
-    def __requests_retry_not_found_ok_session(self,
-                                              retries=5,
-                                              backoff_factor=0.4,
-                                              status_forcelist=(500, 502, 504),
-                                              session=None):
-
-        session = session or requests.Session()
-        retry = Retry(
-            total=retries,
-            read=retries,
-            connect=retries,
-            backoff_factor=backoff_factor,
-            status_forcelist=status_forcelist,
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        session.mount(u'http://', adapter)
-        session.mount(u'https://', adapter)
-        return session
 
     def __requests_retry_session(self,
                                  retries=5,
@@ -116,7 +96,7 @@ class VinylDNSClient(object):
         return session
 
     def __make_request(self, url, method=u'GET', headers=None, body_string=None,
-                       sign_request=True, not_found_ok=False, **kwargs):
+                       sign_request=True, **kwargs):
 
         # remove retries arg if provided
         kwargs.pop(u'retries', None)
@@ -223,7 +203,7 @@ class VinylDNSClient(object):
         :return: the group json
         """
         url = urljoin(self.index_url, u'/groups/' + group_id)
-        response, data = self.__make_request(url, u'DELETE', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
 
         return data
 
@@ -236,7 +216,7 @@ class VinylDNSClient(object):
         :return: the content of the response, which should be a group json
         """
         url = urljoin(self.index_url, u'/groups/{0}'.format(group_id))
-        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(group), not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(group), **kwargs)
 
         return data
 
@@ -312,7 +292,7 @@ class VinylDNSClient(object):
                                                                                                    start_from,
                                                                                                    max_items))
 
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return data
 
@@ -324,7 +304,7 @@ class VinylDNSClient(object):
         :return: the user info of the admins
         """
         url = urljoin(self.index_url, u'/groups/{0}/admins'.format(group_id))
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return data
 
@@ -371,7 +351,7 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone[u'id']))
-        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(zone), not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(zone), **kwargs)
         return data
 
     def sync_zone(self, zone_id, **kwargs):
@@ -382,7 +362,7 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/{0}/sync'.format(zone_id))
-        response, data = self.__make_request(url, u'POST', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'POST', self.headers, **kwargs)
 
         return data
 
@@ -394,7 +374,7 @@ class VinylDNSClient(object):
         :return: nothing, will fail if the status code was not expected
         """
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
-        response, data = self.__make_request(url, u'DELETE', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
 
         return data
 
@@ -406,7 +386,7 @@ class VinylDNSClient(object):
         :return: the zone, or will 404 if not found
         """
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return data
 
@@ -419,7 +399,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/history'.format(zone_id))
 
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
     def get_zone_change(self, zone_change, **kwargs):
@@ -460,7 +440,7 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
         url = urljoin(self.index_url, u'/zones/{0}/changes'.format(zone_id)) + u'?' + u'&'.join(args)
 
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
     def list_recordset_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
@@ -479,7 +459,7 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
         url = urljoin(self.index_url, u'/zones/{0}/recordsetchanges'.format(zone_id)) + u'?' + u'&'.join(args)
 
-        response, data = self.__make_request(url, u'GET', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
     def list_zones(self, name_filter=None, start_from=None, max_items=None, **kwargs):
@@ -530,7 +510,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
-        response, data = self.__make_request(url, u'DELETE', self.headers, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
         return data
 
     def update_recordset(self, recordset, **kwargs):
@@ -543,7 +523,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(recordset[u'zoneId'], recordset[u'id']))
 
         response, data = self.__make_request(url, u'PUT', self.headers,
-                                             json.dumps(recordset), not_found_ok=True, **kwargs)
+                                             json.dumps(recordset), **kwargs)
 
         return data
 
@@ -557,7 +537,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
-        response, data = self.__make_request(url, u'GET', self.headers, None, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
         return data
 
     def get_recordset_change(self, zone_id, rs_id, change_id, **kwargs):
@@ -571,7 +551,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}/changes/{2}'.format(zone_id, rs_id, change_id))
 
-        response, data = self.__make_request(url, u'GET', self.headers, None, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
         return data
 
     def list_recordsets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
@@ -616,7 +596,7 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}'.format(batch_change_id))
-        response, data = self.__make_request(url, u'GET', self.headers, None, not_found_ok=True, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
         return data
 
     def list_batch_change_summaries(self, start_from=None, max_items=None, **kwargs):
