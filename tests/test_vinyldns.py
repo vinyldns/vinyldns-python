@@ -13,9 +13,11 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-import responses
 import pytest
-from vinyldns.client import *
+import responses
+
+from vinyldns.client import VinylDNSClient
+
 
 @pytest.fixture
 def mocked_responses():

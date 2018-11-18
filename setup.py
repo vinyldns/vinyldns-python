@@ -16,6 +16,7 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
+
 # Allows one to simply > python3 setup.py test
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
@@ -30,10 +31,11 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
+        # import here, cause outside the eggs aren't loaded
         import pytest
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
+
 
 def read(*names, **kwargs):
     with io.open(
@@ -44,7 +46,7 @@ def read(*names, **kwargs):
 
 
 setup(
-    cmdclass = {'test': PyTest},
+    cmdclass={'test': PyTest},
     name='vinyldns',
     version='0.1.0',
     license='Apache Software License 2.0',
