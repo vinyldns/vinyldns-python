@@ -161,17 +161,6 @@ class VinylDNSClient(object):
 
         return headers
 
-    def ping(self):
-        """
-        Perform a simple ping request.
-
-        :return: the content of the response, which should be PONG
-        """
-        url = urljoin(self.index_url, '/ping')
-
-        response, data = self.__make_request(url)
-        return data
-
     def get_status(self):
         """
         Get processing status.

@@ -76,8 +76,11 @@ To use the project:
 
 .. code-block:: python
 
-    import vinyldns
-    vinyldns.longest()
+    from vinyldns.client import *
+    client = VinylDNSClient(<api endpoint>, <user access key>, <user secret key>)
+
+    # now, see the zones you have access to
+    zones = client.list_zones()
 
 
 Development
@@ -86,6 +89,14 @@ Development
 To run the all tests run::
 
     tox
+
+To run tests in a single environment run::
+
+    tox -e py36
+
+To run tests without tox (faster) run the following, -a are passed to pytest::
+
+    python3 setup.py test -a "-vv"
 
 Note, to combine the coverage data from all the tox environments run:
 

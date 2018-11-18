@@ -2,4 +2,5 @@
 Authors
 =======
 
-* Paul James Cleary - https://vinyldns.io
+* Rebecca Star
+* Paul James Cleary

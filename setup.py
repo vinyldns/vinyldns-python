@@ -16,7 +16,7 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
-
+# Allows one to simply > python3 setup.py test
 class PyTest(TestCommand):
     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
 
@@ -34,7 +34,6 @@ class PyTest(TestCommand):
         import pytest
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
-
 
 def read(*names, **kwargs):
     with io.open(
@@ -86,7 +85,7 @@ setup(
     ],
     install_requires=[
         'boto==2.48.0',
-        'future==0.17.0',
+        'future==0.17.1',
         'requests==2.20.0',
     ],
     tests_require=[

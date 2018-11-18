@@ -13,7 +13,6 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-import requests
 import responses
 import pytest
 from vinyldns.client import *
@@ -23,10 +22,15 @@ def mocked_responses():
     with responses.RequestsMock() as rsps:
         yield rsps
 
-def test_ping(mocked_responses):
+
+@pytest.fixture
+def vinyldns_client():
+    return VinylDNSClient('http://test.com', 'ok', 'ok')
+
+
+def test_get_status(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.GET, 'http://test.com/ping',
+        responses.GET, 'http://test.com/status',
         body='ok', status=200)
-    client = VinylDNSClient('http://test.com', 'ok', 'ok')
-    r = client.ping()
+    r = vinyldns_client.get_status()
     assert r == 'ok'
