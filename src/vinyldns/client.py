@@ -344,7 +344,7 @@ class VinylDNSClient(object):
 
         return data
 
-    def create_zone(self, zone, **kwargs):
+    def connect_zone(self, zone, **kwargs):
         """
         Create a new zone with the given name and email.
 
@@ -378,9 +378,10 @@ class VinylDNSClient(object):
 
         return data
 
-    def delete_zone(self, zone_id, **kwargs):
+    def abandon_zone(self, zone_id, **kwargs):
         """
-        Delete the zone for the given id.
+        Delete the zone for the given id.  This does not delete the zone from the DNS server, just
+        abandons it from VinylDNS
 
         :param zone_id: the id of the zone to be deleted
         :return: nothing, will fail if the status code was not expected
@@ -628,32 +629,30 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data
 
-    def add_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
+    def add_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """
         Put an acl rule on the zone.
 
         :param zone_id: The id of the zone to attach the acl rule to
         :param acl_rule: The acl rule contents
-        :param sign_request: An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'PUT', self.headers,
-                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+                                             json.dumps(acl_rule), **kwargs)
 
         return data
 
-    def delete_zone_acl_rule(self, zone_id, acl_rule, sign_request=True, **kwargs):
+    def delete_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """
         Delete an acl rule from the zone.
 
         :param zone_id: The id of the zone to remove the acl from
         :param acl_rule: The acl rule to remove
-        :param sign_request:  An indicator if we should sign the request; useful for testing auth
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'DELETE', self.headers,
-                                             json.dumps(acl_rule), sign_request=sign_request, **kwargs)
+                                             json.dumps(acl_rule), **kwargs)
 
         return data
