@@ -427,40 +427,6 @@ class VinylDNSClient(object):
 
         return data
 
-    def get_zone_history(self, zone_id, **kwargs):
-        """
-        Get the zone history for the given zone id.
-
-        :param zone_id: the id of the zone to retrieve
-        :return: the zone, or will 404 if not found
-        """
-        url = urljoin(self.index_url, u'/zones/{0}/history'.format(zone_id))
-
-        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-        return data
-
-    def get_zone_change(self, zone_change, **kwargs):
-        """
-        Get a zone change with the provided id.
-
-        Unfortunately, there is no endpoint, so we have to get all zone history and parse.
-        """
-        zone_change_id = zone_change[u'id']
-        change = None
-
-        def change_id_match(possible_match):
-            return possible_match[u'id'] == zone_change_id
-
-        history = self.get_zone_history(zone_change[u'zone'][u'id'])
-        if u'zoneChanges' in history:
-            zone_changes = history[u'zoneChanges']
-            matching_changes = filter(change_id_match, zone_changes)
-
-            if len(matching_changes) > 0:
-                change = matching_changes[0]
-
-        return change
-
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
         Get the zone changes for the given zone id.
