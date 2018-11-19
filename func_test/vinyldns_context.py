@@ -32,12 +32,8 @@ class VinylDNSContext(object):
             'adminGroupId': self.group['id']
         }
         zone_change = self.client.create_zone(zone)
-        print("!!!!!!!!!!CHANGE:\n")
-        print(zone_change)
         assert 'zone' in zone_change
         self.zone = zone_change['zone']
-        print("ZONE IS:::")
-        print(self.zone)
         wait_until_zone_exists(self.client, self.zone['id'])
 
 
@@ -50,8 +46,6 @@ class VinylDNSContext(object):
         groups = self.client.list_all_my_groups()
         for group in groups:
             self.client.delete_group(group['id'])
-        print("FINAL GRPS")
-        print(self.client.list_all_my_groups())
 
     def clear_zones(self):
         # Get the groups for the ok user
