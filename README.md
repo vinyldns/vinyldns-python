@@ -44,7 +44,7 @@ run `python3 setup.pyt test -a "-k my_test"`
 
 **Running a full build**
 When you are finished writing your code, you will want to run everything, including linters.  The
-simplest way to do this is to run `tox -e py36`, which will run everything only against python 3.6.
+simplest way to do this is to run `tox -e check,py36`, which will run static checks and run unit tests
 
 If you see any failures / warnings, correct them until `tox` runs successfully.
 
@@ -53,5 +53,5 @@ See the [quickstart](https://github.com/vinyldns/vinyldns/blob/master/README.md#
 VinylDNS api for details on how to start up a local instance of the api in docker. With that
 running, you can make requests with the following client details:
 ```python
-local_client = client.VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
+local_client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
 ``` 
