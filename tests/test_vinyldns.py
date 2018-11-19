@@ -13,11 +13,9 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-import json
 import responses
 import pytest
-from vinyldns.client import VinylDNSClient
-
+from vinyldns.client import *
 
 @pytest.fixture
 def mocked_responses():
@@ -31,9 +29,8 @@ def vinyldns_client():
 
 
 def test_get_group(mocked_responses, vinyldns_client):
-    group_data = {'name': 'new-group'}
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/123',
-        body=json.dumps(group_data), status=200)
+        body='ok', status=200)
     r = vinyldns_client.get_group('123')
-    assert r == group_data
+    assert r == 'ok'
