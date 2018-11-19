@@ -15,7 +15,8 @@
 
 import responses
 import pytest
-from vinyldns.client import *
+from vinyldns.client import VinylDNSClient
+
 
 @pytest.fixture
 def mocked_responses():

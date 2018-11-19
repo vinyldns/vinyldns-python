@@ -39,7 +39,7 @@ class PyTest(TestCommand):
         self.test_suite = True
 
     def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
+        # import here, cause outside the eggs aren't loaded
         import pytest
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
@@ -49,7 +49,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(
-    cmdclass = {'test': PyTest},
+    cmdclass={'test': PyTest},
     name='vinyldns',
     version='0.1.0',
     packages=find_packages('src'),
