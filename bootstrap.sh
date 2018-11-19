@@ -5,8 +5,5 @@ if [ ! -d "./.virtualenv" ]; then
     virtualenv --clear --python="$(which python3)" ./.virtualenv
 fi
 
-if ! diff ./requirements.txt ./.virtualenv/requirements.txt &> /dev/null; then
-     echo "Installing dependencies..."
-     .virtualenv/bin/python ./.virtualenv/bin/pip install -r ./requirements.txt
-     cp ./requirements.txt ./.virtualenv/
-fi
+ echo "Installing dependencies..."
+ python3 setup.py install
