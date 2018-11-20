@@ -13,9 +13,12 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
+import json
 import responses
 import pytest
 from vinyldns.client import VinylDNSClient
+from vinyldns.zone import *
+from vinyldns.serdes import *
 
 
 @pytest.fixture
@@ -30,8 +33,24 @@ def vinyldns_client():
 
 
 def test_get_group(mocked_responses, vinyldns_client):
+    import json
+    g = {'name': 'ok'}
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/123',
-        body='ok', status=200)
+        body=json.dumps(g), status=200)
     r = vinyldns_client.get_group('123')
-    assert r == 'ok'
+    assert r['name'] == 'ok'
+
+
+def test_zone():
+    acl_rule = ACLRule('Read', 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
+    conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
+    zone = Zone(id='foo', name='bar', email='test@test.com', admin_group_id='foo', connection=conn,
+                transfer_connection=conn, acl=ZoneACL([acl_rule]))
+    s = to_json_string(zone)
+    print(json.dumps(s, indent=4))
+    z = from_json_string(s, Zone.from_dict)
+
+    assert z.name == zone.name
+    assert z.connection.primary_server == zone.connection.primary_server
+    assert z.acl.rules[0].access_level == acl_rule.access_level
