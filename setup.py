@@ -50,8 +50,8 @@ with open('README.md') as f:
 
 setup(
     cmdclass={'test': PyTest},
-    name='vinyldns',
-    version='0.1.0',
+    name='vinyldns-python',
+    version='0.0.2',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
