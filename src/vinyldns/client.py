@@ -43,6 +43,29 @@ __all__ = [u'VinylDNSClient', u'MAX_RETRIES', u'RETRY_WAIT']
 MAX_RETRIES = 30
 RETRY_WAIT = 0.05
 
+class ClientError(Exception):
+    """Base class for custom exceptions"""
+    pass
+
+class BadRequestError(ClientError):
+    """400 Bad Request error"""
+    pass
+
+class UnauthorizedError(ClientError):
+    """401 Unauthorized error"""
+    pass
+
+class ForbiddenError(ClientError):
+    """403 Forbidden Error"""
+    pass
+
+class ConflictError(ClientError):
+    """409 Conflict error"""
+    pass
+
+class UnprocessableError(ClientError):
+    """422 Unprocessable Entity error"""
+    pass
 
 class VinylDNSClient(object):
     """TODO: Add class docstring."""
@@ -117,10 +140,26 @@ class VinylDNSClient(object):
                                                                     with_headers=headers or {}, **kwargs)
         response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
-        try:
+        return self.__check_response(response)
+
+    def __check_response(self, response):
+        status = response.status_code
+        if status == 200 or status == 202:
             return response.status_code, response.json()
-        except Exception:
-            return response.status_code, response.text
+        elif status == 400:
+            raise BadRequestError(response.text)
+        elif status == 401:
+            raise UnauthorizedError(response.text)
+        elif status == 403:
+            raise ForbiddenError(response.text)
+        elif status == 404:
+            return 404, None
+        elif status == 409:
+            raise ConflictError(response.text)
+        elif status == 422:
+            raise UnprocessableError(response.text)
+        else:
+            raise ClientError(response.text)
 
     def __build_vinyldns_request(self, method, path, body_data, params=None, **kwargs):
 
@@ -229,9 +268,11 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
-        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        status_code, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        response = self.__handle_response(status_code, data)
+
+        return response
 
     def list_all_my_groups(self, group_name_filter=None, **kwargs):
         """
