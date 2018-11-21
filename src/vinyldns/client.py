@@ -43,29 +43,36 @@ __all__ = [u'VinylDNSClient', u'MAX_RETRIES', u'RETRY_WAIT']
 MAX_RETRIES = 30
 RETRY_WAIT = 0.05
 
+
 class ClientError(Exception):
     """Base class for custom exceptions"""
     pass
+
 
 class BadRequestError(ClientError):
     """400 Bad Request error"""
     pass
 
+
 class UnauthorizedError(ClientError):
     """401 Unauthorized error"""
     pass
+
 
 class ForbiddenError(ClientError):
     """403 Forbidden Error"""
     pass
 
+
 class ConflictError(ClientError):
     """409 Conflict error"""
     pass
 
+
 class UnprocessableError(ClientError):
     """422 Unprocessable Entity error"""
     pass
+
 
 class VinylDNSClient(object):
     """TODO: Add class docstring."""
@@ -268,11 +275,9 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
-        status_code, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        response = self.__handle_response(status_code, data)
-
-        return response
+        return data
 
     def list_all_my_groups(self, group_name_filter=None, **kwargs):
         """
