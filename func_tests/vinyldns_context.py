@@ -2,15 +2,15 @@ import sys
 sys.path.append('../')
 sys.path.append('./')
 import pytest
-from src import *
-from func_test.utils import *
+from vinyldns.client import VinylDNSClient
+from func_tests.utils import *
 
 class VinylDNSContext(object):
     """
     Creates the groups and zones needed for other tests
     """
     def __init__(self):
-        self.client = client.VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
+        self.client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
         self.tear_down()
         self.group = None
 
@@ -31,7 +31,7 @@ class VinylDNSContext(object):
             'shared': False,
             'adminGroupId': self.group['id']
         }
-        zone_change = self.client.create_zone(zone)
+        zone_change = self.client.connect_zone(zone)
         assert 'zone' in zone_change
         self.zone = zone_change['zone']
         wait_until_zone_exists(self.client, self.zone['id'])
@@ -60,7 +60,7 @@ class VinylDNSContext(object):
         zoneids_to_delete = map(lambda x: x['id'], zones_to_delete)
 
         for id in zoneids_to_delete:
-            self.client.delete_zone(id)
+            self.client.abandon_zone(id)
             wait_until_zone_deleted(self.client, id)
 
 
