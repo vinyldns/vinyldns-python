@@ -42,6 +42,15 @@ Unit tests are developed using [pytest](https://docs.pytest.org/en/latest/).  We
 To run unit tests, you can simply run `python3 setup.py test`.  To target a specific test, you can
 run `python3 setup.py test -a "-k my_test"`
 
+**Functional Tests**
+Functional tests are also developed with pytest. These tests run against a local instance of VinylDNS. Note that for now
+they are not tied into our travis build, so they must be run locally for validation.
+
+To run the func tests, first startup a local VinylDNS api instance with `./docker/docker-up-vinyldns.sh`. Then from
+your virtualenv, run `python3 setup.py test -a "func_tests"`.
+
+After testing is complete, you should clean up the running VinylDNS api with `./docker/remove-vinyl-containers.sh `.
+
 **Running a full build**
 When you are finished writing your code you will want to run everything including linters.  The
 simplest way to do this is to run `tox -e check,py36`, which will run static checks and run unit tests.
