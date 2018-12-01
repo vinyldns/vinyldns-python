@@ -14,11 +14,12 @@
 """TODO: Add module docstring."""
 
 import json
-import responses
+
 import pytest
+import responses
 from vinyldns.client import VinylDNSClient
-from vinyldns.zone import *
-from vinyldns.serdes import *
+from vinyldns.serdes import to_json_string, from_json_string
+from vinyldns.zone import ACLRule, ZoneConnection, ZoneACL, Zone
 
 
 @pytest.fixture

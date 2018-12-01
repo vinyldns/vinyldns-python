@@ -87,4 +87,3 @@ def to_json_string(o):
     """
     import json
     return json.dumps(to_dict(o))
-
