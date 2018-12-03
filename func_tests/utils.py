@@ -12,15 +12,15 @@ def wait_until_zone_exists(vinyldns_client, zone_id):
     """
     zone = vinyldns_client.get_zone(zone_id)
     retries = MAX_RETRIES
-    while (u'zone' not in zone) and retries > 0:
+    while (zone is None) and retries > 0:
         zone = vinyldns_client.get_zone(zone_id)
         time.sleep(RETRY_WAIT)
         retries -= 1
 
-    if not u'zone' in zone:
+    if zone is None:
         print("Issue on zone create: {}".format(json.dumps(zone)))
 
-    assert u'zone' in zone
+    assert zone is not None
 
 
 def wait_until_zone_deleted(vinyldns_client, zone_id):
@@ -29,12 +29,12 @@ def wait_until_zone_deleted(vinyldns_client, zone_id):
     """
     zone = vinyldns_client.get_zone(zone_id)
     retries = MAX_RETRIES
-    while (u'zone' in zone) and retries > 0:
+    while (zone is not None) and retries > 0:
         zone = vinyldns_client.get_zone(zone_id)
         time.sleep(RETRY_WAIT)
         retries -= 1
 
-    if u'zone' in zone:
+    if zone is not None:
         print("Zone was not deleted: {}".format(json.dumps(zone)))
 
-    assert u'zone' not in zone
+    assert zone is None
