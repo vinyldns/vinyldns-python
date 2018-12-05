@@ -1,0 +1,33 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+key "vinyldns." {
+  algorithm hmac-md5;
+  secret "nzisn+4G2ldMn0q1CV3vsg==";
+};
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "vinyldns" {
+	type master;
+	file "/var/bind/vinyldns.hosts";
+	allow-update { key "vinyldns."; };
+	};
+
+zone "2.0.192.in-addr.arpa" {
+	type master;
+	file "/var/bind/2.0.192.in-addr.arpa";
+	allow-update { key "vinyldns."; };
+	};
+
+zone "sync-test" {
+	type master;
+	file "/var/bind/sync-test.hosts";
+	allow-update { key "vinyldns."; };
+	};
