@@ -14,8 +14,6 @@
 DIR=$( cd $(dirname $0) ; pwd -P )
 TIMEOUT=60
 DOCKER_COMPOSE_CONFIG="${DIR}/../docker/docker-compose-build.yml"
-# empty service starts up all
-SERVICE=""
 
 function wait_for_url {
 	echo "pinging ${URL} ..."
@@ -65,7 +63,7 @@ set -a # Required in order to source docker/.env
 source "$DIR"/.env
 
 echo "Starting vinyldns and all dependencies in the background..."
-docker-compose -f "$DOCKER_COMPOSE_CONFIG" up -d ${SERVICE}
+docker-compose -f "$DOCKER_COMPOSE_CONFIG" up -d
 
 echo "Waiting for api..."
 URL="$VINYLDNS_API_URL"
