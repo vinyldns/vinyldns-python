@@ -19,7 +19,7 @@ import pytest
 import responses
 from vinyldns.client import VinylDNSClient
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import ACLRule, ZoneConnection, ZoneACL, Zone
+from vinyldns.zone import AccessLevel, ACLRule, ZoneConnection, ZoneACL, Zone
 
 
 @pytest.fixture
@@ -44,7 +44,7 @@ def test_get_group(mocked_responses, vinyldns_client):
 
 
 def test_zone():
-    acl_rule = ACLRule('Read', 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
+    acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
     conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
     zone = Zone(id='foo', name='bar', email='test@test.com', admin_group_id='foo', connection=conn,
                 transfer_connection=conn, acl=ZoneACL([acl_rule]))

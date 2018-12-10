@@ -14,8 +14,15 @@
 """TODO: Add module docstring."""
 
 
+class AccessLevel:
+    NoAccess = "NoAccess"
+    Read = "Read"
+    Write = "Write"
+    Delete = "Delete"
+
+
 class ACLRule(object):
-    def __init__(self, access_level, description, user_id, group_id, record_mask, record_types):
+    def __init__(self, access_level, description=None, user_id=None, group_id=None, record_mask=None, record_types=[]):
         self.access_level = access_level
         self.description = description
         self.user_id = user_id
@@ -27,7 +34,7 @@ class ACLRule(object):
     def from_dict(d):
         return ACLRule(access_level=d['accessLevel'], description=d.get('description'),
                        user_id=d.get('userId'), group_id=d.get('groupId'), record_mask=d.get('recordMask'),
-                       record_types=d.get('recordTypes'))
+                       record_types=d.get('recordTypes', []))
 
 
 class ZoneACL(object):

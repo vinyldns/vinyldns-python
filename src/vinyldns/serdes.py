@@ -66,17 +66,17 @@ def to_dict(obj, cls=None):
         return obj
 
 
-def from_json_string(s, object_ctor):
+def from_json_string(s, object_hook):
     """
     Given the string as json, loads it into a nested dictionary and passes it into the object_ctor
     provided to yield an instance of the object
     :param s: A json formatted string
-    :param object_ctor: A function that takes a dictionary and yields a new object instance
+    :param object_hook: A function that takes a dictionary and yields a new object instance
     :return: A populated object instance generated from the object_ctor
     """
     import json
     d = json.loads(s)
-    return object_ctor(d)
+    return object_hook(d)
 
 
 def to_json_string(o):
