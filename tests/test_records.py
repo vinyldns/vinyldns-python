@@ -19,44 +19,8 @@ import pytest
 import responses
 from vinyldns.client import VinylDNSClient
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import AccessLevel, ACLRule, ZoneConnection, ZoneACL, Zone
 from vinyldns.record import RecordSet, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, SRVData, SPFData, \
     SSHFPData, TXTData, RecordType
-
-
-@pytest.fixture
-def mocked_responses():
-    with responses.RequestsMock() as rsps:
-        yield rsps
-
-
-@pytest.fixture
-def vinyldns_client():
-    return VinylDNSClient('http://test.com', 'ok', 'ok')
-
-
-def test_get_group(mocked_responses, vinyldns_client):
-    import json
-    g = {'name': 'ok'}
-    mocked_responses.add(
-        responses.GET, 'http://test.com/groups/123',
-        body=json.dumps(g), status=200)
-    r = vinyldns_client.get_group('123')
-    assert r['name'] == 'ok'
-
-
-def test_zone_serdes():
-    acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
-    conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
-    zone = Zone(id='foo', name='bar', email='test@test.com', admin_group_id='foo', connection=conn,
-                transfer_connection=conn, acl=ZoneACL([acl_rule]))
-    s = to_json_string(zone)
-    print(json.dumps(s, indent=4))
-    z = from_json_string(s, Zone.from_dict)
-
-    assert z.name == zone.name
-    assert z.connection.primary_server == zone.connection.primary_server
-    assert all([a.__dict__ == b.__dict__ for a, b in zip(z.acl.rules, zone.acl.rules)])
 
 
 record_sets = [
