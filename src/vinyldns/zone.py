@@ -89,3 +89,50 @@ class Zone(object):
         return Zone(d.get('id'), d.get('name'), d.get('email'), d.get('adminGroupId'), d.get('status'),
                     d.get('created'), d.get('updated'), conn, transfer_conn, acl,
                     d.get('latestSync'))
+
+
+class ListZonesResponse(object):
+    def __init__(self, zones, name_filter, start_from, next_id, max_items):
+        self.zones = zones
+        self.name_filter = name_filter
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        zones = [Zone.from_dict(elem) for elem in d.get('zones', [])]
+        return ListZonesResponse(zones=zones, name_filter=d.get('zoneFilter'), start_from=d.get('startFrom'),
+                                 next_id=d.get('nextId'), max_items=d['maxItems'])
+
+
+class ZoneChange(object):
+    def __init__(self, zone, user_id, change_type, status, created, system_message, id):
+        self.zone = zone
+        self.user_id = user_id
+        self.change_type = change_type
+        self.status = status
+        self.created = created
+        self.system_message = system_message
+        self.id = id
+
+    @staticmethod
+    def from_dict(d):
+        zone = Zone.from_dict(d['zone'])
+        return ZoneChange(zone=zone, user_id=d['userId'], change_type=d['changeType'], status=d['status'],
+                          created=d['created'], system_message=d.get('systemMessage'), id=d['id'])
+
+
+class ListZoneChangesResponse(object):
+    def __init__(self, zone_id, zone_changes, next_id, start_from, max_items):
+        self.zone_id = zone_id
+        self.zone_changes = zone_changes
+        self.next_id = next_id
+        self.start_from = start_from
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        zone_changes = [ZoneChange.from_dict(elem) for elem in d.get('zoneChanges', [])]
+        return ListZoneChangesResponse(zone_id=d['zoneId'], zone_changes=zone_changes, next_id=d.get('nextId'),
+                                       start_from=d.get('startFrom'), max_items=d['maxItems'])

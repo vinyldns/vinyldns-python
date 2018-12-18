@@ -13,6 +13,8 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
+from vinyldns.zone import Zone
+
 
 class RecordType:
     A = "A"
@@ -192,3 +194,60 @@ class RecordSet(object):
         return RecordSet(d['zoneId'], d['name'], d['type'], d['ttl'], d.get('status'), d.get('created'),
                          d.get('updated'), records, d.get('id'))
 
+
+class ListRecordSetsResponse(object):
+    def __init__(self, record_sets, start_from, next_id, max_items, record_name_filter):
+        self.record_sets = record_sets
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+        self.record_name_filter = record_name_filter
+
+    @staticmethod
+    def from_dict(d):
+        record_sets = [RecordSet.from_dict(elem) for elem in d.get('recordSets', [])]
+        return ListRecordSetsResponse(record_sets=record_sets, start_from=d.get('startFrom'), next_id=d.get('nextId'), max_items=d.get('maxItems'), record_name_filter=d.get('recordNameFilter'))
+
+
+class RecordSetChange(object):
+    def __init__(self, zone, record_set, user_id, change_type, status, created, system_message, updates, id, user_name):
+        self.zone = zone
+        self.record_set = record_set
+        self.user_id = user_id
+        self.change_type = change_type
+        self.status = status
+        self.created = created
+        self.system_message = system_message
+        self.updates = updates
+        self.id = id
+        self.user_name = user_name
+
+    @staticmethod
+    def from_dict(d):
+        updated_rs = None
+        if 'updates' in d:
+            print("\r\n!!! NOT NONE !!!")
+            updated_rs = RecordSet.from_dict(d['updates'])
+        else:
+            print("\r\n!!! IT IS INDEED NONE !!!")
+
+        return RecordSetChange(zone=Zone.from_dict(d['zone']), record_set=RecordSet.from_dict(d['recordSet']),
+                               user_id=d['userId'], change_type=d['changeType'], status=d['status'],
+                               created=d['created'], system_message=d.get('systemMessage'), updates=updated_rs,
+                               id=d['id'], user_name=d.get('userName'))
+
+
+class ListRecordSetChangesResponse(object):
+    def __init__(self, zone_id, record_set_changes, next_id, start_from, max_items):
+        self.zone_id = zone_id
+        self.record_set_changes = record_set_changes
+        self.next_id = next_id
+        self.start_from = start_from
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        changes = [RecordSetChange.from_dict(elem) for elem in d.get('recordSetChanges', [])]
+        return ListRecordSetChangesResponse(zone_id=d['zoneId'], record_set_changes=changes,
+                                            next_id=d.get('nextId'), start_from=d.get('startFrom'),
+                                            max_items=d['maxItems'])
