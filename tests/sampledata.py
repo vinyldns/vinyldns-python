@@ -28,7 +28,8 @@ ip6_zone = Zone(id='ip6', name='1.9.e.f.c.c.7.2.9.6.d.f.ip6.arpa', email='test@t
 
 record_sets = {
     RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')]),
-    RecordType.AAAA: RecordSet(forward_zone.id, 'aaaa-test', RecordType.AAAA, 200, records=[AAAAData('1:2:3:4:5:6:7:8')]),
+    RecordType.AAAA: RecordSet(forward_zone.id, 'aaaa-test', RecordType.AAAA, 200,
+                               records=[AAAAData('1:2:3:4:5:6:7:8')]),
     RecordType.CNAME: RecordSet(forward_zone.id, 'cname-test', RecordType.CNAME, 200, records=[CNAMEData('cname')]),
     RecordType.PTR: RecordSet('0.168.192.in-addr.arpa', '30', RecordType.PTR, 200, records=[PTRData('alias')]),
     RecordType.SRV: RecordSet(forward_zone.id, 'srv-test', RecordType.SRV, 200, records=[SRVData(1, 2, 3, 'target')]),
@@ -43,3 +44,9 @@ record_sets = {
 }
 
 record_set_values = record_sets.values()
+
+
+def gen_rs_change(record_set):
+    return RecordSetChange(zone=forward_zone, record_set=record_set, user_id='test-user',
+                           change_type='Create', status='Pending', created='some-date', system_message=None,
+                           updates=record_set, id='some-id', user_name='some-username')

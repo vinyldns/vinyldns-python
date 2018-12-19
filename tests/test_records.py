@@ -13,13 +13,9 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-import pytest
-from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, \
-    SRVData, SPFData, \
-    SSHFPData, TXTData, RecordType, ListRecordSetsResponse
+from sampledata import record_set_values, gen_rs_change
+from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
 from vinyldns.serdes import to_json_string, from_json_string
-
-from sampledata import forward_zone, record_set_values
 
 
 def check_record_sets_are_equal(a, b):
@@ -38,9 +34,7 @@ def test_record_set_serdes(record_set):
 
 
 def test_record_set_changes_serdes(record_set):
-    a = RecordSetChange(zone=forward_zone, record_set=record_set, user_id='test-user', change_type='Create',
-                        status='Pending', created='some-date', system_message=None, updates=record_set, id='some-id',
-                        user_name='some-username')
+    a = gen_rs_change(record_set)
     s = to_json_string(a)
     b = from_json_string(s, RecordSetChange.from_dict)
 

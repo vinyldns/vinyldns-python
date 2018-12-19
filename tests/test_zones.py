@@ -15,23 +15,16 @@
 
 import json
 
-import pytest
-from vinyldns.record import RecordSet, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, SRVData, SPFData, \
-    SSHFPData, TXTData, RecordType
+from sampledata import forward_zone
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import AccessLevel, ACLRule, ZoneConnection, ZoneACL, Zone
+from vinyldns.zone import Zone
 
 
 def test_zone_serdes():
-    acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
-    conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
-    zone = Zone(id='foo', name='bar', email='test@test.com', admin_group_id='foo', connection=conn,
-                transfer_connection=conn, acl=ZoneACL([acl_rule]))
-    s = to_json_string(zone)
+    s = to_json_string(forward_zone)
     print(json.dumps(s, indent=4))
     z = from_json_string(s, Zone.from_dict)
 
-    assert z.name == zone.name
-    assert z.connection.primary_server == zone.connection.primary_server
-    assert all([a.__dict__ == b.__dict__ for a, b in zip(z.acl.rules, zone.acl.rules)])
-
+    assert z.name == forward_zone.name
+    assert z.connection.primary_server == forward_zone.connection.primary_server
+    assert all([a.__dict__ == b.__dict__ for a, b in zip(z.acl.rules, forward_zone.acl.rules)])

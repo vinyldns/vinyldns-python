@@ -15,14 +15,10 @@
 
 import json
 
-import pytest
 import responses
-from vinyldns.client import VinylDNSClient
-from vinyldns.serdes import to_json_string, from_json_string
 
 
 def test_get_group(mocked_responses, vinyldns_client):
-    import json
     g = {'name': 'ok'}
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/123',

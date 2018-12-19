@@ -68,16 +68,6 @@ class ListGroupsResponse(object):
         return ListGroupsResponse(groups, d['maxItems'], d.get('groupNameFilter'), d.get('startFrom'), d.get('nextId'))
 
 
-"""
-case class GroupChange(
-    newGroup: Group,
-    changeType: GroupChangeType,
-    userId: String,
-    oldGroup: Option[Group] = None,
-    id: String = UUID.randomUUID().toString,
-    created: DateTime = DateTime.now
-)
-"""
 class GroupChange(object):
     def __init__(self, new_group, change_type, user_id, old_group, id, created):
         self.new_group = new_group
