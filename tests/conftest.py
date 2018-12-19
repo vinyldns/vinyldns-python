@@ -13,19 +13,26 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-import json
-
 import pytest
 import responses
+from sampledata import record_set_values
 from vinyldns.client import VinylDNSClient
-from vinyldns.serdes import to_json_string, from_json_string
+
+def get_rs_type(rs):
+    return rs.type
 
 
-def test_get_group(mocked_responses, vinyldns_client):
-    import json
-    g = {'name': 'ok'}
-    mocked_responses.add(
-        responses.GET, 'http://test.com/groups/123',
-        body=json.dumps(g), status=200)
-    r = vinyldns_client.get_group('123')
-    assert r['name'] == 'ok'
+@pytest.fixture(scope="module", params=record_set_values, ids=get_rs_type)
+def record_set(request):
+    return request.param
+
+
+@pytest.fixture(scope="module")
+def mocked_responses():
+    with responses.RequestsMock() as rsps:
+        yield rsps
+
+
+@pytest.fixture(scope="module")
+def vinyldns_client():
+    return VinylDNSClient('http://test.com', 'ok', 'ok')

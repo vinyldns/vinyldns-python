@@ -19,30 +19,7 @@ from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEDa
     SSHFPData, TXTData, RecordType, ListRecordSetsResponse
 from vinyldns.serdes import to_json_string, from_json_string
 
-from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneConnection
-
-record_sets = [
-    RecordSet('zoneid', 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')]),
-    RecordSet('zoneid', 'aaaa-test', RecordType.AAAA, 200, records=[AAAAData('1:2:3:4:5:6:7:8')]),
-    RecordSet('zoneid', 'cname-test', RecordType.CNAME, 200, records=[CNAMEData('cname')]),
-    RecordSet('0.168.192.in-addr.arpa', '30', RecordType.PTR, 200, records=[PTRData('alias')]),
-    RecordSet('zoneid', 'srv-test', RecordType.SRV, 200, records=[SRVData(1, 2, 3, 'target')]),
-    RecordSet('zoneid', 'mx-test', RecordType.MX, 200, records=[MXData(1, 'mail')]),
-    RecordSet('zoneid', 'ns-test', RecordType.NS, 200, records=[NSData('ns1.foo.bar')]),
-    RecordSet('zoneid', 'soa-test', RecordType.SOA, 200, records=[SOAData('mname', 'rname', 100, 200, 300, 400, 500)]),
-    RecordSet('zoneid', 'spf-test', RecordType.SPF, 200, records=[SPFData('some-spf')]),
-    RecordSet('zoneid', 'txt-test', RecordType.TXT, 200, records=[TXTData('some-text')]),
-    RecordSet('zoneid', 'sshfp-test', RecordType.SSHFP, 200, records=[SSHFPData('algorithm', 'type', 'fingerprint')]),
-]
-
-
-def get_rs_type(rs):
-    return rs.type
-
-
-@pytest.fixture(scope="module", params=record_sets, ids=get_rs_type)
-def rs_fixture(request):
-    return request.param
+from sampledata import forward_zone, record_set_values
 
 
 def check_record_sets_are_equal(a, b):
@@ -53,20 +30,16 @@ def check_record_sets_are_equal(a, b):
     assert all([l.__dict__ == r.__dict__ for l, r in zip(a.records, b.records)])
 
 
-def test_record_set_serdes(rs_fixture):
-    rs = rs_fixture
+def test_record_set_serdes(record_set):
+    rs = record_set
     s = to_json_string(rs)
     r = from_json_string(s, RecordSet.from_dict)
     check_record_sets_are_equal(r, rs)
 
 
-def test_record_set_changes_serdes(rs_fixture):
-    acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
-    conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
-    zone = Zone(id='foo', name='bar', email='test@test.com', admin_group_id='foo', connection=conn,
-                transfer_connection=conn, acl=ZoneACL([acl_rule]))
-    a = RecordSetChange(zone=zone, record_set=rs_fixture, user_id='test-user', change_type='Create', status='Pending',
-                        created='some-date', system_message=None, updates=rs_fixture, id='some-id',
+def test_record_set_changes_serdes(record_set):
+    a = RecordSetChange(zone=forward_zone, record_set=record_set, user_id='test-user', change_type='Create',
+                        status='Pending', created='some-date', system_message=None, updates=record_set, id='some-id',
                         user_name='some-username')
     s = to_json_string(a)
     b = from_json_string(s, RecordSetChange.from_dict)
@@ -78,13 +51,14 @@ def test_record_set_changes_serdes(rs_fixture):
     assert a.system_message == b.system_message
     assert a.id == b.id
     assert a.user_name == b.user_name
+    assert a.zone.id == b.zone.id
     check_record_sets_are_equal(a.record_set, b.record_set)
     check_record_sets_are_equal(a.updates, b.updates)
-    assert a.zone.id == b.zone.id
 
 
 def test_list_record_set_response_serdes():
-    a = ListRecordSetsResponse(record_sets=record_sets, start_from='some-start', next_id='next', max_items=100, record_name_filter='foo*')
+    a = ListRecordSetsResponse(record_sets=record_set_values, start_from='some-start', next_id='next', max_items=100,
+                               record_name_filter='foo*')
     s = to_json_string(a)
     b = from_json_string(s, ListRecordSetsResponse.from_dict)
 
