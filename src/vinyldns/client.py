@@ -31,6 +31,8 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
+from src.vinyldns.group import Group, ListGroupsResponse
+
 try:
     basestring
 except NameError:
@@ -230,7 +232,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/groups/' + group_id)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        return Group.from_dict(data)
 
     def delete_group(self, group_id, **kwargs):
         """
@@ -242,7 +244,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/groups/' + group_id)
         response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
 
-        return data
+        return Group.from_dict(data)
 
     def update_group(self, group_id, group, **kwargs):
         """
@@ -255,7 +257,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/groups/{0}'.format(group_id))
         response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(group), **kwargs)
 
-        return data
+        return Group.from_dict(data)
 
     def list_my_groups(self, group_name_filter=None, start_from=None, max_items=None, **kwargs):
         """
@@ -277,7 +279,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        return ListGroupsResponse.from_dict(data)
 
     def list_all_my_groups(self, group_name_filter=None, **kwargs):
         """
@@ -307,7 +309,7 @@ class VinylDNSClient(object):
             response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
             groups.extend(data[u'groups'])
 
-        return groups
+        return ListGroupsResponse.from_dict(data)
 
     def list_members_group(self, group_id, start_from=None, max_items=None, **kwargs):
         """

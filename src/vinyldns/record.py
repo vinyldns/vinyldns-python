@@ -15,7 +15,7 @@
 
 from vinyldns.zone import Zone
 
-from src.vinyldns.serdes import parse_datetime, map_option
+from vinyldns.serdes import parse_datetime, map_option
 
 
 class RecordType:
@@ -227,13 +227,7 @@ class RecordSetChange(object):
 
     @staticmethod
     def from_dict(d):
-        updated_rs = None
-        if 'updates' in d:
-            print("\r\n!!! NOT NONE !!!")
-            updated_rs = RecordSet.from_dict(d['updates'])
-        else:
-            print("\r\n!!! IT IS INDEED NONE !!!")
-
+        updated_rs = map_option(d.get('updates'), RecordSet.from_dict)
         return RecordSetChange(zone=Zone.from_dict(d['zone']), record_set=RecordSet.from_dict(d['recordSet']),
                                user_id=d['userId'], change_type=d['changeType'], status=d['status'],
                                created=d['created'], system_message=d.get('systemMessage'), updates=updated_rs,
