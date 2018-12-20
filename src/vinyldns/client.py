@@ -31,7 +31,8 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
-from src.vinyldns.group import Group, ListGroupsResponse
+from vinyldns.membership import Group, ListGroupsResponse
+from vinyldns.serdes import to_json_string
 
 try:
     basestring
@@ -218,9 +219,9 @@ class VinylDNSClient(object):
         :return: the content of the response, which should be a group json
         """
         url = urljoin(self.index_url, u'/groups')
-        response, data = self.__make_request(url, u'POST', self.headers, json.dumps(group), **kwargs)
+        response, data = self.__make_request(url, u'POST', self.headers, to_json_string(group), **kwargs)
 
-        return data
+        return Group.from_dict(data)
 
     def get_group(self, group_id, **kwargs):
         """
@@ -277,6 +278,7 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
+        print(url)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return ListGroupsResponse.from_dict(data)

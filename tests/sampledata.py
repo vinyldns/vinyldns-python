@@ -18,7 +18,7 @@ from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEDa
     SRVData, SPFData, SSHFPData, TXTData, RecordType, ListRecordSetsResponse
 from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneConnection
 
-from src.vinyldns.group import Group, User
+from src.vinyldns.membership import Group, User, ListGroupsResponse
 
 acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
 conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
@@ -51,6 +51,8 @@ record_set_values = record_sets.values()
 sample_user = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.utcnow())
 sample_group = Group('ok', 'test@test.com', 'description', datetime.utcnow(), members=[sample_user],
                      admins=[sample_user], id='sample-group')
+sample_group2 = Group('ok2', 'test@test.com', 'description', datetime.utcnow(), members=[sample_user],
+                      admins=[sample_user], id='sample-group2')
 
 
 def gen_rs_change(record_set):
