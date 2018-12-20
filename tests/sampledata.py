@@ -18,7 +18,7 @@ from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEDa
     SRVData, SPFData, SSHFPData, TXTData, RecordType, ListRecordSetsResponse
 from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneConnection
 
-from src.vinyldns.membership import Group, User, ListGroupsResponse
+from vinyldns.membership import Group, User, ListGroupsResponse
 
 acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
 conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')

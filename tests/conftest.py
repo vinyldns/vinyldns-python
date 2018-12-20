@@ -15,8 +15,8 @@
 
 import pytest
 import responses
-from tests.sampledata import record_set_values
-from src.vinyldns.client import VinylDNSClient
+from sampledata import record_set_values
+from vinyldns.client import VinylDNSClient
 
 
 def get_rs_type(rs):

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
-from src.vinyldns.serdes import parse_datetime, map_option
+from vinyldns.serdes import parse_datetime, map_option
 
 
 class AccessLevel:

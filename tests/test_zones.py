@@ -15,9 +15,9 @@
 
 import json
 
-from tests.sampledata import forward_zone
-from src.vinyldns.serdes import to_json_string, from_json_string
-from src.vinyldns.zone import Zone
+from sampledata import forward_zone
+from vinyldns.serdes import to_json_string, from_json_string
+from vinyldns.zone import Zone
 
 
 def test_zone_serdes():

@@ -15,9 +15,9 @@
 
 import responses
 
-from src.vinyldns.membership import Group, ListGroupsResponse
-from src.vinyldns.serdes import to_json_string, from_json_string
-from tests.sampledata import sample_group, sample_group2
+from vinyldns.membership import Group, ListGroupsResponse
+from vinyldns.serdes import to_json_string, from_json_string
+from sampledata import sample_group, sample_group2
 
 
 def check_groups_are_same(a, b):

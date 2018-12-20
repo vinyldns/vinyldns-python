@@ -13,9 +13,9 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-from tests.sampledata import record_set_values, gen_rs_change
-from src.vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
-from src.vinyldns.serdes import to_json_string, from_json_string
+from sampledata import record_set_values, gen_rs_change
+from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
+from vinyldns.serdes import to_json_string, from_json_string
 
 
 def check_record_sets_are_equal(a, b):

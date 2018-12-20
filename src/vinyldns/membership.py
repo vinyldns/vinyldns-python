@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
-import datetime
 
-from src.vinyldns.serdes import map_option, parse_datetime
+from vinyldns.serdes import map_option, parse_datetime
 
 
 class UserLockStatus:
