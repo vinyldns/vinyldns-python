@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+from datetime import datetime
 
 from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, \
     SRVData, SPFData, SSHFPData, TXTData, RecordType, ListRecordSetsResponse
 from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneConnection
+
+from src.vinyldns.group import Group, User
 
 acl_rule = ACLRule(AccessLevel.Read, 'my desc', 'foo_user', None, '*', ['A', 'AAAA'])
 conn = ZoneConnection(name='fooConn', key_name='fooKeyName', key='fooKey', primary_server='fooPS')
@@ -44,6 +47,10 @@ record_sets = {
 }
 
 record_set_values = record_sets.values()
+
+sample_user = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.utcnow())
+sample_group = Group('ok', 'test@test.com', 'description', datetime.utcnow(), members=[sample_user],
+                     admins=[sample_user], id='sample-group')
 
 
 def gen_rs_change(record_set):

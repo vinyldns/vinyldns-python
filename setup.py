@@ -77,6 +77,7 @@ setup(
         'boto==2.48.0',
         'future==0.17.1',
         'requests==2.20.0',
+        'python-dateutil==2.7.5',
     ],
     tests_require=[
         'responses==0.10.4',

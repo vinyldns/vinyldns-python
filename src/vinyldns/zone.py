@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+from src.vinyldns.serdes import parse_datetime, map_option
 
 
 class AccessLevel:
@@ -85,10 +86,10 @@ class Zone(object):
         conn = ZoneConnection.from_dict(d.get('connection'))
         transfer_conn = ZoneConnection.from_dict(d.get('transferConnection'))
         acl = ZoneACL.from_dict(d.get('acl'))
+        created = map_option(d.get('created'), parse_datetime)
 
         return Zone(d.get('id'), d.get('name'), d.get('email'), d.get('adminGroupId'), d.get('status'),
-                    d.get('created'), d.get('updated'), conn, transfer_conn, acl,
-                    d.get('latestSync'))
+                    created, d.get('updated'), conn, transfer_conn, acl, d.get('latestSync'))
 
 
 class ListZonesResponse(object):
@@ -119,8 +120,9 @@ class ZoneChange(object):
     @staticmethod
     def from_dict(d):
         zone = Zone.from_dict(d['zone'])
+        created = map_option(d.get('created'), parse_datetime)
         return ZoneChange(zone=zone, user_id=d['userId'], change_type=d['changeType'], status=d['status'],
-                          created=d['created'], system_message=d.get('systemMessage'), id=d['id'])
+                          created=created, system_message=d.get('systemMessage'), id=d['id'])
 
 
 class ListZoneChangesResponse(object):

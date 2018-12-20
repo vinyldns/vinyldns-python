@@ -17,6 +17,10 @@ import json
 
 import responses
 
+from src.vinyldns.group import Group
+from src.vinyldns.serdes import to_json_string, from_json_string
+from tests import sampledata
+
 
 def test_get_group(mocked_responses, vinyldns_client):
     g = {'name': 'ok'}
@@ -25,3 +29,16 @@ def test_get_group(mocked_responses, vinyldns_client):
         body=json.dumps(g), status=200)
     r = vinyldns_client.get_group('123')
     assert r['name'] == 'ok'
+
+
+def test_group_serdes():
+    a = sampledata.sample_group
+    print(to_json_string(a))
+    b = from_json_string(to_json_string(a), Group.from_dict)
+    assert a.id == b.id
+    assert a.description == b.description
+    assert a.created == b.created
+    assert a.name == b.name
+    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.members, b.members)])
+    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.admins, b.admins)])
+

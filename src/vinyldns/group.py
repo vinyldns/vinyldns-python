@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+import datetime
+
+from src.vinyldns.serdes import map_option, parse_datetime
 
 
 class UserLockStatus:
@@ -32,8 +35,9 @@ class User(object):
 
     @staticmethod
     def from_dict(d):
+        created = map_option(d.get('created'), parse_datetime)
         return User(id=d['id'], user_name=d.get('userName'), first_name=d.get('firstName'), last_name=d.get('lastName'),
-                    email=d.get('email'), lock_status=d.get('lockStatus', UserLockStatus.Unlocked))
+                    email=d.get('email'), created=created, lock_status=d.get('lockStatus', UserLockStatus.Unlocked))
 
 
 class Group(object):
@@ -50,7 +54,8 @@ class Group(object):
     def from_dict(d):
         members = [User.from_dict(ud) for ud in d.get('members', [])]
         admins =[User.from_dict(ud) for ud in d.get('admins', [])]
-        return Group(name=d['name'], email=d['email'], description=d.get('description'), created=d.get('created'),
+        created = map_option(d.get('created'), parse_datetime)
+        return Group(name=d['name'], email=d['email'], description=d.get('description'), created=created,
                      members=members, admins=admins, id=d.get('id'))
 
 

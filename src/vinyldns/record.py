@@ -15,6 +15,8 @@
 
 from vinyldns.zone import Zone
 
+from src.vinyldns.serdes import parse_datetime, map_option
+
 
 class RecordType:
     A = "A"
@@ -191,7 +193,8 @@ class RecordSet(object):
     def from_dict(d):
         # Convert the array of rdata to instances, default to empty array if not present
         records = [RecordSet.rdata_converters[d['type']](rd) for rd in d.get('records', [])]
-        return RecordSet(d['zoneId'], d['name'], d['type'], d['ttl'], d.get('status'), d.get('created'),
+        created = map_option(d.get('created'), parse_datetime)
+        return RecordSet(d['zoneId'], d['name'], d['type'], d['ttl'], d.get('status'), created,
                          d.get('updated'), records, d.get('id'))
 
 
