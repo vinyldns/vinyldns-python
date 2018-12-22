@@ -33,7 +33,7 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.membership import Group, ListGroupsResponse
 from vinyldns.serdes import to_json_string
-from vinyldns.zone import Zone
+from vinyldns.zone import ListZonesResponse, Zone, ZoneChange
 
 try:
     basestring
@@ -388,9 +388,9 @@ class VinylDNSClient(object):
         :param zone: the zone to be created
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/{0}'.format(zone[u'id']))
-        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(zone), **kwargs)
-        return data
+        url = urljoin(self.index_url, u'/zones/{0}'.format(zone.id))
+        response, data = self.__make_request(url, u'PUT', self.headers, to_json_string(zone), **kwargs)
+        return Zone.from_dict(data)
 
     def sync_zone(self, zone_id, **kwargs):
         """
@@ -402,7 +402,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/sync'.format(zone_id))
         response, data = self.__make_request(url, u'POST', self.headers, **kwargs)
 
-        return data
+        return ZoneChange.from_dict(data)
 
     def abandon_zone(self, zone_id, **kwargs):
         """
@@ -414,7 +414,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
         response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
 
-        return data
+        return Zone.from_dict(data)
 
     def get_zone(self, zone_id, **kwargs):
         """
@@ -488,7 +488,8 @@ class VinylDNSClient(object):
             url = url + u'?' + u'&'.join(query)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-        return data
+        print(str(data))
+        return ListZonesResponse.from_dict(data)
 
     def create_recordset(self, recordset, **kwargs):
         """

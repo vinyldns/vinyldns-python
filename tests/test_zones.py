@@ -16,9 +16,9 @@
 import json
 import responses
 
-from sampledata import forward_zone
+from sampledata import forward_zone, ip4_zone, ip6_zone, sample_zone_change
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import Zone
+from vinyldns.zone import Zone, ListZonesResponse
 
 
 def check_zones_are_same(a, b):
@@ -52,6 +52,51 @@ def test_connect_zone(mocked_responses, vinyldns_client):
         body=to_json_string(forward_zone), status=200)
     r = vinyldns_client.connect_zone(forward_zone)
     check_zones_are_same(forward_zone, r)
+
+
+def test_update_zone(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.PUT, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        body=to_json_string(forward_zone), status=200)
+    r = vinyldns_client.update_zone(forward_zone)
+    check_zones_are_same(forward_zone, r)
+
+
+def test_abandon_zone(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.DELETE, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        body=to_json_string(forward_zone), status=200)
+    r = vinyldns_client.abandon_zone(forward_zone.id)
+    check_zones_are_same(forward_zone, r)
+
+
+def test_sync_zone(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/{0}/sync'.format(forward_zone.id),
+        body=to_json_string(sample_zone_change), status=200)
+    r = vinyldns_client.sync_zone(forward_zone.id)
+    assert sample_zone_change.id == r.id
+    assert sample_zone_change.change_type == r.change_type
+    assert sample_zone_change.status == r.status
+    assert sample_zone_change.system_message == r.system_message
+    assert sample_zone_change.user_id == r.user_id
+    check_zones_are_same(forward_zone, r.zone)
+
+
+def test_list_zones(mocked_responses, vinyldns_client):
+    lzr = ListZonesResponse(zones=[forward_zone, ip4_zone, ip6_zone], name_filter='*', start_from='start-from',
+                            next_id='next', max_items=100)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones?nameFilter=*&startFrom=start-from&maxItems=100',
+        body=to_json_string(lzr), status=200
+    )
+    r = vinyldns_client.list_zones('*', 'start-from', 100)
+    assert r.name_filter == lzr.name_filter
+    assert r.start_from == lzr.start_from
+    assert r.next_id == lzr.next_id
+    assert r.max_items == lzr.max_items
+    for l, r in zip(lzr.zones, r.zones):
+        check_zones_are_same(l, r)
 
 
 def test_get_zone(mocked_responses, vinyldns_client):

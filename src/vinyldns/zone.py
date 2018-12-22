@@ -105,7 +105,7 @@ class ListZonesResponse(object):
     @staticmethod
     def from_dict(d):
         zones = [Zone.from_dict(elem) for elem in d.get('zones', [])]
-        return ListZonesResponse(zones=zones, name_filter=d.get('zoneFilter'), start_from=d.get('startFrom'),
+        return ListZonesResponse(zones=zones, name_filter=d.get('nameFilter'), start_from=d.get('startFrom'),
                                  next_id=d.get('nextId'), max_items=d['maxItems'])
 
 

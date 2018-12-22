@@ -16,7 +16,7 @@ from datetime import datetime
 
 from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, \
     SRVData, SPFData, SSHFPData, TXTData, RecordType, ListRecordSetsResponse
-from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneConnection
+from vinyldns.zone import ACLRule, AccessLevel, Zone, ZoneACL, ZoneChange, ZoneConnection
 
 from vinyldns.membership import Group, User, ListGroupsResponse
 
@@ -28,6 +28,8 @@ ip4_zone = Zone(id='ip4', name='0.168.192.in-addr.arpa', email='test@test.com', 
                 transfer_connection=conn, acl=ZoneACL([acl_rule]))
 ip6_zone = Zone(id='ip6', name='1.9.e.f.c.c.7.2.9.6.d.f.ip6.arpa', email='test@test.com', admin_group_id='foo',
                 connection=conn, transfer_connection=conn, acl=ZoneACL([acl_rule]))
+
+sample_zone_change = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending', created=datetime.utcnow(), system_message=None, id='zone-change-id')
 
 record_sets = {
     RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')]),
