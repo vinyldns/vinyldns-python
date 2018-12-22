@@ -29,11 +29,19 @@ def check_groups_are_same(a, b):
     assert all([l.__dict__ == r.__dict__ for l, r in zip(a.admins, b.admins)])
 
 
-def test_create_groups(mocked_responses, vinyldns_client):
+def test_create_group(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.POST, 'http://test.com/groups',
         body=to_json_string(sample_group), status=200)
     r = vinyldns_client.create_group(sample_group)
+    check_groups_are_same(sample_group, r)
+
+
+def test_update_group(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.PUT, 'http://test.com/groups/' + sample_group.id,
+        body=to_json_string(sample_group), status=200)
+    r = vinyldns_client.update_group(sample_group)
     check_groups_are_same(sample_group, r)
 
 
@@ -63,9 +71,31 @@ def test_list_my_groups(mocked_responses, vinyldns_client):
     assert sample_list_groups.group_name_filter == r.group_name_filter
     assert sample_list_groups.next_id == r.next_id
 
-    print(to_json_string(r.groups))
-    print(to_json_string(sample_list_groups.groups))
     for l, r in zip(sample_list_groups.groups, r.groups):
+        check_groups_are_same(l, r)
+
+
+def test_list_all_my_groups(mocked_responses, vinyldns_client):
+    sample_list_groups1 = ListGroupsResponse([sample_group], 1, '*', 'start-from', 'next-id')
+
+    # Set next id to None to indicate end of list
+    sample_list_groups2 = ListGroupsResponse([sample_group2], 1, '*', 'start-from', next_id=None)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups?groupNameFilter=*',
+        body=to_json_string(sample_list_groups1), status=200)
+
+    # list all puts the next id from the first response into the startFrom for the next request
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups?groupNameFilter=*&startFrom=next-id',
+        body=to_json_string(sample_list_groups2), status=200)
+    r = vinyldns_client.list_all_my_groups('*')
+
+    print("\r\n!!START FROM IS " + str(r.start_from))
+    assert r.start_from is None
+    assert r.next_id is None
+    assert sample_list_groups1.group_name_filter == r.group_name_filter
+
+    for l, r in zip([sample_group, sample_group2], r.groups):
         check_groups_are_same(l, r)
 
 

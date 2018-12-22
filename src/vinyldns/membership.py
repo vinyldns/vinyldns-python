@@ -52,14 +52,14 @@ class Group(object):
     @staticmethod
     def from_dict(d):
         members = [User.from_dict(ud) for ud in d.get('members', [])]
-        admins =[User.from_dict(ud) for ud in d.get('admins', [])]
+        admins = [User.from_dict(ud) for ud in d.get('admins', [])]
         created = map_option(d.get('created'), parse_datetime)
         return Group(name=d['name'], email=d['email'], description=d.get('description'), created=created,
                      members=members, admins=admins, id=d.get('id'))
 
 
 class ListGroupsResponse(object):
-    def __init__(self, groups, max_items, group_name_filter=None, start_from=None, next_id=None):
+    def __init__(self, groups, max_items=None, group_name_filter=None, start_from=None, next_id=None):
         self.groups = groups
         self.max_items = max_items
         self.group_name_filter = group_name_filter
@@ -69,7 +69,8 @@ class ListGroupsResponse(object):
     @staticmethod
     def from_dict(d):
         groups = [Group.from_dict(elem) for elem in d.get('groups', [])]
-        return ListGroupsResponse(groups, d['maxItems'], d.get('groupNameFilter'), d.get('startFrom'), d.get('nextId'))
+        return ListGroupsResponse(groups, d.get('maxItems'), d.get('groupNameFilter'), d.get('startFrom'),
+                                  d.get('nextId'))
 
 
 class GroupChange(object):

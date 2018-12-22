@@ -14,10 +14,26 @@
 """TODO: Add module docstring."""
 
 import json
+import responses
 
 from sampledata import forward_zone
 from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.zone import Zone
+
+
+def check_zones_are_same(a, b):
+    assert a.id == b.id
+    assert a.name == b.name
+    assert a.email == b.email
+    assert a.admin_group_id == b.admin_group_id
+    assert a.status == b.status
+    assert a.updated == b.updated
+    assert a.created == b.created
+    assert a.connection.primary_server == b.connection.primary_server
+    assert a.connection.key == b.connection.key
+    assert a.connection.name == b.connection.name
+    assert a.connection.key_name == b.connection.key_name
+    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.acl.rules, b.acl.rules)])
 
 
 def test_zone_serdes():
@@ -28,3 +44,19 @@ def test_zone_serdes():
     assert z.name == forward_zone.name
     assert z.connection.primary_server == forward_zone.connection.primary_server
     assert all([a.__dict__ == b.__dict__ for a, b in zip(z.acl.rules, forward_zone.acl.rules)])
+
+
+def test_connect_zone(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones',
+        body=to_json_string(forward_zone), status=200)
+    r = vinyldns_client.connect_zone(forward_zone)
+    check_zones_are_same(forward_zone, r)
+
+
+def test_get_zone(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        body=to_json_string(forward_zone), status=200)
+    r = vinyldns_client.get_zone(forward_zone.id)
+    check_zones_are_same(forward_zone, r)

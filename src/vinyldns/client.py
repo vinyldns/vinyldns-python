@@ -33,6 +33,7 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.membership import Group, ListGroupsResponse
 from vinyldns.serdes import to_json_string
+from vinyldns.zone import Zone
 
 try:
     basestring
@@ -247,16 +248,15 @@ class VinylDNSClient(object):
 
         return Group.from_dict(data)
 
-    def update_group(self, group_id, group, **kwargs):
+    def update_group(self, group, **kwargs):
         """
-        Update an existing group.
+        Update an existing group, uses the id of the group provided
 
-        :param group_id: The id of the group being updated
-        :param group: A group dictionary that can be serialized to json
+        :param group: A group to be updated
         :return: the content of the response, which should be a group json
         """
-        url = urljoin(self.index_url, u'/groups/{0}'.format(group_id))
-        response, data = self.__make_request(url, u'PUT', self.headers, json.dumps(group), **kwargs)
+        url = urljoin(self.index_url, u'/groups/{0}'.format(group.id))
+        response, data = self.__make_request(url, u'PUT', self.headers, to_json_string(group), **kwargs)
 
         return Group.from_dict(data)
 
@@ -264,8 +264,8 @@ class VinylDNSClient(object):
         """
         Retrieve my groups.
 
-        :param start_from: the start key of the page
-        :param max_items: the page limit
+        :param start_from: the start key of the page; this is the next_id of a prior call
+        :param max_items: the number of groups to return
         :param group_name_filter: only returns groups whose names contain filter string
         :return: the content of the response
         """
@@ -278,14 +278,13 @@ class VinylDNSClient(object):
             args.append(u'maxItems={0}'.format(max_items))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
-        print(url)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return ListGroupsResponse.from_dict(data)
 
     def list_all_my_groups(self, group_name_filter=None, **kwargs):
         """
-        Retrieve all my groups.
+        Retrieve all my groups, paging through the results until exhausted
 
         :param group_name_filter: only returns groups whose names contain filter string
         :return: the content of the response
@@ -296,22 +295,20 @@ class VinylDNSClient(object):
             args.append(u'groupNameFilter={0}'.format(group_name_filter))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
+        print("\r\n!!! URL IS " + url)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-
         groups.extend(data[u'groups'])
 
-        while u'nextId' in data:
-            args = []
-
-            if group_name_filter:
-                args.append(u'groupNameFilter={0}'.format(group_name_filter))
-            if u'nextId' in data:
-                args.append(u'startFrom={0}'.format(data[u'nextId']))
-
+        while u'nextId' in data and data[u'nextId']:
+            next_args = args.copy()
+            next_args.append(u'startFrom={0}'.format(data['nextId']))
+            url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(next_args)
+            print("\r\n!!! URL IS " + url)
             response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
             groups.extend(data[u'groups'])
 
-        return ListGroupsResponse.from_dict(data)
+        g = [Group.from_dict(elem) for elem in groups]
+        return ListGroupsResponse(groups=g, group_name_filter=group_name_filter)
 
     def list_members_group(self, group_id, start_from=None, max_items=None, **kwargs):
         """
@@ -381,8 +378,8 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones')
-        response, data = self.__make_request(url, u'POST', self.headers, json.dumps(zone), **kwargs)
-        return data
+        response, data = self.__make_request(url, u'POST', self.headers, to_json_string(zone), **kwargs)
+        return Zone.from_dict(data)
 
     def update_zone(self, zone, **kwargs):
         """
@@ -429,7 +426,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        return Zone.from_dict(data)
 
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """

@@ -87,9 +87,11 @@ class Zone(object):
         transfer_conn = ZoneConnection.from_dict(d.get('transferConnection'))
         acl = ZoneACL.from_dict(d.get('acl'))
         created = map_option(d.get('created'), parse_datetime)
+        updated = map_option(d.get('updated'), parse_datetime)
+        latest_sync = map_option(d.get('latestSync'), parse_datetime)
 
         return Zone(d.get('id'), d.get('name'), d.get('email'), d.get('adminGroupId'), d.get('status'),
-                    created, d.get('updated'), conn, transfer_conn, acl, d.get('latestSync'))
+                    created,updated, conn, transfer_conn, acl, latest_sync)
 
 
 class ListZonesResponse(object):
