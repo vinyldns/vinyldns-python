@@ -71,6 +71,31 @@ def test_update_recordset(record_set, mocked_responses, vinyldns_client):
     mocked_responses.reset()
 
 
+def test_delete_recordset(record_set, mocked_responses, vinyldns_client):
+    rs = copy.deepcopy(record_set)
+    rs.id = rs.name + 'id'
+    change = gen_rs_change(rs)
+    mocked_responses.add(
+        responses.DELETE, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        body=to_json_string(change), status=200
+    )
+    r = vinyldns_client.delete_recordset(rs.zone_id, rs.id)
+    check_record_set_changes_are_equal(change, r)
+    mocked_responses.reset()
+
+
+def test_get_recordset(record_set, mocked_responses, vinyldns_client):
+    rs = copy.deepcopy(record_set)
+    rs.id = rs.name + 'id'
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        body=to_json_string(rs), status=200
+    )
+    r = vinyldns_client.get_recordset(rs.zone_id, rs.id)
+    check_record_sets_are_equal(rs, r)
+    mocked_responses.reset()
+
+
 def test_record_set_serdes(record_set):
     rs = record_set
     s = to_json_string(rs)

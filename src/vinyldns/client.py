@@ -495,7 +495,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
         response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
-        return data
+        return RecordSetChange.from_dict(data)
 
     def update_recordset(self, recordset, **kwargs):
         """
@@ -522,7 +522,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return data
+        return RecordSet.from_dict(data)
 
     def list_recordsets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
         """
