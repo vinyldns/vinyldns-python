@@ -33,7 +33,7 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, ListAdminsResponse
 from vinyldns.serdes import to_json_string
-from vinyldns.zone import ListZonesResponse, Zone, ZoneChange
+from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
 
 try:
     basestring
@@ -445,7 +445,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/changes'.format(zone_id)) + u'?' + u'&'.join(args)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-        return data
+        return ListZoneChangesResponse.from_dict(data)
 
     def list_recordset_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """

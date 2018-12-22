@@ -14,11 +14,13 @@
 """TODO: Add module docstring."""
 
 import json
+from datetime import datetime
+
 import responses
 
 from sampledata import forward_zone, ip4_zone, ip6_zone, sample_zone_change
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import Zone, ListZonesResponse
+from vinyldns.zone import Zone, ZoneChange, ListZonesResponse, ListZoneChangesResponse
 
 
 def check_zones_are_same(a, b):
@@ -105,3 +107,25 @@ def test_get_zone(mocked_responses, vinyldns_client):
         body=to_json_string(forward_zone), status=200)
     r = vinyldns_client.get_zone(forward_zone.id)
     check_zones_are_same(forward_zone, r)
+
+
+def test_list_zone_changes(mocked_responses, vinyldns_client):
+    change1 = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending', created=datetime.utcnow(), system_message=None, id='zone-change-id1')
+    change2 = ZoneChange(zone=ip4_zone, user_id='some-user', change_type='Create', status='Pending', created=datetime.utcnow(), system_message='msg', id='zone-change-id2')
+    lzcr = ListZoneChangesResponse(forward_zone.id, [change1, change2], 'next', 'start', 100)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/{0}/changes?startFrom=start&maxItems=100'.format(forward_zone.id),
+        body=to_json_string(lzcr), status=200
+    )
+    r = vinyldns_client.list_zone_changes(forward_zone.id, 'start', 100)
+    assert r.start_from == lzcr.start_from
+    assert r.next_id == lzcr.next_id
+    assert r.max_items == lzcr.max_items
+    for l, r in zip(lzcr.zone_changes, r.zone_changes):
+        assert l.id == r.id
+        assert l.user_id == r.user_id
+        assert l.change_type == r.change_type
+        assert l.status == r.status
+        assert l.created == r.created
+        assert l.system_message == r.system_message
+        check_zones_are_same(l.zone, r.zone)
