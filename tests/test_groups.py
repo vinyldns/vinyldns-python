@@ -122,7 +122,7 @@ def test_list_members(mocked_responses, vinyldns_client):
         assert l.is_admin == r.is_admin
 
 
-def test_list_admins(mocked_responses, vinyldns_client):
+def test_list_group_admins(mocked_responses, vinyldns_client):
     user1 = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.datetime.utcnow())
     user2 = User('id2', 'test2002', 'Frank', 'Bonilla', 'frank@bob.com', datetime.datetime.utcnow())
     lar = ListAdminsResponse([user1, user2])
@@ -130,7 +130,7 @@ def test_list_admins(mocked_responses, vinyldns_client):
         responses.GET, 'http://test.com/groups/foo/admins',
         body=to_json_string(lar), status=200
     )
-    r = vinyldns_client.list_admins_group('foo')
+    r = vinyldns_client.list_group_admins('foo')
     for l, r in zip(lar.admins, r.admins):
         assert l.id == r.id
         assert l.user_name == r.user_name
