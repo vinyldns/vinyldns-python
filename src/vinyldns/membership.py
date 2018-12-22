@@ -85,12 +85,29 @@ class GroupChange(object):
     @staticmethod
     def from_dict(d):
         return GroupChange(
-            new_group=d['newGroup'],
+            new_group=Group.from_dict(d['newGroup']),
             change_type=d['changeType'],
             user_id=d['userId'],
             old_group=map_option(d.get('oldGroup'), Group.from_dict),
             id=d['id'],
             created=map_option(d.get('created'), parse_datetime)
+        )
+
+
+class ListGroupChangesResponse(object):
+    def __init__(self, changes, start_from=None, next_id=None, max_items=100):
+        self.changes = changes
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        return ListGroupChangesResponse(
+            changes=[GroupChange.from_dict(elem) for elem in d.get('changes', [])],
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems')
         )
 
 

@@ -31,7 +31,7 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
-from vinyldns.membership import Group, ListGroupsResponse, ListMembersResponse, ListAdminsResponse
+from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, ListAdminsResponse
 from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, Zone, ZoneChange
 
@@ -346,7 +346,7 @@ class VinylDNSClient(object):
 
         return ListAdminsResponse.from_dict(data)
 
-    def get_group_changes(self, group_id, start_from=None, max_items=None, **kwargs):
+    def list_group_changes(self, group_id, start_from=None, max_items=None, **kwargs):
         """
         List the changes of an existing group.
 
@@ -368,7 +368,7 @@ class VinylDNSClient(object):
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        return ListGroupChangesResponse.from_dict(data)
 
     def connect_zone(self, zone, **kwargs):
         """

@@ -16,18 +16,21 @@ import datetime
 
 import responses
 
-from vinyldns.membership import Group, ListAdminsResponse, ListGroupsResponse, ListMembersResponse, Member, User
+from vinyldns.membership import Group, GroupChange, ListAdminsResponse, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, Member, User
 from vinyldns.serdes import to_json_string, from_json_string
 from sampledata import sample_group, sample_group2, sample_user
 
 
 def check_groups_are_same(a, b):
-    assert a.id == b.id
-    assert a.description == b.description
-    assert a.created == b.created
-    assert a.name == b.name
-    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.members, b.members)])
-    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.admins, b.admins)])
+    if a is None and b is None:
+        assert a == b
+    else:
+        assert a.id == b.id
+        assert a.description == b.description
+        assert a.created == b.created
+        assert a.name == b.name
+        assert all([l.__dict__ == r.__dict__ for l, r in zip(a.members, b.members)])
+        assert all([l.__dict__ == r.__dict__ for l, r in zip(a.admins, b.admins)])
 
 
 def test_create_group(mocked_responses, vinyldns_client):
@@ -139,6 +142,28 @@ def test_list_group_admins(mocked_responses, vinyldns_client):
         assert l.email == r.email
         assert l.created == r.created
         assert l.lock_status == r.lock_status
+
+
+def test_list_group_changes(mocked_responses, vinyldns_client):
+    change1 = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.datetime.utcnow())
+    change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.datetime.utcnow())
+    lgcr = ListGroupChangesResponse([change1, change2], 'start', 'next', 100)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups/foo/activity?startFrom=start&maxItems=100',
+        body=to_json_string(lgcr), status=200
+    )
+    r = vinyldns_client.list_group_changes('foo', 'start', 100)
+    assert r.next_id == lgcr.next_id
+    assert r.start_from == lgcr.start_from
+    assert r.max_items == lgcr.max_items
+    for l, r in zip(lgcr.changes, r.changes):
+        assert l.change_type == r.change_type
+        assert l.user_id == r.user_id
+        assert l.id == r.id
+        assert l.created == r.created
+        check_groups_are_same(l.new_group, r.new_group)
+        check_groups_are_same(l.old_group, r.old_group)
+
 
 
 def test_group_serdes():
