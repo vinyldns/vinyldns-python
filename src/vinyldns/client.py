@@ -31,7 +31,7 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
-from vinyldns.membership import Group, ListGroupsResponse
+from vinyldns.membership import Group, ListGroupsResponse, ListMembersResponse
 from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, Zone, ZoneChange
 
@@ -332,7 +332,7 @@ class VinylDNSClient(object):
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return data
+        return ListMembersResponse.from_dict(data)
 
     def list_group_admins(self, group_id, **kwargs):
         """

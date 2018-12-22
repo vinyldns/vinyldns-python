@@ -111,7 +111,7 @@ class Member(object):
             user_name=d.get('userName'),
             first_name=d.get('firstName'),
             last_name=d.get('lastName'),
-            email=d.get('lastName'),
+            email=d.get('email'),
             created=map_option(d.get('created'), parse_datetime),
             is_admin=d.get('isAdmin', False)
         )
