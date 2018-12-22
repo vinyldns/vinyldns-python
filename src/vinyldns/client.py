@@ -34,6 +34,7 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, ListAdminsResponse
 from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
+from vinyldns.record import RecordSet, RecordSetChange
 
 try:
     basestring
@@ -447,25 +448,6 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListZoneChangesResponse.from_dict(data)
 
-    def list_recordset_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
-        """
-        Get the recordset changes for the given zone id.
-
-        :param zone_id: the id of the zone to retrieve
-        :param start_from: the start key of the page
-        :param max_items: the page limit
-        :return: the zone, or will 404 if not found
-        """
-        args = []
-        if start_from:
-            args.append(u'startFrom={0}'.format(start_from))
-        if max_items is not None:
-            args.append(u'maxItems={0}'.format(max_items))
-        url = urljoin(self.index_url, u'/zones/{0}/recordsetchanges'.format(zone_id)) + u'?' + u'&'.join(args)
-
-        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-        return data
-
     def list_zones(self, name_filter=None, start_from=None, max_items=None, **kwargs):
         """
         Get a list of zones that currently exist.
@@ -498,12 +480,9 @@ class VinylDNSClient(object):
         :param recordset: the recordset to be created
         :return: the content of the response
         """
-        if recordset and u'name' in recordset:
-            recordset[u'name'] = recordset[u'name'].replace(u'_', u'-')
-
-        url = urljoin(self.index_url, u'/zones/{0}/recordsets'.format(recordset[u'zoneId']))
-        response, data = self.__make_request(url, u'POST', self.headers, json.dumps(recordset), **kwargs)
-        return data
+        url = urljoin(self.index_url, u'/zones/{0}/recordsets'.format(recordset.zone_id))
+        response, data = self.__make_request(url, u'POST', self.headers, to_json_string(recordset), **kwargs)
+        return RecordSetChange.from_dict(data)
 
     def delete_recordset(self, zone_id, rs_id, **kwargs):
         """
@@ -525,12 +504,12 @@ class VinylDNSClient(object):
         :param recordset: the recordset to be updated
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(recordset[u'zoneId'], recordset[u'id']))
+        url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(recordset.zone_id, recordset.id))
 
         response, data = self.__make_request(url, u'PUT', self.headers,
-                                             json.dumps(recordset), **kwargs)
+                                             to_json_string(recordset), **kwargs)
 
-        return data
+        return RecordSetChange.from_dict(data)
 
     def get_recordset(self, zone_id, rs_id, **kwargs):
         """
@@ -545,23 +524,9 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
         return data
 
-    def get_recordset_change(self, zone_id, rs_id, change_id, **kwargs):
-        """
-        Get an existing recordset change.
-
-        :param zone_id: the zone id the recordset belongs to
-        :param rs_id: the id of the recordset to be retrieved
-        :param change_id: the id of the change to be retrieved
-        :return: the content of the response
-        """
-        url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}/changes/{2}'.format(zone_id, rs_id, change_id))
-
-        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return data
-
     def list_recordsets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
         """
-        Retrieve all recordsets in a zone.
+        Retrieve recordsets in a zone.
 
         :param zone_id: the zone to retrieve
         :param start_from: the start key of the page
@@ -578,6 +543,40 @@ class VinylDNSClient(object):
             args.append(u'recordNameFilter={0}'.format(record_name_filter))
 
         url = urljoin(self.index_url, u'/zones/{0}/recordsets'.format(zone_id)) + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return data
+
+    def get_recordset_change(self, zone_id, rs_id, change_id, **kwargs):
+        """
+        Get an existing recordset change.
+
+        :param zone_id: the zone id the recordset belongs to
+        :param rs_id: the id of the recordset to be retrieved
+        :param change_id: the id of the change to be retrieved
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}/changes/{2}'.format(zone_id, rs_id, change_id))
+
+        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
+        return data
+
+
+    def list_recordset_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
+        """
+        Get the recordset changes for the given zone id.
+
+        :param zone_id: the id of the zone to retrieve
+        :param start_from: the start key of the page
+        :param max_items: the page limit
+        :return: the zone, or will 404 if not found
+        """
+        args = []
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+        url = urljoin(self.index_url, u'/zones/{0}/recordsetchanges'.format(zone_id)) + u'?' + u'&'.join(args)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return data

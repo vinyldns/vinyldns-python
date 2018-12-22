@@ -59,5 +59,5 @@ sample_group2 = Group('ok2', 'test@test.com', 'description', datetime.utcnow(), 
 
 def gen_rs_change(record_set):
     return RecordSetChange(zone=forward_zone, record_set=record_set, user_id='test-user',
-                           change_type='Create', status='Pending', created='some-date', system_message=None,
+                           change_type='Create', status='Pending', created=datetime.utcnow(), system_message=None,
                            updates=record_set, id='some-id', user_name='some-username')

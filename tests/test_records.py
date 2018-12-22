@@ -12,18 +12,63 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+import copy
 
+import responses
 from sampledata import record_set_values, gen_rs_change
 from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
 from vinyldns.serdes import to_json_string, from_json_string
 
 
 def check_record_sets_are_equal(a, b):
-    assert a.zone_id == b.zone_id
-    assert a.type == b.type
-    assert a.ttl == b.ttl
-    assert a.name == b.name
-    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.records, b.records)])
+    if a is None:
+        assert a == b
+    else:
+        assert a.zone_id == b.zone_id
+        assert a.type == b.type
+        assert a.ttl == b.ttl
+        assert a.name == b.name
+        assert all([l.__dict__ == r.__dict__ for l, r in zip(a.records, b.records)])
+
+
+def check_record_set_changes_are_equal(a, b):
+    if a is None:
+        assert a == b
+    else:
+        assert a.user_id == b.user_id
+        assert a.change_type == b.change_type
+        assert a.status == b.status
+        assert a.created == b.created
+        assert a.system_message == b.system_message
+        assert a.id == b.id
+        assert a.user_name == b.user_name
+        assert a.zone.id == b.zone.id
+        check_record_sets_are_equal(a.record_set, b.record_set)
+        check_record_sets_are_equal(a.updates, b.updates)
+
+
+def test_create_recordset(record_set, mocked_responses, vinyldns_client):
+    change = gen_rs_change(record_set)
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/{0}/recordsets'.format(record_set.zone_id),
+        body=to_json_string(change), status=200
+    )
+    r = vinyldns_client.create_recordset(record_set)
+    check_record_set_changes_are_equal(change, r)
+    mocked_responses.reset()
+
+
+def test_update_recordset(record_set, mocked_responses, vinyldns_client):
+    rs = copy.deepcopy(record_set)
+    rs.id = rs.name + 'id'
+    change = gen_rs_change(rs)
+    mocked_responses.add(
+        responses.PUT, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        body=to_json_string(change), status=200
+    )
+    r = vinyldns_client.update_recordset(rs)
+    check_record_set_changes_are_equal(change, r)
+    mocked_responses.reset()
 
 
 def test_record_set_serdes(record_set):

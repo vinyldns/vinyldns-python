@@ -228,9 +228,10 @@ class RecordSetChange(object):
     @staticmethod
     def from_dict(d):
         updated_rs = map_option(d.get('updates'), RecordSet.from_dict)
+        created = map_option(d.get('created'), parse_datetime)
         return RecordSetChange(zone=Zone.from_dict(d['zone']), record_set=RecordSet.from_dict(d['recordSet']),
                                user_id=d['userId'], change_type=d['changeType'], status=d['status'],
-                               created=d['created'], system_message=d.get('systemMessage'), updates=updated_rs,
+                               created=created, system_message=d.get('systemMessage'), updates=updated_rs,
                                id=d['id'], user_name=d.get('userName'))
 
 
