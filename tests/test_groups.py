@@ -16,7 +16,7 @@ import datetime
 
 import responses
 
-from vinyldns.membership import Group, ListGroupsResponse, ListMembersResponse, Member
+from vinyldns.membership import Group, ListAdminsResponse, ListGroupsResponse, ListMembersResponse, Member, User
 from vinyldns.serdes import to_json_string, from_json_string
 from sampledata import sample_group, sample_group2, sample_user
 
@@ -120,6 +120,25 @@ def test_list_members(mocked_responses, vinyldns_client):
         assert l.email == r.email
         assert l.created == r.created
         assert l.is_admin == r.is_admin
+
+
+def test_list_admins(mocked_responses, vinyldns_client):
+    user1 = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.datetime.utcnow())
+    user2 = User('id2', 'test2002', 'Frank', 'Bonilla', 'frank@bob.com', datetime.datetime.utcnow())
+    lar = ListAdminsResponse([user1, user2])
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups/foo/admins',
+        body=to_json_string(lar), status=200
+    )
+    r = vinyldns_client.list_admins_group('foo')
+    for l, r in zip(lar.admins, r.admins):
+        assert l.id == r.id
+        assert l.user_name == r.user_name
+        assert l.first_name == r.first_name
+        assert l.last_name == r.last_name
+        assert l.email == r.email
+        assert l.created == r.created
+        assert l.lock_status == r.lock_status
 
 
 def test_group_serdes():

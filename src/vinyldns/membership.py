@@ -132,3 +132,14 @@ class ListMembersResponse(object):
             next_id=d.get('nextId'),
             max_items=d['maxItems']
         )
+
+
+class ListAdminsResponse(object):
+    def __init__(self, admins):
+        self.admins = admins
+
+    @staticmethod
+    def from_dict(d):
+        return ListAdminsResponse(
+            admins=[User.from_dict(elem) for elem in d.get('admins', [])]
+        )
