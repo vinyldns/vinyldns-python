@@ -84,4 +84,51 @@ class GroupChange(object):
 
     @staticmethod
     def from_dict(d):
-        return
+        return GroupChange(
+            new_group=d['newGroup'],
+            change_type=d['changeType'],
+            user_id=d['userId'],
+            old_group=map_option(d.get('oldGroup'), Group.from_dict),
+            id=d['id'],
+            created=map_option(d.get('created'), parse_datetime)
+        )
+
+
+class Member(object):
+    def __init__(self, id, user_name=None, first_name=None, last_name=None, email=None, created=None, is_admin=False):
+        self.id = id
+        self.user_name = user_name
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.created = created
+        self.is_admin = is_admin
+
+    @staticmethod
+    def from_dict(d):
+        return Member(
+            id=d['id'],
+            user_name=d.get('userName'),
+            first_name=d.get('firstName'),
+            last_name=d.get('lastName'),
+            email=d.get('lastName'),
+            created=map_option(d.get('created'), parse_datetime),
+            is_admin=d.get('isAdmin', False)
+        )
+
+
+class ListMembersResponse(object):
+    def __init__(self, members, start_from=None, next_id=None, max_items=100):
+        self.members = members
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        return ListMembersResponse(
+            members=[Member.from_dict(elem) for elem in d.get('members', [])],
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d['maxItems']
+        )

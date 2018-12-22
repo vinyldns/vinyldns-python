@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+import datetime
 
 import responses
 
-from vinyldns.membership import Group, ListGroupsResponse
+from vinyldns.membership import Group, ListGroupsResponse, ListMembersResponse, Member
 from vinyldns.serdes import to_json_string, from_json_string
-from sampledata import sample_group, sample_group2
+from sampledata import sample_group, sample_group2, sample_user
 
 
 def check_groups_are_same(a, b):
@@ -90,12 +91,33 @@ def test_list_all_my_groups(mocked_responses, vinyldns_client):
         body=to_json_string(sample_list_groups2), status=200)
     r = vinyldns_client.list_all_my_groups('*')
 
-    print("\r\n!!START FROM IS " + str(r.start_from))
     assert r.start_from is None
     assert r.next_id is None
     assert sample_list_groups1.group_name_filter == r.group_name_filter
 
     for l, r in zip([sample_group, sample_group2], r.groups):
+        assert l.id == r.id
+        assert l.user_name == r.user_name
+        assert l.first_name == r.first_name
+        assert l.email == r.email
+        assert l.created == r.created
+        assert l.is_admin == r.is_admin
+
+
+def test_list_members(mocked_responses, vinyldns_client):
+    member1 = Member('some-id', 'user-name', 'first', 'last', 'test@test.com', datetime.datetime.utcnow(), False)
+    member2 = Member('some-id2', 'user-name2', 'first2', 'last2', 'test@test.com', datetime.datetime.utcnow(), False)
+    lmr = ListMembersResponse([member1, member2], start_from='start', next_id='next', max_items=100)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups/foo/members?startFrom=start&maxItems=100',
+        body=to_json_string(lmr), status=200
+    )
+    r = vinyldns_client.list_members_group('foo', 'start', 100)
+    r.start_from = lmr.start_from
+    r.next_id = lmr.next_id
+    r.max_items = lmr.max_items
+
+    for l, r in zip(lmr.members, r.members):
         check_groups_are_same(l, r)
 
 
