@@ -237,7 +237,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/groups/' + group_id)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return Group.from_dict(data)
+        return Group.from_dict(data) if data is not None else None
 
     def delete_group(self, group_id, **kwargs):
         """
@@ -429,7 +429,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
-        return Zone.from_dict(data)
+        return Zone.from_dict(data) if data is not None else None
 
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
@@ -524,7 +524,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return RecordSet.from_dict(data)
+        return RecordSet.from_dict(data) if data is not None else None
 
     def list_record_sets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
         """
@@ -561,7 +561,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}/changes/{2}'.format(zone_id, rs_id, change_id))
 
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return RecordSetChange.from_dict(data)
+        return RecordSetChange.from_dict(data) if data is not None else None
 
     def list_record_set_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
@@ -602,7 +602,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}'.format(batch_change_id))
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return BatchChange.from_dict(data)
+        return BatchChange.from_dict(data) if data is not None else None
 
     def list_batch_change_summaries(self, start_from=None, max_items=None, **kwargs):
         """

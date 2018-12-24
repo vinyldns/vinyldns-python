@@ -58,13 +58,9 @@ done
 
 echo "timeout set to $TIMEOUT"
 
-set -a # Required in order to source docker/.env
-# Source customizable env files
-source "$DIR"/.env
-
 echo "Starting vinyldns and all dependencies in the background..."
 docker-compose -f "$DOCKER_COMPOSE_CONFIG" up -d
 
 echo "Waiting for api..."
-URL="$VINYLDNS_API_URL"
+URL="http://localhost:9000/ping"
 wait_for_url
