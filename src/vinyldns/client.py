@@ -31,6 +31,7 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
+from vinyldns.batch_change import BatchChange
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, ListAdminsResponse
 from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
@@ -588,8 +589,8 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges')
-        response, data = self.__make_request(url, u'POST', self.headers, json.dumps(batch_change_input), **kwargs)
-        return data
+        response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
+        return BatchChange.from_dict(data)
 
     def get_batch_change(self, batch_change_id, **kwargs):
         """

@@ -161,23 +161,24 @@ class UNKNOWNData(object):
         return UNKNOWNData(d['rdata'])
 
 
-class RecordSet(object):
-    # A mapping of record types to functions that create an RData instance from a dictionary
-    rdata_converters = {
-        RecordType.A: AData.from_dict,
-        RecordType.AAAA: AAAAData.from_dict,
-        RecordType.CNAME: CNAMEData.from_dict,
-        RecordType.PTR: PTRData.from_dict,
-        RecordType.MX: MXData.from_dict,
-        RecordType.NS: NSData.from_dict,
-        RecordType.SOA: SOAData.from_dict,
-        RecordType.SRV: SRVData.from_dict,
-        RecordType.TXT: TXTData.from_dict,
-        RecordType.SSHFP: SSHFPData.from_dict,
-        RecordType.SPF: SPFData.from_dict,
-        RecordType.UNKNOWN: UNKNOWNData.from_dict
-    }
+# A mapping of record types to functions that create an RData instance from a dictionary
+rdata_converters = {
+    RecordType.A: AData.from_dict,
+    RecordType.AAAA: AAAAData.from_dict,
+    RecordType.CNAME: CNAMEData.from_dict,
+    RecordType.PTR: PTRData.from_dict,
+    RecordType.MX: MXData.from_dict,
+    RecordType.NS: NSData.from_dict,
+    RecordType.SOA: SOAData.from_dict,
+    RecordType.SRV: SRVData.from_dict,
+    RecordType.TXT: TXTData.from_dict,
+    RecordType.SSHFP: SSHFPData.from_dict,
+    RecordType.SPF: SPFData.from_dict,
+    RecordType.UNKNOWN: UNKNOWNData.from_dict
+}
 
+
+class RecordSet(object):
     def __init__(self, zone_id, name, type, ttl, status=None, created=None, updated=None, records=[], id=None):
         self.zone_id = zone_id
         self.name = name
@@ -192,7 +193,7 @@ class RecordSet(object):
     @staticmethod
     def from_dict(d):
         # Convert the array of rdata to instances, default to empty array if not present
-        records = [RecordSet.rdata_converters[d['type']](rd) for rd in d.get('records', [])]
+        records = [rdata_converters[d['type']](rd) for rd in d.get('records', [])]
         created = map_option(d.get('created'), parse_datetime)
         return RecordSet(d['zoneId'], d['name'], d['type'], d['ttl'], d.get('status'), created,
                          d.get('updated'), records, d.get('id'))
@@ -209,7 +210,8 @@ class ListRecordSetsResponse(object):
     @staticmethod
     def from_dict(d):
         record_sets = [RecordSet.from_dict(elem) for elem in d.get('recordSets', [])]
-        return ListRecordSetsResponse(record_sets=record_sets, start_from=d.get('startFrom'), next_id=d.get('nextId'), max_items=d.get('maxItems'), record_name_filter=d.get('recordNameFilter'))
+        return ListRecordSetsResponse(record_sets=record_sets, start_from=d.get('startFrom'), next_id=d.get('nextId'),
+                                      max_items=d.get('maxItems'), record_name_filter=d.get('recordNameFilter'))
 
 
 class RecordSetChange(object):
