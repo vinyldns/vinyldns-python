@@ -18,7 +18,7 @@ from datetime import datetime
 
 import responses
 
-from sampledata import forward_zone, ip4_zone, ip6_zone, sample_zone_change
+from sampledata import acl_rule, forward_zone, ip4_zone, ip6_zone, sample_zone_change
 from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.zone import Zone, ZoneChange, ListZonesResponse, ListZoneChangesResponse
 
@@ -51,25 +51,25 @@ def test_zone_serdes():
 def test_connect_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.POST, 'http://test.com/zones',
-        body=to_json_string(forward_zone), status=200)
+        body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.connect_zone(forward_zone)
-    check_zones_are_same(forward_zone, r)
+    check_zones_are_same(forward_zone, r.zone)
 
 
 def test_update_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.PUT, 'http://test.com/zones/{0}'.format(forward_zone.id),
-        body=to_json_string(forward_zone), status=200)
+        body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.update_zone(forward_zone)
-    check_zones_are_same(forward_zone, r)
+    check_zones_are_same(forward_zone, r.zone)
 
 
 def test_abandon_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.DELETE, 'http://test.com/zones/{0}'.format(forward_zone.id),
-        body=to_json_string(forward_zone), status=200)
+        body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.abandon_zone(forward_zone.id)
-    check_zones_are_same(forward_zone, r)
+    check_zones_are_same(forward_zone, r.zone)
 
 
 def test_sync_zone(mocked_responses, vinyldns_client):
@@ -129,3 +129,22 @@ def test_list_zone_changes(mocked_responses, vinyldns_client):
         assert l.created == r.created
         assert l.system_message == r.system_message
         check_zones_are_same(l.zone, r.zone)
+
+
+def test_add_acl_rule(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.PUT, 'http://test.com/zones/{0}/acl/rules'.format(forward_zone.id),
+        body=to_json_string(sample_zone_change)
+    )
+    r = vinyldns_client.add_zone_acl_rule(forward_zone.id, acl_rule)
+    check_zones_are_same(r.zone, sample_zone_change.zone)
+
+
+def test_delete_acl_rule(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.DELETE, 'http://test.com/zones/{0}/acl/rules'.format(forward_zone.id),
+        body=to_json_string(sample_zone_change)
+    )
+    r = vinyldns_client.delete_zone_acl_rule(forward_zone.id, acl_rule)
+    check_zones_are_same(r.zone, sample_zone_change.zone)
+    

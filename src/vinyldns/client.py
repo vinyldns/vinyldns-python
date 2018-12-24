@@ -381,7 +381,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones')
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(zone), **kwargs)
-        return Zone.from_dict(data)
+        return ZoneChange.from_dict(data)
 
     def update_zone(self, zone, **kwargs):
         """
@@ -392,7 +392,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone.id))
         response, data = self.__make_request(url, u'PUT', self.headers, to_json_string(zone), **kwargs)
-        return Zone.from_dict(data)
+        return ZoneChange.from_dict(data)
 
     def sync_zone(self, zone_id, **kwargs):
         """
@@ -416,7 +416,7 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/{0}'.format(zone_id))
         response, data = self.__make_request(url, u'DELETE', self.headers, **kwargs)
 
-        return Zone.from_dict(data)
+        return ZoneChange.from_dict(data)
 
     def get_zone(self, zone_id, **kwargs):
         """
@@ -630,9 +630,9 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'PUT', self.headers,
-                                             json.dumps(acl_rule), **kwargs)
+                                             to_json_string(acl_rule), **kwargs)
 
-        return data
+        return ZoneChange.from_dict(data)
 
     def delete_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """
@@ -644,6 +644,6 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, '/zones/{0}/acl/rules'.format(zone_id))
         response, data = self.__make_request(url, 'DELETE', self.headers,
-                                             json.dumps(acl_rule), **kwargs)
+                                             to_json_string(acl_rule), **kwargs)
 
-        return data
+        return ZoneChange.from_dict(data)
