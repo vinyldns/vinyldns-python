@@ -64,3 +64,23 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     assert r.id == bc.id
     for l, r in zip(r.changes, bc.changes):
         check_single_changes_are_same(l, r)
+
+
+def test_get_batch_change(mocked_responses, vinyldns_client):
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, '1.2.3.4', 'Complete',
+                          'id1', 'system-message', 'rchangeid1', 'rsid1')
+    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
+                            'id2', 'system-message', 'rchangeid2', 'rsid2')
+    bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid')
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid',
+        body=to_json_string(bc), status=200
+    )
+    r = vinyldns_client.get_batch_change('bcid')
+    assert r.user_id == bc.user_id
+    assert r.user_name == bc.user_name
+    assert r.comments == bc.comments
+    assert r.created_timestamp == bc.created_timestamp
+    assert r.id == bc.id
+    for l, r in zip(r.changes, bc.changes):
+        check_single_changes_are_same(l, r)
