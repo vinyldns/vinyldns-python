@@ -147,4 +147,3 @@ def test_delete_acl_rule(mocked_responses, vinyldns_client):
     )
     r = vinyldns_client.delete_zone_acl_rule(forward_zone.id, acl_rule)
     check_zones_are_same(r.zone, sample_zone_change.zone)
-    
