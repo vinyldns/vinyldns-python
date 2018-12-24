@@ -298,7 +298,6 @@ class VinylDNSClient(object):
             args.append(u'groupNameFilter={0}'.format(group_name_filter))
 
         url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(args)
-        print("\r\n!!! URL IS " + url)
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         groups.extend(data[u'groups'])
 
@@ -306,7 +305,6 @@ class VinylDNSClient(object):
             next_args = args[:]
             next_args.append(u'startFrom={0}'.format(data['nextId']))
             url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(next_args)
-            print("\r\n!!! URL IS " + url)
             response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
             groups.extend(data[u'groups'])
 
@@ -472,7 +470,6 @@ class VinylDNSClient(object):
             url = url + u'?' + u'&'.join(query)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
-        print(str(data))
         return ListZonesResponse.from_dict(data)
 
     def create_record_set(self, record_set, **kwargs):
