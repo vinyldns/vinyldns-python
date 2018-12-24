@@ -27,7 +27,6 @@ class VinylDNSContext(object):
         self.group = self.client.create_group(group)
 
         zone = Zone(
-            id='test', # TODO: make id default to empty, as new zones do not take it
             name='vinyldns.',
             email='test@test.com',
             admin_group_id=self.group.id
