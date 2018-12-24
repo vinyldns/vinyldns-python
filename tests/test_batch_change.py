@@ -73,7 +73,7 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                             'id2', 'system-message', 'rchangeid2', 'rsid2')
     bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid')
     mocked_responses.add(
-        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid',
+        responses.GET, 'http://test.com/zones/batchrecordchanges/bcid',
         body=to_json_string(bc), status=200
     )
     r = vinyldns_client.get_batch_change('bcid')
