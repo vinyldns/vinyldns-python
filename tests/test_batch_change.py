@@ -19,7 +19,7 @@ from sampledata import record_set_values, gen_rs_change, forward_zone
 from vinyldns.record import RecordSet, RecordSetChange, RecordType, ListRecordSetsResponse, ListRecordSetChangesResponse
 from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
-    DeleteRecordSet, AddRecord
+    DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries
 
 
 def check_single_changes_are_same(a, b):
@@ -84,3 +84,25 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
     assert r.id == bc.id
     for l, r in zip(r.changes, bc.changes):
         check_single_changes_are_same(l, r)
+
+
+def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
+    bcs1 = BatchChangeSummary('user-id', 'user-name', 'comments', datetime.utcnow(), 10, 'Complete', 'id1')
+    bcs2 = BatchChangeSummary('user-id2', 'user-name2', 'comments2', datetime.utcnow(), 20, 'Complete', 'id2')
+    lbcs = ListBatchChangeSummaries([bcs1, bcs2], 'start', 'next', 50)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/batchrecordchanges?startFrom=start&maxItems=50',
+        body=to_json_string(lbcs), status=200
+    )
+    r = vinyldns_client.list_batch_change_summaries('start', 50)
+    assert r.start_from == lbcs.start_from
+    assert r.next_id == lbcs.next_id
+    assert r.max_items == lbcs.max_items
+    for l, r in zip(r.batch_changes, lbcs.batch_changes):
+        assert l.user_id == r.user_id
+        assert l.user_name == r.user_name
+        assert l.comments == r.comments
+        assert l.created_timestamp == r.created_timestamp
+        assert l.total_changes == r.total_changes
+        assert l.status == r.status
+        assert l.id == r.id

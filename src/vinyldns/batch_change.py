@@ -165,3 +165,43 @@ class BatchChange(object):
             changes=[BatchChange.change_type_converters[elem['changeType']](elem) for elem in d.get('changes', [])],
             id=d['id']
         )
+
+
+class BatchChangeSummary(object):
+    def __init__(self, user_id, user_name, comments, created_timestamp, total_changes, status, id):
+        self.user_id = user_id
+        self.user_name = user_name
+        self.comments = comments
+        self.created_timestamp = created_timestamp
+        self.total_changes = total_changes
+        self.status = status
+        self.id = id
+
+    @staticmethod
+    def from_dict(d):
+        return BatchChangeSummary(
+            user_id=d['userId'],
+            user_name=d['userName'],
+            comments=d.get('comments'),
+            created_timestamp=parse_datetime(d['createdTimestamp']),
+            total_changes=d['totalChanges'],
+            status=d['status'],
+            id=d['id']
+        )
+
+
+class ListBatchChangeSummaries(object):
+    def __init__(self, batch_changes, start_from=None, next_id=None, max_items=100):
+        self.batch_changes = batch_changes
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        return ListBatchChangeSummaries(
+            batch_changes=[BatchChangeSummary.from_dict(elem) for elem in d.get('batchChanges', [])],
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems', 100)
+        )
