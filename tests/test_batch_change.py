@@ -15,9 +15,9 @@
 from datetime import datetime
 
 import responses
-from sampledata import record_set_values, gen_rs_change, forward_zone
-from vinyldns.record import RecordSet, RecordSetChange, RecordType, ListRecordSetsResponse, ListRecordSetChangesResponse
-from vinyldns.serdes import to_json_string, from_json_string
+from sampledata import forward_zone
+from vinyldns.record import RecordType
+from vinyldns.serdes import to_json_string
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries
 
@@ -42,8 +42,8 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     ar = AddRecord('foo.bar.com', RecordType.A, 100, '1.2.3.4')
     drs = DeleteRecordSet('baz.bar.com', RecordType.A)
 
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, '1.2.3.4', 'Complete',
-                          'id1', 'system-message', 'rchangeid1', 'rsid1')
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, '1.2.3.4',
+                          'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
     bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid')
@@ -67,10 +67,10 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_get_batch_change(mocked_responses, vinyldns_client):
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, '1.2.3.4', 'Complete',
-                          'id1', 'system-message', 'rchangeid1', 'rsid1')
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, '1.2.3.4',
+                          'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
-                            'id2', 'system-message', 'rchangeid2', 'rsid2')
+                                'id2', 'system-message', 'rchangeid2', 'rsid2')
     bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid')
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/batchrecordchanges/bcid',

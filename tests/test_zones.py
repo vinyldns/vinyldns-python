@@ -110,8 +110,10 @@ def test_get_zone(mocked_responses, vinyldns_client):
 
 
 def test_list_zone_changes(mocked_responses, vinyldns_client):
-    change1 = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending', created=datetime.utcnow(), system_message=None, id='zone-change-id1')
-    change2 = ZoneChange(zone=ip4_zone, user_id='some-user', change_type='Create', status='Pending', created=datetime.utcnow(), system_message='msg', id='zone-change-id2')
+    change1 = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending',
+                         created=datetime.utcnow(), system_message=None, id='zone-change-id1')
+    change2 = ZoneChange(zone=ip4_zone, user_id='some-user', change_type='Create', status='Pending',
+                         created=datetime.utcnow(), system_message='msg', id='zone-change-id2')
     lzcr = ListZoneChangesResponse(forward_zone.id, [change1, change2], 'next', 'start', 100)
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/{0}/changes?startFrom=start&maxItems=100'.format(forward_zone.id),

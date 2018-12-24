@@ -13,16 +13,7 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-"""
-final case class BatchChangeInput(comments: Option[String], changes: List[ChangeInput])
-final case class AddChangeInput(inputName: String, typ: RecordType, ttl: Long, record: RecordData)
-    extends ChangeInput
-
-final case class DeleteChangeInput(inputName: String, typ: RecordType) extends ChangeInput
-"""
-
 from vinyldns.serdes import parse_datetime, map_option
-from vinyldns.record import RecordType
 
 
 class AddRecord(object):
@@ -71,7 +62,8 @@ class BatchChangeRequest(object):
     def from_dict(d):
         return BatchChangeRequest(
             comments=d.get('comments'),
-            changes=[BatchChangeRequest.change_type_converters[elem.change_type](elem) for elem in d.get('changes', [])]
+            changes=[BatchChangeRequest.change_type_converters[elem['changeType']](elem)
+                     for elem in d.get('changes', [])]
         )
 
 

@@ -16,9 +16,10 @@ import datetime
 
 import responses
 
-from vinyldns.membership import Group, GroupChange, ListAdminsResponse, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, Member, User
+from vinyldns.membership import Group, GroupChange, ListAdminsResponse, ListGroupsResponse, ListGroupChangesResponse, \
+    ListMembersResponse, Member, User
 from vinyldns.serdes import to_json_string, from_json_string
-from sampledata import sample_group, sample_group2, sample_user
+from sampledata import sample_group, sample_group2
 
 
 def check_groups_are_same(a, b):
@@ -168,4 +169,3 @@ def test_list_group_changes(mocked_responses, vinyldns_client):
 def test_group_serdes():
     r = from_json_string(to_json_string(sample_group), Group.from_dict)
     check_groups_are_same(sample_group, r)
-

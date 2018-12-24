@@ -225,7 +225,8 @@ class ListRecordSetsResponse(object):
 
 
 class RecordSetChange(object):
-    def __init__(self, zone, record_set, user_id, change_type, status, created, system_message, updates, id, user_name):
+    def __init__(self, zone, record_set, user_id, change_type, status, created, system_message, updates, id,
+                 user_name):
         self.zone = zone
         self.record_set = record_set
         self.user_id = user_id

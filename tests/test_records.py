@@ -144,6 +144,7 @@ def test_record_set_serdes(record_set):
     r = from_json_string(s, RecordSet.from_dict)
     check_record_sets_are_equal(r, rs)
 
+
 def test_record_set_changes_serdes(record_set):
     a = gen_rs_change(record_set)
     s = to_json_string(a)
@@ -159,6 +160,7 @@ def test_record_set_changes_serdes(record_set):
     assert a.zone.id == b.zone.id
     check_record_sets_are_equal(a.record_set, b.record_set)
     check_record_sets_are_equal(a.updates, b.updates)
+
 
 def test_list_record_set_response_serdes():
     a = ListRecordSetsResponse(record_sets=record_set_values, start_from='some-start', next_id='next',
