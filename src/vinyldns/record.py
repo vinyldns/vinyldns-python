@@ -192,15 +192,21 @@ class RecordSet(object):
 
     @staticmethod
     def from_dict(d):
-        # Convert the array of rdata to instances, default to empty array if not present
-        records = [rdata_converters[d['type']](rd) for rd in d.get('records', [])]
-        created = map_option(d.get('created'), parse_datetime)
-        return RecordSet(d['zoneId'], d['name'], d['type'], d['ttl'], d.get('status'), created,
-                         d.get('updated'), records, d.get('id'))
+        return RecordSet(
+            zone_id=d['zoneId'],
+            name=d['name'],
+            type=d['type'],
+            ttl=d['ttl'],
+            status=d.get('status'),
+            created=map_option(d.get('created'), parse_datetime),
+            updated=d.get('updated'),
+            records=[rdata_converters[d['type']](rd) for rd in d.get('records', [])],
+            id=d.get('id')
+        )
 
 
 class ListRecordSetsResponse(object):
-    def __init__(self, record_sets, start_from, next_id, max_items, record_name_filter):
+    def __init__(self, record_sets, start_from=None, next_id=None, max_items=None, record_name_filter=None):
         self.record_sets = record_sets
         self.start_from = start_from
         self.next_id = next_id
@@ -209,9 +215,13 @@ class ListRecordSetsResponse(object):
 
     @staticmethod
     def from_dict(d):
-        record_sets = [RecordSet.from_dict(elem) for elem in d.get('recordSets', [])]
-        return ListRecordSetsResponse(record_sets=record_sets, start_from=d.get('startFrom'), next_id=d.get('nextId'),
-                                      max_items=d.get('maxItems'), record_name_filter=d.get('recordNameFilter'))
+        return ListRecordSetsResponse(
+            record_sets=[RecordSet.from_dict(elem) for elem in d.get('recordSets', [])],
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems'),
+            record_name_filter=d.get('recordNameFilter')
+        )
 
 
 class RecordSetChange(object):
@@ -229,16 +239,22 @@ class RecordSetChange(object):
 
     @staticmethod
     def from_dict(d):
-        updated_rs = map_option(d.get('updates'), RecordSet.from_dict)
-        created = map_option(d.get('created'), parse_datetime)
-        return RecordSetChange(zone=Zone.from_dict(d['zone']), record_set=RecordSet.from_dict(d['recordSet']),
-                               user_id=d['userId'], change_type=d['changeType'], status=d['status'],
-                               created=created, system_message=d.get('systemMessage'), updates=updated_rs,
-                               id=d['id'], user_name=d.get('userName'))
+        return RecordSetChange(
+            zone=Zone.from_dict(d['zone']),
+            record_set=RecordSet.from_dict(d['recordSet']),
+            user_id=d['userId'],
+            change_type=d['changeType'],
+            status=d['status'],
+            created=map_option(d.get('created'), parse_datetime),
+            system_message=d.get('systemMessage'),
+            updates=map_option(d.get('updates'), RecordSet.from_dict),
+            id=d['id'],
+            user_name=d.get('userName')
+        )
 
 
 class ListRecordSetChangesResponse(object):
-    def __init__(self, zone_id, record_set_changes, next_id, start_from, max_items):
+    def __init__(self, zone_id, record_set_changes, start_from=None, next_id=None, max_items=100):
         self.zone_id = zone_id
         self.record_set_changes = record_set_changes
         self.next_id = next_id

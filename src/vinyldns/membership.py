@@ -35,8 +35,15 @@ class User(object):
     @staticmethod
     def from_dict(d):
         created = map_option(d.get('created'), parse_datetime)
-        return User(id=d['id'], user_name=d.get('userName'), first_name=d.get('firstName'), last_name=d.get('lastName'),
-                    email=d.get('email'), created=created, lock_status=d.get('lockStatus', UserLockStatus.Unlocked))
+        return User(
+            id=d['id'],
+            user_name=d.get('userName'),
+            first_name=d.get('firstName'),
+            last_name=d.get('lastName'),
+            email=d.get('email'),
+            created=created,
+            lock_status=d.get('lockStatus', UserLockStatus.Unlocked)
+        )
 
 
 class Group(object):
@@ -51,11 +58,15 @@ class Group(object):
 
     @staticmethod
     def from_dict(d):
-        members = [User.from_dict(ud) for ud in d.get('members', [])]
-        admins = [User.from_dict(ud) for ud in d.get('admins', [])]
-        created = map_option(d.get('created'), parse_datetime)
-        return Group(name=d['name'], email=d['email'], description=d.get('description'), created=created,
-                     members=members, admins=admins, id=d.get('id'))
+        return Group(
+            name=d['name'],
+            email=d['email'],
+            description=d.get('description'),
+            created=map_option(d.get('created'), parse_datetime),
+            members=[User.from_dict(ud) for ud in d.get('members', [])],
+            admins=[User.from_dict(ud) for ud in d.get('admins', [])],
+            id=d.get('id')
+        )
 
 
 class ListGroupsResponse(object):
@@ -68,9 +79,13 @@ class ListGroupsResponse(object):
 
     @staticmethod
     def from_dict(d):
-        groups = [Group.from_dict(elem) for elem in d.get('groups', [])]
-        return ListGroupsResponse(groups, d.get('maxItems'), d.get('groupNameFilter'), d.get('startFrom'),
-                                  d.get('nextId'))
+        return ListGroupsResponse(
+            groups=[Group.from_dict(elem) for elem in d.get('groups', [])],
+            max_items=d.get('maxItems'),
+            group_name_filter=d.get('groupNameFilter'),
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId')
+        )
 
 
 class GroupChange(object):

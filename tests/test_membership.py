@@ -165,7 +165,6 @@ def test_list_group_changes(mocked_responses, vinyldns_client):
         check_groups_are_same(l.old_group, r.old_group)
 
 
-
 def test_group_serdes():
     r = from_json_string(to_json_string(sample_group), Group.from_dict)
     check_groups_are_same(sample_group, r)
