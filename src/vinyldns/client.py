@@ -303,7 +303,7 @@ class VinylDNSClient(object):
         groups.extend(data[u'groups'])
 
         while u'nextId' in data and data[u'nextId']:
-            next_args = args.copy()
+            next_args = args[:]
             next_args.append(u'startFrom={0}'.format(data['nextId']))
             url = urljoin(self.index_url, u'/groups') + u'?' + u'&'.join(next_args)
             print("\r\n!!! URL IS " + url)
