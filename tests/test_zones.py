@@ -112,7 +112,7 @@ def test_list_zones(mocked_responses, vinyldns_client):
 def test_get_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/{0}'.format(forward_zone.id),
-        body=to_json_string(forward_zone), status=200)
+        body=to_json_string({'zone': forward_zone}), status=200)
     r = vinyldns_client.get_zone(forward_zone.id)
     check_zones_are_same(forward_zone, r)
 
