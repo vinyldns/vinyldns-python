@@ -84,10 +84,10 @@ class Zone(object):
         :return: A populated zone
         """
         return Zone(
-            id=d.get('id'),
-            name=d.get('name'),
-            email=d.get('email'),
-            admin_group_id=d.get('adminGroupId'),
+            id=d['id'],
+            name=d['name'],
+            email=d['email'],
+            admin_group_id=d['adminGroupId'],
             status=d.get('status'),
             created=map_option(d.get('created'), parse_datetime),
             updated=map_option(d.get('updated'), parse_datetime),

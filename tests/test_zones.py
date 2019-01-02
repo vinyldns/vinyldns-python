@@ -23,6 +23,16 @@ from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.zone import Zone, ZoneChange, ListZonesResponse, ListZoneChangesResponse
 
 
+def check_zone_connections_are_same(a, b):
+    if a is None:
+        assert b is None
+    else:
+        assert a.primary_server == b.primary_server
+        assert a.key == b.key
+        assert a.name == b.name
+        assert a.key_name == b.key_name
+
+
 def check_zones_are_same(a, b):
     assert a.id == b.id
     assert a.name == b.name
@@ -31,10 +41,8 @@ def check_zones_are_same(a, b):
     assert a.status == b.status
     assert a.updated == b.updated
     assert a.created == b.created
-    assert a.connection.primary_server == b.connection.primary_server
-    assert a.connection.key == b.connection.key
-    assert a.connection.name == b.connection.name
-    assert a.connection.key_name == b.connection.key_name
+    check_zone_connections_are_same(a.connection, b.connection)
+    check_zone_connections_are_same(a.transfer_connection, b.transfer_connection)
     assert all([l.__dict__ == r.__dict__ for l, r in zip(a.acl.rules, b.acl.rules)])
 
 

@@ -30,6 +30,7 @@ def check_groups_are_same(a, b):
         assert a.description == b.description
         assert a.created == b.created
         assert a.name == b.name
+        assert a.email == b.email
         assert all([l.__dict__ == r.__dict__ for l, r in zip(a.members, b.members)])
         assert all([l.__dict__ == r.__dict__ for l, r in zip(a.admins, b.admins)])
 

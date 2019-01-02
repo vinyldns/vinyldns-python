@@ -13,4 +13,4 @@
 # limitations under the License.
 
 """TODO: Add module docstring."""
-__all__ = ['client', 'membership', 'record', 'serdes', 'zone']
+__all__ = ['batch_change', 'client', 'membership', 'record', 'serdes', 'zone']

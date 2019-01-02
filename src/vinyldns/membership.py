@@ -80,6 +80,7 @@ class ListGroupsResponse(object):
     @staticmethod
     def from_dict(d):
         return ListGroupsResponse(
+
             groups=[Group.from_dict(elem) for elem in d.get('groups', [])],
             max_items=d.get('maxItems'),
             group_name_filter=d.get('groupNameFilter'),
