@@ -46,10 +46,7 @@ run `python3 setup.py test -a "-k my_test"`
 Functional tests are also developed with pytest. These tests run against a local instance of VinylDNS. Note that for now
 they are not tied into our travis build, so they must be run locally for validation.
 
-To run the func tests, first startup a local VinylDNS api instance with `./docker/docker-up-vinyldns.sh`. Then from
-your virtualenv, run `python3 setup.py test -a "func_tests"`.
-
-After testing is complete, you should clean up the running VinylDNS api with `./docker/remove-vinyl-containers.sh `.
+From your virtualenv, run `tox -e func_test`
 
 **Running a full build**
 When you are finished writing your code you will want to run everything including linters.  The

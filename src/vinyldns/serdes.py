@@ -45,7 +45,10 @@ def to_dict(obj, cls=None):
     :param cls: The type of class, useful for recursion
     :return: A fully populated dictionary with field names converted to camelCase
     """
-    if isinstance(obj, dict):
+    from datetime import date, datetime
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
         data = {}
         for (k, v) in obj.items():
             # Runs a conversion of snake_case to camelCase to be compliant with the API
@@ -87,3 +90,26 @@ def to_json_string(o):
     """
     import json
     return json.dumps(to_dict(o))
+
+
+def map_option(v, f):
+    """
+    Applies the function f to the value if it is not None
+    :param v: A value that maybe None
+    :param f: A function that takes a single argument to apply to v
+    :return: The result of applying f to v; None if v is None
+    """
+    if v:
+        return f(v)
+    else:
+        return None
+
+
+def parse_datetime(s):
+    """
+    Parses the iso formatted date from the string provided
+    :param s: An iso date formatted string
+    :return: A datetime
+    """
+    import dateutil.parser
+    return dateutil.parser.parse(s)
