@@ -1,4 +1,4 @@
-# vinyldns-python (WORK IN PROGRESS)
+# vinyldns-python
 
 Python client library for [VinylDNS](https://www.vinyldns.io/)
 
