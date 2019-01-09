@@ -6,6 +6,7 @@ function usage {
     printf "usage: release.sh [OPTIONS]\n\n"
     printf "Bumps the version and releases the package to pypi\n\n"
     printf "options:\n"
+    printf "\t-b, --bump: which segment to bump: major | minor | patch\n"
     printf "\t-g, --git: push after release to git (default is off)\n"
     printf "\t-p, --production: use real pypi instead of test pypi (test is default)\n"
     printf "\t-k, --key-id: the key id to use to sign the artifacts\n"
@@ -15,6 +16,8 @@ RELEASE_URL="https://test.pypi.org/legacy/"
 KEY_ID=
 GIT_PUSH="false"
 KEY_ID=
+VERSION_SEGMENT="patch"
+
 while [ "$1" != "" ]; do
     case "$1" in
         -g | --git )
@@ -27,6 +30,10 @@ while [ "$1" != "" ]; do
             ;;
         -k | --key-id )
             KEY_ID="$2"
+            shift
+            ;;
+        -b | --bump )
+            VERSION_SEGMENT="$2"
             shift
             ;;
         --)              # End of all options.
@@ -52,8 +59,16 @@ fi
 echo "Clearing the dist directory..."
 rm -rf ${DIR}/dist
 
-echo "Bumping the version..."
-bumpversion patch
+if [ "${VERSION_SEGMENT}" -eq "patch" ]; then
+    echo "Bumping the major version..."
+    bumpversion major
+elif [ "${VERSION_SEGMENT}" -eq "minor" ]; then
+    echo "Bumping the minor version..."
+    bumpversion minor
+else
+    echo "Bumping the patch version..."
+    bumpversion patch
+fi
 
 echo "Building the artifacts..."
 python3 setup.py sdist bdist_wheel
