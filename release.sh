@@ -79,7 +79,7 @@ fi
 echo "Building the artifacts..."
 python3 setup.py sdist bdist_wheel
 
-echo "Signing the artifacts..."
+echo "Signing using GPG with key ${KEY_ID} get your passphrase ready..."
 cd ${DIR}/dist
 for file in $(ls);
 do
