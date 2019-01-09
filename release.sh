@@ -59,17 +59,17 @@ fi
 echo "Clearing the dist directory..."
 rm -rf ${DIR}/dist
 
-bump_result=0
 if [ "${VERSION_SEGMENT}" == "major" ]; then
     echo "Bumping the major version..."
-    bump_result=$(bumpversion major)
+    bumpversion major
 elif [ "${VERSION_SEGMENT}" == "minor" ]; then
     echo "Bumping the minor version..."
-    bump_result=$(bumpversion minor)
+    bumpversion minor
 else
     echo "Bumping the patch version..."
-    bump_result=$(bumpversion patch)
+    bumpversion patch
 fi
+bump_result=$?
 
 if [ "${bump_result}" != 0 ]; then
     echo "Bumping version failed ${bump_result}!"
