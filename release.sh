@@ -72,7 +72,7 @@ else
 fi
 
 if [ "${bump_result}" != 0 ]; then
-    echo "Bumping version failed!"
+    echo "Bumping version failed ${bump_result}!"
     exit 1
 fi
 
