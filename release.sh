@@ -12,7 +12,7 @@ function usage {
     printf "\t-k, --key-id: the key id to use to sign the artifacts\n"
 }
 
-RELEASE_URL="https://test.pypi.org/legacy/"
+RELEASE_URL="--repository-url https://test.pypi.org/legacy/"
 KEY_ID=
 GIT_PUSH="false"
 KEY_ID=
@@ -24,7 +24,7 @@ while [ "$1" != "" ]; do
             GIT_PUSH="true"
             ;;
         -p | --production )
-            RELEASE_URL="https://pypi.org/legacy/"
+            RELEASE_URL=""
             ;;
         -k | --key-id )
             KEY_ID="$2"
@@ -86,12 +86,12 @@ do
 done
 
 echo "Uploading to pypi at ${RELEASE_URL}..."
-twine upload --repository-url ${RELEASE_URL} ${DIR}/dist/*
+twine upload ${RELEASE_URL} ${DIR}/dist/*
 
 if [[ "$GIT_PUSH" == "true" ]]; then
     echo "Pushing git tags..."
-    git push
-    git push --tags
+    #git push
+    #git push --tags
 else
     echo "Skipping push to git!"
 fi
