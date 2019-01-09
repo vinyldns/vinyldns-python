@@ -22,11 +22,9 @@ while [ "$1" != "" ]; do
     case "$1" in
         -g | --git )
             GIT_PUSH="true"
-            shift
             ;;
         -p | --production )
             RELEASE_URL="https://pypi.org/legacy/"
-            shift
             ;;
         -k | --key-id )
             KEY_ID="$2"
