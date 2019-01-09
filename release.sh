@@ -59,15 +59,21 @@ fi
 echo "Clearing the dist directory..."
 rm -rf ${DIR}/dist
 
-if [ "${VERSION_SEGMENT}" -eq "patch" ]; then
+bump_result=0
+if [ "${VERSION_SEGMENT}" == "major" ]; then
     echo "Bumping the major version..."
-    bumpversion major
-elif [ "${VERSION_SEGMENT}" -eq "minor" ]; then
+    bump_result=$(bumpversion major)
+elif [ "${VERSION_SEGMENT}" == "minor" ]; then
     echo "Bumping the minor version..."
-    bumpversion minor
+    bump_result=$(bumpversion minor)
 else
     echo "Bumping the patch version..."
-    bumpversion patch
+    bump_result=$(bumpversion patch)
+fi
+
+if [ "${bump_result}" != 0 ]; then
+    echo "Bumping version failed!"
+    exit 1
 fi
 
 echo "Building the artifacts..."
