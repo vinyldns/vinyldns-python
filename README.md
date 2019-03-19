@@ -1,3 +1,5 @@
+[![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-python.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-python)
+
 # vinyldns-python
 
 Python client library for [VinylDNS](https://www.vinyldns.io/)
