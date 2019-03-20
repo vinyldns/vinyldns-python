@@ -20,7 +20,7 @@ services:
       - ./bind9/zones:/var/cache/bind/zones
 
   api:
-    image: "vinyldns/api:latest"
+    image: "vinyldns/api:0.8.1-SNAPSHOT"
     container_name: "vinyldns-api"
     ports:
       - "9000:9000"
