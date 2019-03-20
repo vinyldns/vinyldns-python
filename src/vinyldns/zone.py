@@ -63,7 +63,7 @@ class ZoneConnection(object):
 
 class Zone(object):
     def __init__(self, name, email, admin_group_id, id=None, status=None, created=None, updated=None, connection=None,
-                 transfer_connection=None, acl=ZoneACL(), latest_sync=None):
+                 transfer_connection=None, acl=ZoneACL(), latest_sync=None, is_test=False):
         self.id = id
         self.name = name
         self.email = email
@@ -75,6 +75,7 @@ class Zone(object):
         self.acl = acl
         self.admin_group_id = admin_group_id
         self.latest_sync = latest_sync
+        self.is_test = is_test
 
     @staticmethod
     def from_dict(d):
@@ -94,7 +95,8 @@ class Zone(object):
             connection=map_option(d.get('connection'), ZoneConnection.from_dict),
             transfer_connection=map_option(d.get('transferConnection'), ZoneConnection.from_dict),
             acl=map_option(d.get('acl'), ZoneACL.from_dict),
-            latest_sync=map_option(d.get('latestSync'), parse_datetime)
+            latest_sync=map_option(d.get('latestSync'), parse_datetime),
+            is_test=d.get('isTest', False)
         )
 
 
