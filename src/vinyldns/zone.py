@@ -96,7 +96,7 @@ class Zone(object):
             transfer_connection=map_option(d.get('transferConnection'), ZoneConnection.from_dict),
             acl=map_option(d.get('acl'), ZoneACL.from_dict),
             latest_sync=map_option(d.get('latestSync'), parse_datetime),
-            is_test=d[False]
+            is_test=d.get('isTest', False)
         )
 
 
