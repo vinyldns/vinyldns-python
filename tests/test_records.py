@@ -28,6 +28,7 @@ def check_record_sets_are_equal(a, b):
         assert a.type == b.type
         assert a.ttl == b.ttl
         assert a.name == b.name
+        assert a.owner_group_id == b.owner_group_id
         assert all([l.__dict__ == r.__dict__ for l, r in zip(a.records, b.records)])
 
 

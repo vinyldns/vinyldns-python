@@ -41,6 +41,8 @@ def check_zones_are_same(a, b):
     assert a.status == b.status
     assert a.updated == b.updated
     assert a.created == b.created
+    assert a.shared == b.shared
+    assert a.backend_id == b.backend_id
     check_zone_connections_are_same(a.connection, b.connection)
     check_zone_connections_are_same(a.transfer_connection, b.transfer_connection)
     assert all([l.__dict__ == r.__dict__ for l, r in zip(a.acl.rules, b.acl.rules)])

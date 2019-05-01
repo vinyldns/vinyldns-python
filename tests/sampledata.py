@@ -33,20 +33,20 @@ sample_zone_change = ZoneChange(zone=forward_zone, user_id='some-user', change_t
                                 created=datetime.utcnow(), system_message=None, id='zone-change-id')
 
 record_sets = {
-    RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')]),
+    RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')], owner_group_id='owner-group-id'),
     RecordType.AAAA: RecordSet(forward_zone.id, 'aaaa-test', RecordType.AAAA, 200,
-                               records=[AAAAData('1:2:3:4:5:6:7:8')]),
-    RecordType.CNAME: RecordSet(forward_zone.id, 'cname-test', RecordType.CNAME, 200, records=[CNAMEData('cname')]),
-    RecordType.PTR: RecordSet('0.168.192.in-addr.arpa', '30', RecordType.PTR, 200, records=[PTRData('alias')]),
-    RecordType.SRV: RecordSet(forward_zone.id, 'srv-test', RecordType.SRV, 200, records=[SRVData(1, 2, 3, 'target')]),
-    RecordType.MX: RecordSet(forward_zone.id, 'mx-test', RecordType.MX, 200, records=[MXData(1, 'mail')]),
-    RecordType.NS: RecordSet(forward_zone.id, 'ns-test', RecordType.NS, 200, records=[NSData('ns1.foo.bar')]),
+                               records=[AAAAData('1:2:3:4:5:6:7:8')], owner_group_id='owner-group-id'),
+    RecordType.CNAME: RecordSet(forward_zone.id, 'cname-test', RecordType.CNAME, 200, records=[CNAMEData('cname')], owner_group_id='owner-group-id'),
+    RecordType.PTR: RecordSet('0.168.192.in-addr.arpa', '30', RecordType.PTR, 200, records=[PTRData('alias')], owner_group_id='owner-group-id'),
+    RecordType.SRV: RecordSet(forward_zone.id, 'srv-test', RecordType.SRV, 200, records=[SRVData(1, 2, 3, 'target')], owner_group_id='owner-group-id'),
+    RecordType.MX: RecordSet(forward_zone.id, 'mx-test', RecordType.MX, 200, records=[MXData(1, 'mail')], owner_group_id='owner-group-id'),
+    RecordType.NS: RecordSet(forward_zone.id, 'ns-test', RecordType.NS, 200, records=[NSData('ns1.foo.bar')], owner_group_id='owner-group-id'),
     RecordType.SOA: RecordSet(forward_zone.id, 'soa-test', RecordType.SOA, 200,
-                              records=[SOAData('mname', 'rname', 100, 200, 300, 400, 500)]),
-    RecordType.SPF: RecordSet(forward_zone.id, 'spf-test', RecordType.SPF, 200, records=[SPFData('some-spf')]),
-    RecordType.TXT: RecordSet(forward_zone.id, 'txt-test', RecordType.TXT, 200, records=[TXTData('some-text')]),
+                              records=[SOAData('mname', 'rname', 100, 200, 300, 400, 500)], owner_group_id='owner-group-id'),
+    RecordType.SPF: RecordSet(forward_zone.id, 'spf-test', RecordType.SPF, 200, records=[SPFData('some-spf')], owner_group_id='owner-group-id'),
+    RecordType.TXT: RecordSet(forward_zone.id, 'txt-test', RecordType.TXT, 200, records=[TXTData('some-text')], owner_group_id='owner-group-id'),
     RecordType.SSHFP: RecordSet(forward_zone.id, 'sshfp-test', RecordType.SSHFP, 200,
-                                records=[SSHFPData('algorithm', 'type', 'fingerprint')]),
+                                records=[SSHFPData('algorithm', 'type', 'fingerprint')], owner_group_id='owner-group-id'),
 }
 
 record_set_values = record_sets.values()
