@@ -63,7 +63,8 @@ class ZoneConnection(object):
 
 class Zone(object):
     def __init__(self, name, email, admin_group_id, id=None, status=None, created=None, updated=None, connection=None,
-                 transfer_connection=None, acl=ZoneACL(), latest_sync=None, is_test=False, shared=False, backend_id=None):
+                 transfer_connection=None, acl=ZoneACL(), latest_sync=None, is_test=False, shared=False,
+                 backend_id=None):
         self.id = id
         self.name = name
         self.email = email
