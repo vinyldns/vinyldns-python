@@ -46,7 +46,8 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
                           'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
-    bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid', 'owner-group-id')
+    bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc],
+                     'bcid', 'owner-group-id')
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges',
         body=to_json_string(bc), status=200
@@ -72,7 +73,8 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                           'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
-    bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc], 'bcid', 'owner-group-id')
+    bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc],
+                     'bcid', 'owner-group-id')
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/batchrecordchanges/bcid',
         body=to_json_string(bc), status=200
@@ -89,7 +91,8 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
-    bcs1 = BatchChangeSummary('user-id', 'user-name', 'comments', datetime.utcnow(), 10, 'Complete', 'id1', 'owner-group-id')
+    bcs1 = BatchChangeSummary('user-id', 'user-name', 'comments', datetime.utcnow(), 10, 'Complete',
+                              'id1', 'owner-group-id')
     bcs2 = BatchChangeSummary('user-id2', 'user-name2', 'comments2', datetime.utcnow(), 20, 'Complete', 'id2')
     lbcs = ListBatchChangeSummaries([bcs1, bcs2], 'start', 'next', 50)
     mocked_responses.add(
