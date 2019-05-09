@@ -54,16 +54,18 @@ class BatchChangeRequest(object):
         'DeleteRecordSet': DeleteRecordSet.from_dict
     }
 
-    def __init__(self, changes, comments=None):
+    def __init__(self, changes, comments=None, owner_group_id=None):
         self.comments = comments
         self.changes = changes
+        self.owner_group_id = owner_group_id
 
     @staticmethod
     def from_dict(d):
         return BatchChangeRequest(
             comments=d.get('comments'),
             changes=[BatchChangeRequest.change_type_converters[elem['changeType']](elem)
-                     for elem in d.get('changes', [])]
+                     for elem in d.get('changes', [])],
+            owner_group_id=d.get('ownerGroupId')
         )
 
 
@@ -139,13 +141,15 @@ class BatchChange(object):
         'DeleteRecordSet': DeleteRecordSetChange.from_dict
     }
 
-    def __init__(self, user_id, user_name, comments, created_timestamp, changes, id):
+    def __init__(self, user_id, user_name, comments,
+                 created_timestamp, changes, id, owner_group_id=None):
         self.user_id = user_id
         self.user_name = user_name
         self.comments = comments
         self.created_timestamp = created_timestamp
         self.changes = changes
         self.id = id
+        self.owner_group_id = owner_group_id
 
     @staticmethod
     def from_dict(d):
@@ -155,12 +159,14 @@ class BatchChange(object):
             comments=d.get('comments'),
             created_timestamp=map_option(d.get('createdTimestamp'), parse_datetime),
             changes=[BatchChange.change_type_converters[elem['changeType']](elem) for elem in d.get('changes', [])],
-            id=d['id']
+            id=d['id'],
+            owner_group_id=d.get('ownerGroupId')
         )
 
 
 class BatchChangeSummary(object):
-    def __init__(self, user_id, user_name, comments, created_timestamp, total_changes, status, id):
+    def __init__(self, user_id, user_name, comments, created_timestamp,
+                 total_changes, status, id, owner_group_id=None):
         self.user_id = user_id
         self.user_name = user_name
         self.comments = comments
@@ -168,6 +174,7 @@ class BatchChangeSummary(object):
         self.total_changes = total_changes
         self.status = status
         self.id = id
+        self.owner_group_id = owner_group_id
 
     @staticmethod
     def from_dict(d):
@@ -178,7 +185,8 @@ class BatchChangeSummary(object):
             created_timestamp=parse_datetime(d['createdTimestamp']),
             total_changes=d['totalChanges'],
             status=d['status'],
-            id=d['id']
+            id=d['id'],
+            owner_group_id=d.get('ownerGroupId')
         )
 
 

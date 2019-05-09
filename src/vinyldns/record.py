@@ -179,7 +179,8 @@ rdata_converters = {
 
 
 class RecordSet(object):
-    def __init__(self, zone_id, name, type, ttl, status=None, created=None, updated=None, records=[], id=None):
+    def __init__(self, zone_id, name, type, ttl, status=None, created=None,
+                 updated=None, records=[], id=None, owner_group_id=None):
         self.zone_id = zone_id
         self.name = name
         self.type = type
@@ -189,6 +190,7 @@ class RecordSet(object):
         self.updated = updated
         self.records = records
         self.id = id
+        self.owner_group_id = owner_group_id
 
     @staticmethod
     def from_dict(d):
@@ -201,7 +203,8 @@ class RecordSet(object):
             created=map_option(d.get('created'), parse_datetime),
             updated=d.get('updated'),
             records=[rdata_converters[d['type']](rd) for rd in d.get('records', [])],
-            id=d.get('id')
+            id=d.get('id'),
+            owner_group_id=d.get('ownerGroupId')
         )
 
 
