@@ -90,8 +90,8 @@ twine upload ${RELEASE_URL} ${DIR}/dist/*
 
 if [[ "$GIT_PUSH" == "true" ]]; then
     echo "Pushing git tags..."
-    #git push
-    #git push --tags
+    git push
+    git push --tags
 else
     echo "Skipping push to git!"
 fi
