@@ -1,4 +1,4 @@
-[![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-python.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-python)
+[![PyPI version](https://badge.fury.io/py/vinyldns-python.svg)](https://badge.fury.io/py/vinyldns-python) [![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-python.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-python)
 
 # vinyldns-python
 
