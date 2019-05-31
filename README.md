@@ -38,6 +38,7 @@ To get started, you will want to setup your virtual environment.
 1. Activate your virtual environment `> source .virtualenv/bin/activate` and you will be ready to go!
 
 **Unit Tests**
+
 Unit tests are developed using [pytest](https://docs.pytest.org/en/latest/).  We use
 [Responses](https://github.com/getsentry/responses), which allows for simple mocking of HTTP endpoints.
 
@@ -45,12 +46,14 @@ To run unit tests, you can simply run `python3 setup.py test`.  To target a spec
 run `python3 setup.py test -a "-k my_test"`
 
 **Functional Tests**
+
 Functional tests are also developed with pytest. These tests run against a local instance of VinylDNS. Note that for now
 they are not tied into our travis build, so they must be run locally for validation.
 
 From your virtualenv, run `tox -e func_test`
 
 **Running a full build**
+
 When you are finished writing your code you will want to run everything including linters.  The
 simplest way to do this is to run `tox -e check,py36`, which will run static checks and run unit tests.
 
