@@ -17,9 +17,6 @@ def wait_until_zone_exists(vinyldns_client, zone_id):
         time.sleep(RETRY_WAIT)
         retries -= 1
 
-    if zone is None:
-        print("Issue on zone create: {}".format(json.dumps(zone)))
-
     assert zone is not None
 
 
@@ -34,7 +31,18 @@ def wait_until_zone_deleted(vinyldns_client, zone_id):
         time.sleep(RETRY_WAIT)
         retries -= 1
 
-    if zone is not None:
-        print("Zone was not deleted: {}".format(json.dumps(zone)))
-
     assert zone is None
+
+
+def wait_until_record_set_exists(vinyldns_client, zone_id, rs_id):
+    """
+    Waits until the zone exists
+    """
+    rs = vinyldns_client.get_record_set(zone_id, rs_id)
+    retries = MAX_RETRIES
+    while (rs is None) and retries > 0:
+        rs = vinyldns_client.get_record_set(zone_id, rs_id)
+        time.sleep(RETRY_WAIT)
+        retries -= 1
+
+    assert rs is not None

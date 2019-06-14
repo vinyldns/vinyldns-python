@@ -88,9 +88,10 @@ def test_delete_record_set(record_set, mocked_responses, vinyldns_client):
 def test_get_record_set(record_set, mocked_responses, vinyldns_client):
     rs = copy.deepcopy(record_set)
     rs.id = rs.name + 'id'
+    response = {'recordSet': rs}
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
-        body=to_json_string(rs), status=200
+        body=to_json_string(response), status=200
     )
     r = vinyldns_client.get_record_set(rs.zone_id, rs.id)
     check_record_sets_are_equal(rs, r)
