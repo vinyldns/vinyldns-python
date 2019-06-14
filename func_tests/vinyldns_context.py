@@ -34,7 +34,6 @@ class VinylDNSContext(object):
         zone_change = self.client.connect_zone(zone)
         self.zone = zone_change.zone
 
-
         reverse_zone = Zone(
             name='2.0.192.in-addr.arpa.',
             email='test@test.com',
@@ -63,13 +62,9 @@ class VinylDNSContext(object):
 
         # we only want to delete zones that the ok user "owns"
         zones_to_delete = list(filter(lambda x: x.admin_group_id in group_ids, zones))
-        for zone in zones_to_delete:
-            print("Zone to delete %s" % zone.name)
-
         zoneids_to_delete = list(map(lambda x: x.id, zones_to_delete))
 
         for id in zoneids_to_delete:
-            print("Going to abandon zone id %s" %id)
             self.client.abandon_zone(id)
             wait_until_zone_deleted(self.client, id)
 
