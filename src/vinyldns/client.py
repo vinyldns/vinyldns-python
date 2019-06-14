@@ -520,8 +520,8 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(zone_id, rs_id))
 
-        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
-        return RecordSet.from_dict(data) if data is not None else None
+        response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)        
+        return RecordSet.from_dict(data['recordSet']) if data is not None else None
 
     def list_record_sets(self, zone_id, start_from=None, max_items=None, record_name_filter=None, **kwargs):
         """

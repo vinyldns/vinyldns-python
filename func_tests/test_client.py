@@ -2,6 +2,7 @@ from func_tests.vinyldns_context import vinyldns_test_context
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries
 from vinyldns.record import RecordSet, RecordType, AData, AAAAData, PTRData
+from func_tests.utils import wait_until_record_set_exists
 
 
 def test_list_zones(vinyldns_test_context):
@@ -37,6 +38,15 @@ def test_record_sets(vinyldns_test_context):
     assert change.record_set.ttl == rs.ttl
     assert change.record_set.name == rs.name
     assert all([l.__dict__ == r.__dict__ for l, r in zip(change.record_set.records, rs.records)])
+
+    rs = change.record_set
+    wait_until_record_set_exists(vinyldns_test_context.client, rs.zone_id, rs.id)
+
+    r = vinyldns_test_context.client.get_record_set(rs.zone_id, rs.id)
+    assert r.id == rs.id
+    assert r.name == rs.name
+    assert r.ttl == rs.ttl
+    assert all([l.__dict__ == r.__dict__ for l, r in zip(rs.records, r.records)])
 
 
 def test_batch_change(vinyldns_test_context):
