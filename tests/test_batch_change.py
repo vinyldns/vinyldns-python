@@ -17,7 +17,7 @@ from datetime import datetime
 import responses
 from sampledata import forward_zone
 from vinyldns.record import RecordType, AData
-from vinyldns.serdes import to_json_string, to_dict
+from vinyldns.serdes import to_json_string
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries
 
@@ -42,9 +42,9 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     ar = AddRecord('foo.bar.com', RecordType.A, 100, AData('1.2.3.4'))
     drs = DeleteRecordSet('baz.bar.com', RecordType.A)
 
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200, AData('1.2.3.4'),
-                          'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
-                          
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
+                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
+
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
     bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc],
@@ -71,8 +71,9 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_get_batch_change(mocked_responses, vinyldns_client):
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200, AData('1.2.3.4'),
-                          'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
+                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
+
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
     bc = BatchChange('user-id', 'user-name', 'batch change test', datetime.utcnow(), [arc, drc],

@@ -16,6 +16,7 @@
 from vinyldns.serdes import parse_datetime, map_option
 from vinyldns.record import rdata_converters
 
+
 class AddRecord(object):
     def __init__(self, input_name, type, ttl, record):
         self.input_name = input_name
@@ -85,7 +86,6 @@ class AddRecordChange(object):
         self.record_change_id = record_change_id
         self.record_set_id = record_set_id
         self.change_type = 'Add'
-
 
     @staticmethod
     def from_dict(d):
