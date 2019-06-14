@@ -89,7 +89,6 @@ class AddRecordChange(object):
 
     @staticmethod
     def from_dict(d):
-        print(d['record'])
         return AddRecordChange(
             zone_id=d['zoneId'],
             zone_name=d['zoneName'],
