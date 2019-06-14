@@ -14,7 +14,7 @@
 """TODO: Add module docstring."""
 
 from vinyldns.serdes import parse_datetime, map_option
-
+from vinyldns.record import rdata_converters
 
 class AddRecord(object):
     def __init__(self, input_name, type, ttl, record):
@@ -70,7 +70,7 @@ class BatchChangeRequest(object):
 
 
 class AddRecordChange(object):
-    def __init__(self, zone_id, zone_name, record_name, input_name, type, ttl, record_data, status, id,
+    def __init__(self, zone_id, zone_name, record_name, input_name, type, ttl, record, status, id,
                  system_message=None, record_change_id=None, record_set_id=None):
         self.zone_id = zone_id
         self.zone_name = zone_name
@@ -78,7 +78,7 @@ class AddRecordChange(object):
         self.input_name = input_name
         self.type = type
         self.ttl = ttl
-        self.record_data = record_data,
+        self.record = record
         self.status = status
         self.id = id
         self.system_message = system_message
@@ -86,8 +86,10 @@ class AddRecordChange(object):
         self.record_set_id = record_set_id
         self.change_type = 'Add'
 
+
     @staticmethod
     def from_dict(d):
+        print(d['record'])
         return AddRecordChange(
             zone_id=d['zoneId'],
             zone_name=d['zoneName'],
@@ -95,7 +97,7 @@ class AddRecordChange(object):
             input_name=d['inputName'],
             type=d['type'],
             ttl=d['ttl'],
-            record_data=d['recordData'],
+            record=rdata_converters[d['type']](d['record']),
             status=d['status'],
             id=d['id'],
             system_message=d.get('systemMessage'),
