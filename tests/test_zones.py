@@ -119,6 +119,14 @@ def test_get_zone(mocked_responses, vinyldns_client):
     check_zones_are_same(forward_zone, r)
 
 
+def test_get_zone_by_name(mocked_responses, vinyldns_client):
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/name/{0}'.format(forward_zone.name),
+        body=to_json_string({'zone': forward_zone}), status=200)
+    r = vinyldns_client.get_zone_by_name(forward_zone.name)
+    check_zones_are_same(forward_zone, r)
+
+
 def test_list_zone_changes(mocked_responses, vinyldns_client):
     change1 = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending',
                          created=datetime.utcnow(), system_message=None, id='zone-change-id1')
