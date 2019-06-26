@@ -429,6 +429,16 @@ class VinylDNSClient(object):
 
         return Zone.from_dict(data['zone']) if data is not None else None
 
+    def get_zone_by_name(self, name, **kwargs):
+        """
+        Get a zone by zone name.
+        :param zone: the name of the zone to retrieve
+        :return: the zone, or will 404 if not found
+        """
+        url = urljoin(self.index_url, u'/zones/name/{0}'.format(name))
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return Zone.from_dict(data['zone']) if data is not None else None
+
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
         Get the zone changes for the given zone id.
