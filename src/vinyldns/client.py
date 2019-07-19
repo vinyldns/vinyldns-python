@@ -611,7 +611,8 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
         return BatchChange.from_dict(data) if data is not None else None
 
-    def list_batch_change_summaries(self, start_from=None, max_items=None, **kwargs):
+    def list_batch_change_summaries(self, start_from=None, max_items=None,
+        ignore_access=None, approval_status=None, **kwargs):
         """
         Get list of user's batch change summaries.
 
@@ -622,11 +623,37 @@ class VinylDNSClient(object):
             args.append(u'startFrom={0}'.format(start_from))
         if max_items is not None:
             args.append(u'maxItems={0}'.format(max_items))
+        if ignore_access:
+            args.append(u'ignoreAccess={0}'.format(ignore_access))
+        if approval_status:
+            args.append(u'approvalStatus={0}'.format(approval_status))
 
         url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + u'&'.join(args)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListBatchChangeSummaries.from_dict(data)
+
+    def approve_batch_change(self, batch_change_id, review=None):
+        """
+        Approve a batch change
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/approve'.format(batch_change_id), to_json_string(review))
+        response, data = self.__make_request(url, u'POST', self.headers)
+
+        return BatchChange.from_dict(data)
+
+    def reject_batch_change(self, batch_change_id, review_comment=None):
+        """
+        Reject a batch change
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id))
+        response, data = self.__make_request(url, u'POST', self.headers)
+
+        return BatchChange.from_dict(data)
 
     def add_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """

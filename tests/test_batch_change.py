@@ -106,6 +106,8 @@ def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
     assert r.start_from == lbcs.start_from
     assert r.next_id == lbcs.next_id
     assert r.max_items == lbcs.max_items
+    assert r.ignore_access == lbcs.ignore_access
+    assert r.approval_status == lbcs.approval_status
     for l, r in zip(r.batch_changes, lbcs.batch_changes):
         assert l.user_id == r.user_id
         assert l.user_name == r.user_name

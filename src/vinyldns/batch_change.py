@@ -136,6 +136,27 @@ class DeleteRecordSetChange(object):
         )
 
 
+class ApproveBatchChangeRequest(object):
+    def __init__(self, review_comment=None):
+        self.review_comment = review_comment
+
+    @staticmethod
+    def from_dict(d):
+        return ApproveBatchChangeRequest(
+            review_comment=d.get('reviewComment')
+        )
+
+class RejectBatchChangeRequest(object):
+    def __init__(self, review_comment=None):
+        self.review_comment = review_comment
+
+    @staticmethod
+    def from_dict(d):
+        return RejectBatchChangeRequest(
+            review_comment=d.get('reviewComment')
+        )
+
+
 class BatchChange(object):
     change_type_converters = {
         'Add': AddRecordChange.from_dict,
@@ -192,11 +213,14 @@ class BatchChangeSummary(object):
 
 
 class ListBatchChangeSummaries(object):
-    def __init__(self, batch_changes, start_from=None, next_id=None, max_items=100):
+    def __init__(self, batch_changes, start_from=None, next_id=None,
+    max_items=100, ignore_access=False, approval_status=None):
         self.batch_changes = batch_changes
         self.start_from = start_from
         self.next_id = next_id
         self.max_items = max_items
+        self.ignore_access = ignore_access
+        self.approval_status = approval_status
 
     @staticmethod
     def from_dict(d):
@@ -204,5 +228,7 @@ class ListBatchChangeSummaries(object):
             batch_changes=[BatchChangeSummary.from_dict(elem) for elem in d.get('batchChanges', [])],
             start_from=d.get('startFrom'),
             next_id=d.get('nextId'),
-            max_items=d.get('maxItems', 100)
+            max_items=d.get('maxItems', 100),
+            ignore_access=d.get('ignoreAccess'),
+            approval_status=d.get('approvalStatus')
         )
