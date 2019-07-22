@@ -639,7 +639,9 @@ class VinylDNSClient(object):
 
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/approve'.format(batch_change_id), to_json_string(review))
+        url = urljoin(self.index_url,
+            u'/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
+            to_json_string(review))
         response, data = self.__make_request(url, u'POST', self.headers)
 
         return BatchChange.from_dict(data)
