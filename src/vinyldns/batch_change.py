@@ -215,13 +215,13 @@ class BatchChangeSummary(object):
 
 class ListBatchChangeSummaries(object):
     def __init__(self, batch_changes, start_from=None, next_id=None,
-        max_items=100, ignore_access=False, approval_status=None):
-            self.batch_changes = batch_changes
-            self.start_from = start_from
-            self.next_id = next_id
-            self.max_items = max_items
-            self.ignore_access = ignore_access
-            self.approval_status = approval_status
+                 max_items=100, ignore_access=False, approval_status=None):
+        self.batch_changes = batch_changes
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+        self.ignore_access = ignore_access
+        self.approval_status = approval_status
 
     @staticmethod
     def from_dict(d):

@@ -612,7 +612,7 @@ class VinylDNSClient(object):
         return BatchChange.from_dict(data) if data is not None else None
 
     def list_batch_change_summaries(self, start_from=None, max_items=None,
-        ignore_access=None, approval_status=None, **kwargs):
+                                    ignore_access=None, approval_status=None, **kwargs):
         """
         Get list of user's batch change summaries.
 
@@ -639,9 +639,8 @@ class VinylDNSClient(object):
 
         :return: the content of the response
         """
-        url = urljoin(self.index_url,
-            u'/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
-            to_json_string(review))
+        url = urljoin(self.index_url, '/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
+                      to_json_string(review))
         response, data = self.__make_request(url, u'POST', self.headers)
 
         return BatchChange.from_dict(data)
