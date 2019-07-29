@@ -60,6 +60,7 @@ def test_batch_change(vinyldns_test_context):
     assert r.user_id == 'ok'
     assert r.user_name == 'ok'
     assert r.comments == 'comments'
+    assert r.approvalStatus == 'AutoApproved'
 
     change1 = r.changes[0]
     assert change1.input_name == 'change-test.vinyldns.'

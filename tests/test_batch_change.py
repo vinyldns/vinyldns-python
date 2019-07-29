@@ -190,7 +190,7 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
         body=to_json_string(bc), status=200
     )
 
-    r = vinyldns_client.reject_batch_change('bcid', 'looks good')
+    r = vinyldns_client.reject_batch_change('bcid', rejection)
 
     assert r.user_id == bc.user_id
     assert r.user_name == bc.user_name
