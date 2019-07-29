@@ -180,7 +180,7 @@ class BatchChange(object):
         self.id = id
         self.status = status
         self.owner_group_id = owner_group_id
-        self.owner_group_name = owner_group_id
+        self.owner_group_name = owner_group_name
         self.approval_status = approval_status
         self.reviewer_id = reviewer_id
         self.reviewer_username = reviewer_username
@@ -200,7 +200,7 @@ class BatchChange(object):
             status=d['status'],
             owner_group_id=d.get('ownerGroupId'),
             owner_group_name=d.get('ownerGroupName'),
-            approval_status=d['approvalStatus'],
+            # approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
             reviewer_username=d.get('reviewerUsername'),
             review_comment=d.get('reviewComment'),

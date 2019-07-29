@@ -85,7 +85,7 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                                 'id2', 'system-message', 'rchangeid2', 'rsid2')
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
-                     'bcid', 'PendingProcessing', 'AutoApproved',
+                     'bcid', 'Complete', 'AutoApproved',
                      comments='batch change test', owner_group_id='owner-group-id')
 
     mocked_responses.add(
