@@ -645,13 +645,14 @@ class VinylDNSClient(object):
 
         return BatchChange.from_dict(data)
 
-    def reject_batch_change(self, batch_change_id, review_comment=None):
+    def reject_batch_change(self, batch_change_id, review=None):
         """
         Reject a batch change
 
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id))
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id),
+                      to_json_string(review))
         response, data = self.__make_request(url, u'POST', self.headers)
 
         return BatchChange.from_dict(data)

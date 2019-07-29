@@ -72,4 +72,3 @@ def test_batch_change(vinyldns_test_context):
     assert change2.ttl == 200
     assert change2.record.ptrdname == 'change-test.vinyldns.'
     assert change2.type == RecordType.PTR
-
