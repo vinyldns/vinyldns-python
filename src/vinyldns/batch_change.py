@@ -55,10 +55,12 @@ class BatchChangeRequest(object):
         'DeleteRecordSet': DeleteRecordSet.from_dict
     }
 
-    def __init__(self, changes, comments=None, owner_group_id=None):
+    def __init__(self, changes, comments=None, owner_group_id=None,
+                 scheduled_time=None):
         self.comments = comments
         self.changes = changes
         self.owner_group_id = owner_group_id
+        self.scheduled_time = scheduled_time
 
     @staticmethod
     def from_dict(d):
@@ -66,7 +68,8 @@ class BatchChangeRequest(object):
             comments=d.get('comments'),
             changes=[BatchChangeRequest.change_type_converters[elem['changeType']](elem)
                      for elem in d.get('changes', [])],
-            owner_group_id=d.get('ownerGroupId')
+            owner_group_id=d.get('ownerGroupId'),
+            scheduled_time=d.get('scheduled_time')
         )
 
 
@@ -164,15 +167,26 @@ class BatchChange(object):
         'DeleteRecordSet': DeleteRecordSetChange.from_dict
     }
 
-    def __init__(self, user_id, user_name, comments,
-                 created_timestamp, changes, id, owner_group_id=None):
+    def __init__(self, user_id, user_name, created_timestamp, changes, id,
+                 status, approval_status, comments=None, owner_group_id=None,
+                 owner_group_name=None, reviewer_id=None,
+                 reviewer_username=None, review_comment=None,
+                 review_timestamp=None, scheduled_time=None):
         self.user_id = user_id
         self.user_name = user_name
         self.comments = comments
         self.created_timestamp = created_timestamp
         self.changes = changes
         self.id = id
+        self.status = status
         self.owner_group_id = owner_group_id
+        self.owner_group_name = owner_group_id
+        self.approval_status = approval_status
+        self.reviewer_id = reviewer_id
+        self.reviewer_username = reviewer_username
+        self.review_comment = review_comment
+        self.review_timestamp = review_timestamp
+        self.scheduled_time = scheduled_time
 
     @staticmethod
     def from_dict(d):
@@ -183,13 +197,24 @@ class BatchChange(object):
             created_timestamp=map_option(d.get('createdTimestamp'), parse_datetime),
             changes=[BatchChange.change_type_converters[elem['changeType']](elem) for elem in d.get('changes', [])],
             id=d['id'],
-            owner_group_id=d.get('ownerGroupId')
+            status=d['status'],
+            owner_group_id=d.get('ownerGroupId'),
+            owner_group_name=d.get('owner_group_name'),
+            approval_status=d['approvalStatus'],
+            reviewer_id=d.get('reviewer_id'),
+            reviewer_username=d.get('reviewer_username'),
+            review_comment=d.get('review_comment'),
+            review_timestamp=d.get('review_timestamp'),
+            scheduled_time=d.get('scheduled_time')
         )
 
 
 class BatchChangeSummary(object):
-    def __init__(self, user_id, user_name, comments, created_timestamp,
-                 total_changes, status, id, owner_group_id=None):
+    def __init__(self, user_id, user_name, created_timestamp, total_changes, id,
+                 status, approval_status, comments=None, owner_group_id=None,
+                 owner_group_name=None, reviewer_id=None,
+                 reviewer_username=None, review_comment=None,
+                 review_timestamp=None, scheduled_time=None):
         self.user_id = user_id
         self.user_name = user_name
         self.comments = comments
@@ -198,6 +223,13 @@ class BatchChangeSummary(object):
         self.status = status
         self.id = id
         self.owner_group_id = owner_group_id
+        self.owner_group_name = owner_group_id
+        self.approval_status = approval_status
+        self.reviewer_id = reviewer_id
+        self.reviewer_username = reviewer_username
+        self.review_comment = review_comment
+        self.review_timestamp = review_timestamp
+        self.scheduled_time = scheduled_time
 
     @staticmethod
     def from_dict(d):
@@ -209,7 +241,14 @@ class BatchChangeSummary(object):
             total_changes=d['totalChanges'],
             status=d['status'],
             id=d['id'],
-            owner_group_id=d.get('ownerGroupId')
+            owner_group_id=d.get('ownerGroupId'),
+            owner_group_name=d.get('owner_group_name'),
+            approval_status=d['approvalStatus'],
+            reviewer_id=d.get('reviewer_id'),
+            reviewer_username=d.get('reviewer_username'),
+            review_comment=d.get('review_comment'),
+            review_timestamp=d.get('review_timestamp'),
+            scheduled_time=d.get('scheduled_time')
         )
 
 
