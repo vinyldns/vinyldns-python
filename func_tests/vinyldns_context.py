@@ -13,6 +13,7 @@ class VinylDNSContext(object):
     """
     def __init__(self):
         self.client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
+        self.support_client = VinylDNSClient("http://localhost:9000", "supportUserAccessKey", "supportUserSecretKey")
         self.group = None
         self.tear_down()
 
