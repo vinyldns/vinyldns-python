@@ -20,8 +20,11 @@ from vinyldns.record import RecordType, AData
 from vinyldns.serdes import to_json_string
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries, \
-    ApproveBatchChangeRequest, RejectBatchChangeRequest
+    ApproveBatchChangeRequest, RejectBatchChangeRequest, ValidationError
 
+def check_validation_errors_are_same(a, b):
+    assert a.error_type == b.error_type
+    assert a.message == b.message
 
 def check_single_changes_are_same(a, b):
     assert a.zone_id == b.zone_id
@@ -37,22 +40,42 @@ def check_single_changes_are_same(a, b):
     if a.type == 'Add':
         assert a.ttl == b.ttl
         assert a.record_data == b.record_data
+    if a.validation_errors:
+        for l, r in zip(a.validation_errors, b.validation_errors):
+            check_validation_errors_are_same(l, r)
 
+def check_batch_changes_are_same(a, b):
+    assert a.user_id == b.user_id
+    assert a.user_name == b.user_name
+    assert a.comments == b.comments
+    assert a.created_timestamp == b.created_timestamp
+    assert a.status == b.status
+    assert a.id == b.id
+    assert a.owner_group_id == b.owner_group_id
+    assert a.owner_group_name == b.owner_group_name
+    assert a.approval_status == b.approval_status
+    assert a.reviewer_id == b.reviewer_id
+    assert a.reviewer_username == b.reviewer_username
+    assert a.review_comment == b.review_comment
+    assert a.review_timestamp == b.review_timestamp
+    assert a.scheduled_time == b.scheduled_time
+    for l, r in zip(a.changes, b.changes):
+        check_single_changes_are_same(l, r)
 
 def test_create_batch_change(mocked_responses, vinyldns_client):
-    ar = AddRecord('foo.bar.com', RecordType.A, 100, AData('1.2.3.4'))
+    ar = AddRecord('foo.baa.com', RecordType.A, 100, AData('1.2.3.4'))
     drs = DeleteRecordSet('baz.bar.com', RecordType.A)
 
     arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
-                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
+                          AData('1.2.3.4'), 'Complete', 'id1', [], 'system-message', 'rchangeid1', 'rsid1')
 
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
-                                'id2', 'system-message', 'rchangeid2', 'rsid2')
+                                'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
     tomorrow = datetime.utcnow() + timedelta(1)
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
-                     'bcid', 'PendingProcessing', 'AutoApproved',
+                     'bcid', 'Scheduled', 'PendingReview',
                      comments='batch change test', owner_group_id='owner-group-id',
                      scheduled_time=tomorrow)
 
@@ -65,24 +88,21 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
         BatchChangeRequest(
             changes=[ar, drs],
             comments='batch change test',
-            owner_group_id='owner-group-id'
+            owner_group_id='owner-group-id',
+            scheduled_time=tomorrow
         ))
 
-    assert r.user_id == bc.user_id
-    assert r.user_name == bc.user_name
-    assert r.comments == bc.comments
-    assert r.created_timestamp == bc.created_timestamp
-    assert r.id == bc.id
-    for l, r in zip(r.changes, bc.changes):
-        check_single_changes_are_same(l, r)
+    check_batch_changes_are_same(r, bc)
 
 
 def test_get_batch_change(mocked_responses, vinyldns_client):
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
-                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com',
+                          RecordType.A, 200, AData('1.2.3.4'), 'Complete', 'id1',
+                          [], 'system-message', 'rchangeid1', 'rsid1')
 
-    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
-                                'id2', 'system-message', 'rchangeid2', 'rsid2')
+    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz',
+                                'baz.bar.com', RecordType.A, 'Complete',
+                                'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Complete', 'AutoApproved',
@@ -95,15 +115,65 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
 
     r = vinyldns_client.get_batch_change('bcid')
 
-    assert r.user_id == bc.user_id
-    assert r.user_name == bc.user_name
-    assert r.comments == bc.comments
-    assert r.created_timestamp == bc.created_timestamp
-    assert r.id == bc.id
-    assert r.owner_group_id == bc.owner_group_id
-    assert r.scheduled_time == bc.scheduled_time
-    for l, r in zip(r.changes, bc.changes):
-        check_single_changes_are_same(l, r)
+    check_batch_changes_are_same(r, bc)
+
+def test_approve_batch_change(mocked_responses, vinyldns_client):
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com',
+                          RecordType.A, 200, AData('1.2.3.4'), 'PendingReview',
+                          'id1', [], 'system-message', 'rchangeid1', 'rsid1')
+
+    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz',
+                                'baz.bar.com', RecordType.A, 'PendingReview',
+                                'id2', 'system-message', [], 'rchangeid2', 'rsid2')
+
+    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+                     'bcid', 'Complete', 'ManuallyApproved',
+                     comments='batch change test', owner_group_id='owner-group-id',
+                     reviewer_id='admin-id', reviewer_username='admin',
+                     review_comment='looks good', review_timestamp=datetime.utcnow())
+
+    approval = ApproveBatchChangeRequest(review_comment='looks good')
+
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/approve',
+        body=to_json_string(bc), status=200
+    )
+
+    r = vinyldns_client.approve_batch_change('bcid', approval)
+
+    check_batch_changes_are_same(r, bc)
+
+
+def test_reject_batch_change(mocked_responses, vinyldns_client):
+    error_message = "Zone Discovery Failed: zone for \"foo.bar.com\" does not exist in VinylDNS. \
+    If zone exists, then it must be connected to in VinylDNS."
+
+    error = ValidationError('ZoneDiscoveryError', error_message)
+
+    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'reject',
+                          'reject.bar.com', RecordType.A, 200, AData('1.2.3.4'),
+                          'PendingReview', 'id1', [error], 'system-message', 'rchangeid1', 'rsid1')
+
+    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'reject2',
+                                'reject2.bar.com', RecordType.A, 'Complete',
+                                'id2', [], 'system-message', 'rchangeid2', 'rsid2')
+
+    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+                     'bcid', 'Complete', 'ManuallyApproved',
+                     comments='batch change test', owner_group_id='owner-group-id',
+                     reviewer_id='admin-id', reviewer_username='admin',
+                     review_comment='looks good', review_timestamp=datetime.utcnow())
+
+    rejection = RejectBatchChangeRequest('not good')
+
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/reject',
+        body=to_json_string(bc), status=200
+    )
+
+    r = vinyldns_client.reject_batch_change('bcid', rejection)
+
+    check_batch_changes_are_same(r, bc)
 
 
 def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
@@ -132,75 +202,3 @@ def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
         assert l.status == r.status
         assert l.id == r.id
         assert l.owner_group_id == r.owner_group_id
-
-
-def test_approve_batch_change(mocked_responses, vinyldns_client):
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
-                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
-
-    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
-                                'id2', 'system-message', 'rchangeid2', 'rsid2')
-
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
-                     'bcid', 'Complete', 'ManuallyApproved',
-                     comments='batch change test', owner_group_id='owner-group-id',
-                     reviewer_id='admin-id', reviewer_username='admin',
-                     review_comment='looks good', review_timestamp=datetime.utcnow())
-
-    approval = ApproveBatchChangeRequest(review_comment='looks good')
-
-    mocked_responses.add(
-        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/approve',
-        body=to_json_string(bc), status=200
-    )
-
-    r = vinyldns_client.approve_batch_change('bcid', approval)
-
-    assert r.user_id == bc.user_id
-    assert r.user_name == bc.user_name
-    assert r.comments == bc.comments
-    assert r.created_timestamp == bc.created_timestamp
-    assert r.id == bc.id
-    assert r.owner_group_id == bc.owner_group_id
-    assert r.reviewer_id == bc.reviewer_id
-    assert r.reviewer_username == bc.reviewer_username
-    assert r.review_comment == bc.review_comment
-    assert r.review_timestamp == bc.review_timestamp
-    for l, r in zip(r.changes, bc.changes):
-        check_single_changes_are_same(l, r)
-
-
-def test_reject_batch_change(mocked_responses, vinyldns_client):
-    arc = AddRecordChange(forward_zone.id, forward_zone.name, 'reject', 'reject.bar.com', RecordType.A, 200,
-                          AData('1.2.3.4'), 'Complete', 'id1', 'system-message', 'rchangeid1', 'rsid1')
-
-    drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'reject2', 'reject2.bar.com', RecordType.A, 'Complete',
-                                'id2', 'system-message', 'rchangeid2', 'rsid2')
-
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
-                     'bcid', 'Complete', 'ManuallyApproved',
-                     comments='batch change test', owner_group_id='owner-group-id',
-                     reviewer_id='admin-id', reviewer_username='admin',
-                     review_comment='looks good', review_timestamp=datetime.utcnow())
-
-    rejection = RejectBatchChangeRequest('not good')
-
-    mocked_responses.add(
-        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/reject',
-        body=to_json_string(bc), status=200
-    )
-
-    r = vinyldns_client.reject_batch_change('bcid', rejection)
-
-    assert r.user_id == bc.user_id
-    assert r.user_name == bc.user_name
-    assert r.comments == bc.comments
-    assert r.created_timestamp == bc.created_timestamp
-    assert r.id == bc.id
-    assert r.owner_group_id == bc.owner_group_id
-    assert r.reviewer_id == bc.reviewer_id
-    assert r.reviewer_username == bc.reviewer_username
-    assert r.review_comment == bc.review_comment
-    assert r.review_timestamp == bc.review_timestamp
-    for l, r in zip(r.changes, bc.changes):
-        check_single_changes_are_same(l, r)

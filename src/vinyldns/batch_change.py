@@ -48,6 +48,17 @@ class DeleteRecordSet(object):
             type=d['type']
         )
 
+class ValidationError(object):
+    def __init__(self, error_type, message):
+        self.error_type = error_type
+        self.message = message
+
+    @staticmethod
+    def from_dict(d):
+        return ValidationError(
+            error_type=d['errorType'],
+            message=d['message']
+        )
 
 class BatchChangeRequest(object):
     change_type_converters = {
@@ -74,8 +85,9 @@ class BatchChangeRequest(object):
 
 
 class AddRecordChange(object):
-    def __init__(self, zone_id, zone_name, record_name, input_name, type, ttl, record, status, id,
-                 system_message=None, record_change_id=None, record_set_id=None):
+    def __init__(self, zone_id, zone_name, record_name, input_name, type, ttl,
+                 record, status, id, validation_errors, system_message=None,
+                 record_change_id=None, record_set_id=None):
         self.zone_id = zone_id
         self.zone_name = zone_name
         self.record_name = record_name
@@ -89,6 +101,7 @@ class AddRecordChange(object):
         self.record_change_id = record_change_id
         self.record_set_id = record_set_id
         self.change_type = 'Add'
+        self.validation_errors = validation_errors
 
     @staticmethod
     def from_dict(d):
@@ -104,13 +117,15 @@ class AddRecordChange(object):
             id=d['id'],
             system_message=d.get('systemMessage'),
             record_change_id=d.get('recordChangeId'),
-            record_set_id=d.get('recordSetId')
+            record_set_id=d.get('recordSetId'),
+            validation_errors=[ValidationError.from_dict(elem)
+            for elem in d.get('validationErrors', [])]
         )
 
 
 class DeleteRecordSetChange(object):
-    def __init__(self, zone_id, zone_name, record_name, input_name, type, status, id, system_message=None,
-                 record_change_id=None, record_set_id=None):
+    def __init__(self, zone_id, zone_name, record_name, input_name, type, status,
+    id, validation_errors, system_message=None, record_change_id=None, record_set_id=None):
         self.zone_id = zone_id
         self.zone_name = zone_name
         self.record_name = record_name
@@ -122,6 +137,7 @@ class DeleteRecordSetChange(object):
         self.record_change_id = record_change_id
         self.record_set_id = record_set_id
         self.change_type = 'DeleteRecordSet'
+        self.validation_errors = validation_errors
 
     @staticmethod
     def from_dict(d):
@@ -135,7 +151,8 @@ class DeleteRecordSetChange(object):
             id=d['id'],
             system_message=d.get('systemMessage'),
             record_change_id=d.get('recordChangeId'),
-            record_set_id=d.get('recordSetId')
+            record_set_id=d.get('recordSetId'),
+            validation_errors=[ValidationError.from_dict(elem) for elem in d.get('validation_errors', [])]
         )
 
 
@@ -200,7 +217,7 @@ class BatchChange(object):
             status=d['status'],
             owner_group_id=d.get('ownerGroupId'),
             owner_group_name=d.get('ownerGroupName'),
-            # approval_status=d['approvalStatus'],
+            approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
             reviewer_username=d.get('reviewerUsername'),
             review_comment=d.get('reviewComment'),

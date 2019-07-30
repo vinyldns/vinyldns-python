@@ -633,26 +633,26 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListBatchChangeSummaries.from_dict(data)
 
-    def approve_batch_change(self, batch_change_id, review=None):
+    def approve_batch_change(self, batch_change_id, approval=None):
         """
         Approve a batch change
 
         :return: the content of the response
         """
         url = urljoin(self.index_url, '/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
-                      to_json_string(review))
+                      to_json_string(approval))
         response, data = self.__make_request(url, u'POST', self.headers)
 
         return BatchChange.from_dict(data)
 
-    def reject_batch_change(self, batch_change_id, review=None):
+    def reject_batch_change(self, batch_change_id, rejection=None):
         """
         Reject a batch change
 
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id),
-                      to_json_string(review))
+                      to_json_string(rejection))
         response, data = self.__make_request(url, u'POST', self.headers)
 
         return BatchChange.from_dict(data)
