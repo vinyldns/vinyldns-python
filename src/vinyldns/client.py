@@ -589,14 +589,20 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListRecordSetChangesResponse.from_dict(data)
 
-    def create_batch_change(self, batch_change_input, **kwargs):
+    def create_batch_change(self, batch_change_input, allow_manual_review=None, **kwargs):
         """
         Create a new batch change.
 
         :param batch_change_input: the batchchange to be created
+        :param allow_manual_review: set to false to fail rather than go to
+        review if there are errors
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/batchrecordchanges')
+        arg = ''
+        if allow_manual_review:
+            arg = (u'allowManualReview={0}'.format(allow_manual_review))
+
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + arg
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
         return BatchChange.from_dict(data)
 
