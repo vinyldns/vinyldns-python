@@ -219,7 +219,7 @@ class BatchChange(object):
             owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
-            reviewer_username=d.get('reviewerUsername'),
+            reviewer_username=d.get('reviewerUserName'),
             review_comment=d.get('reviewComment'),
             review_timestamp=map_option(d.get('reviewTimestamp'), parse_datetime),
             scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)
@@ -259,13 +259,13 @@ class BatchChangeSummary(object):
             status=d['status'],
             id=d['id'],
             owner_group_id=d.get('ownerGroupId'),
-            owner_group_name=d.get('owner_group_name'),
+            owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
-            reviewer_id=d.get('reviewer_id'),
-            reviewer_username=d.get('reviewer_username'),
-            review_comment=d.get('review_comment'),
-            review_timestamp=d.get('review_timestamp'),
-            scheduled_time=d.get('scheduled_time')
+            reviewer_id=d.get('reviewerId'),
+            reviewer_username=d.get('reviewerUserName'),
+            review_comment=d.get('reviewComment'),
+            review_timestamp=d.get('reviewTimestamp'),
+            scheduled_time=d.get('scheduledTime')
         )
 
 
