@@ -599,8 +599,9 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         arg = ''
-        if allow_manual_review:
-            arg = (u'allowManualReview={0}'.format(allow_manual_review))
+
+        if allow_manual_review is not None:
+            arg = u'allowManualReview={0}'.format(str(allow_manual_review).lower())
 
         url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + arg
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
