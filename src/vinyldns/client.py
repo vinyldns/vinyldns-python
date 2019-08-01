@@ -601,7 +601,7 @@ class VinylDNSClient(object):
         arg = ''
 
         if allow_manual_review is not None:
-            arg = u'allowManualReview={0}'.format(str(allow_manual_review).lower())
+            arg = u'allowManualReview={0}'.format(allow_manual_review)
 
         url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + arg
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
