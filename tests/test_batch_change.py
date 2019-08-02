@@ -159,10 +159,10 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
-                     'bcid', 'Complete', 'ManuallyApproved',
+                     'bcid', 'Rejected', 'Rejected',
                      comments='batch change test', owner_group_id='owner-group-id',
                      reviewer_id='admin-id', reviewer_username='admin',
-                     review_comment='looks good', review_timestamp=datetime.utcnow())
+                     review_comment='not good', review_timestamp=datetime.utcnow())
 
     rejection = RejectBatchChangeRequest('not good')
 

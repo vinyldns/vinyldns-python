@@ -50,7 +50,7 @@ def wait_until_record_set_exists(vinyldns_client, zone_id, rs_id):
 def wait_until_recordset_deleted(vinyldns_client, zone_id, rs_id):
     retries = MAX_RETRIES
     rs = vinyldns_client.get_record_set(zone_id, rs_id)
-    delete_rs = vinyldns_client.delete_record_set(zone_id, rs_id)
+    vinyldns_client.delete_record_set(zone_id, rs_id)
     while (rs is not None) and retries > 0:
         rs = vinyldns_client.get_record_set(zone_id, rs_id)
         time.sleep(RETRY_WAIT)

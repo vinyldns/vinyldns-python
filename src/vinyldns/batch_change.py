@@ -240,7 +240,7 @@ class BatchChangeSummary(object):
         self.status = status
         self.id = id
         self.owner_group_id = owner_group_id
-        self.owner_group_name = owner_group_id
+        self.owner_group_name = owner_group_name
         self.approval_status = approval_status
         self.reviewer_id = reviewer_id
         self.reviewer_username = reviewer_username

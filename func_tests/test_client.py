@@ -95,7 +95,7 @@ def test_batch_change_review_process(vinyldns_test_context):
 
     rejection = RejectBatchChangeRequest(review_comment='cannot create the zone')
 
-    approve_bc = vinyldns_test_context.support_client.reject_batch_change(bc.id, rejection)
+    vinyldns_test_context.support_client.reject_batch_change(bc.id, rejection)
 
     completed_bc = vinyldns_test_context.client.get_batch_change(bc.id)
 

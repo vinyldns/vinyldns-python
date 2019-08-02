@@ -152,6 +152,7 @@ class VinylDNSClient(object):
 
         signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
                                                                     with_headers=headers or {}, **kwargs)
+
         response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
         return self.__check_response(response)
