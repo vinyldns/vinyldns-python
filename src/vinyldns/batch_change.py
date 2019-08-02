@@ -13,7 +13,7 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 
-from vinyldns.serdes import parse_datetime, map_option
+from vinyldns.serdes import parse_datetime, map_option, to_utc_strftime
 from vinyldns.record import rdata_converters
 
 
@@ -80,7 +80,7 @@ class BatchChangeRequest(object):
             changes=[BatchChangeRequest.change_type_converters[elem['changeType']](elem)
                      for elem in d.get('changes', [])],
             owner_group_id=d.get('ownerGroupId'),
-            scheduled_time=d.get('scheduled_time')
+            scheduled_time=map_option(d.get('scheduledTime'), to_utc_strftime)
         )
 
 

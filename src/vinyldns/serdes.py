@@ -113,3 +113,13 @@ def parse_datetime(s):
     """
     import dateutil.parser
     return dateutil.parser.parse(s)
+
+def to_utc_strftime(t):
+    """
+    :param t:
+    :return:
+    """
+    if isinstance(t, str):
+        return t
+    elif isinstance(t, datetime.datetime):
+        return t.strftime("%Y-%m-%dT%H:%M:%SZ")
