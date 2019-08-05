@@ -14,6 +14,7 @@
 """TODO: Add module docstring."""
 import re
 from datetime import date, datetime, timezone
+import json
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -77,7 +78,6 @@ def from_json_string(s, object_hook):
     :param object_hook: A function that takes a dictionary and yields a new object instance
     :return: A populated object instance generated from the object_ctor
     """
-    import json
     d = json.loads(s)
     return object_hook(d)
 
@@ -88,9 +88,20 @@ def to_json_string(o):
     :param o: An object that can be serialized to json
     :return: A json formatted string representation of the object
     """
-    import json
     return json.dumps(to_dict(o))
 
+def to_review_json(s):
+    """
+    Converts the string to json
+    :param s: A string
+    :return: A json formatted string representation of the object
+    """
+    b = {}
+    if s:
+        b.update({"reviewComment": s})
+        return json.dumps(b)
+    else:
+        return None
 
 def map_option(v, f):
     """

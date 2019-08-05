@@ -34,7 +34,7 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
     ListAdminsResponse
-from vinyldns.serdes import to_json_string
+from vinyldns.serdes import to_json_string, to_review_json
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
 from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
 
@@ -649,7 +649,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, '/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
                       to_json_string(approval))
-        response, data = self.__make_request(url, u'POST', self.headers, to_json_string(approval), **kwargs)
+        response, data = self.__make_request(url, u'POST', self.headers, to_review_json(approval), **kwargs)
 
         return BatchChange.from_dict(data)
 
@@ -660,7 +660,7 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id))
-        response, data = self.__make_request(url, u'POST', self.headers,  to_json_string(rejection), **kwargs)
+        response, data = self.__make_request(url, u'POST', self.headers,  to_review_json(rejection), **kwargs)
 
         return BatchChange.from_dict(data)
 

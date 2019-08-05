@@ -155,29 +155,6 @@ class DeleteRecordSetChange(object):
             validation_errors=[ValidationError.from_dict(elem) for elem in d.get('validation_errors', [])]
         )
 
-
-class ApproveBatchChangeRequest(object):
-    def __init__(self, review_comment=None):
-        self.review_comment = review_comment
-
-    @staticmethod
-    def from_dict(d):
-        return ApproveBatchChangeRequest(
-            review_comment=d.get('reviewComment')
-        )
-
-
-class RejectBatchChangeRequest(object):
-    def __init__(self, review_comment=None):
-        self.review_comment = review_comment
-
-    @staticmethod
-    def from_dict(d):
-        return RejectBatchChangeRequest(
-            review_comment=d.get('reviewComment')
-        )
-
-
 class BatchChange(object):
     change_type_converters = {
         'Add': AddRecordChange.from_dict,

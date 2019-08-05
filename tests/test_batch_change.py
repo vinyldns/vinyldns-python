@@ -20,7 +20,7 @@ from vinyldns.record import RecordType, AData
 from vinyldns.serdes import to_json_string
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries, \
-    ApproveBatchChangeRequest, RejectBatchChangeRequest, ValidationError
+    ValidationError
 
 def check_validation_errors_are_same(a, b):
     assert a.error_type == b.error_type
@@ -132,14 +132,12 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
                      reviewer_id='admin-id', reviewer_username='admin',
                      review_comment='looks good', review_timestamp=datetime.utcnow())
 
-    approval = ApproveBatchChangeRequest(review_comment='looks good')
-
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/approve',
         body=to_json_string(bc), status=200
     )
 
-    r = vinyldns_client.approve_batch_change('bcid', approval)
+    r = vinyldns_client.approve_batch_change('bcid', 'looks good')
 
     check_batch_changes_are_same(r, bc)
 
@@ -164,14 +162,12 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
                      reviewer_id='admin-id', reviewer_username='admin',
                      review_comment='not good', review_timestamp=datetime.utcnow())
 
-    rejection = RejectBatchChangeRequest('not good')
-
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/reject',
         body=to_json_string(bc), status=200
     )
 
-    r = vinyldns_client.reject_batch_change('bcid', rejection)
+    r = vinyldns_client.reject_batch_change('bcid', 'not good')
 
     check_batch_changes_are_same(r, bc)
 
