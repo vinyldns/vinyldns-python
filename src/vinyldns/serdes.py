@@ -13,6 +13,7 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 import re
+from datetime import date, datetime, timezone
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -45,7 +46,6 @@ def to_dict(obj, cls=None):
     :param cls: The type of class, useful for recursion
     :return: A fully populated dictionary with field names converted to camelCase
     """
-    from datetime import date, datetime
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, dict):
@@ -119,7 +119,7 @@ def to_utc_strftime(t):
     :param t:
     :return:
     """
-    if isinstance(t, str):
-        return t
-    elif isinstance(t, datetime.datetime):
-        return t.strftime("%Y-%m-%dT%H:%M:%SZ")
+    if t.tzinfo is not None:
+        return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        raise TypeError("Expected datetime object with tzinfo attribute.")

@@ -1,9 +1,9 @@
 from func_tests.vinyldns_context import vinyldns_test_context
 from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchChange, BatchChangeRequest, \
-    DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries, RejectBatchChangeRequest
+    DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries, RejectBatchChangeRequest, \
+    ApproveBatchChangeRequest
 from vinyldns.record import RecordSet, RecordType, AData, AAAAData, PTRData
-from func_tests.utils import wait_until_record_set_exists, wait_until_recordset_deleted
-
+from func_tests.utils import *
 
 def test_list_zones(vinyldns_test_context):
     list_zones = vinyldns_test_context.client.list_zones()
@@ -80,7 +80,7 @@ def test_create_batch_change(vinyldns_test_context):
     wait_until_recordset_deleted(vinyldns_test_context.client, r.changes[1].zone_id, r.changes[1].record_set_id)
 
 
-def test_batch_change_review_process(vinyldns_test_context):
+def test_batch_change_review_process_reject(vinyldns_test_context):
     changes = [
         AddRecord('test-approve-success.not.loaded.', RecordType.A, 200, AData("4.3.2.1"))
     ]
@@ -104,3 +104,46 @@ def test_batch_change_review_process(vinyldns_test_context):
     assert completed_bc.reviewer_id == 'support-user-id'
     assert completed_bc.reviewer_username == 'support-user'
     assert completed_bc.review_comment == 'cannot create the zone'
+
+
+def test_batch_change_review_process_approve(vinyldns_test_context):
+    approver = vinyldns_test_context.support_client
+
+    changes = [
+        AddRecord('test-approve-success.not.loaded.', RecordType.A, 200, AData("4.3.2.1"))
+    ]
+
+    bc = vinyldns_test_context.client.create_batch_change(
+        BatchChangeRequest(changes, 'comments', vinyldns_test_context.group.id)
+    )
+
+    assert bc.status == 'PendingReview'
+    assert bc.approval_status == 'PendingReview'
+    assert len(bc.changes[0].validation_errors) == 1
+
+    # need to create the zone so the change can succeed
+    zone = {
+        'name': 'not.loaded.',
+        'email': 'test@test.com',
+        'adminGroupId': vinyldns_test_context.group.id,
+        'backendId': 'func-test-backend',
+        'shared': True
+    }
+    zone_create = approver.connect_zone(zone)
+    to_disconnect = zone_create.zone
+    wait_until_zone_exists(approver, to_disconnect.id)
+
+    approval = ApproveBatchChangeRequest(review_comment='all good!')
+
+    vinyldns_test_context.support_client.approve_batch_change(bc.id, approval)
+
+    completed_bc = vinyldns_test_context.client.get_batch_change(bc.id)
+
+    print(to_json_string(completed_bc))
+
+    assert completed_bc.approval_status == 'ManuallyApproved'
+    assert completed_bc.reviewer_id == 'support-user-id'
+    assert completed_bc.reviewer_username == 'support-user'
+    assert completed_bc.review_comment == 'all good!'
+
+    wait_until_zone_deleted(approver, to_disconnect.id)

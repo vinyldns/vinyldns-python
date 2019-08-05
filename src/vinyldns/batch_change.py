@@ -71,7 +71,7 @@ class BatchChangeRequest(object):
         self.comments = comments
         self.changes = changes
         self.owner_group_id = owner_group_id
-        self.scheduled_time = scheduled_time
+        self.scheduled_time = to_utc_strftime(scheduled_time) if scheduled_time else None
 
     @staticmethod
     def from_dict(d):
@@ -80,7 +80,7 @@ class BatchChangeRequest(object):
             changes=[BatchChangeRequest.change_type_converters[elem['changeType']](elem)
                      for elem in d.get('changes', [])],
             owner_group_id=d.get('ownerGroupId'),
-            scheduled_time=map_option(d.get('scheduledTime'), to_utc_strftime)
+            scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)
         )
 
 
@@ -219,7 +219,7 @@ class BatchChange(object):
             owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
-            reviewer_username=d.get('reviewerUsername'),
+            reviewer_username=d.get('reviewerUserName'),
             review_comment=d.get('reviewComment'),
             review_timestamp=map_option(d.get('reviewTimestamp'), parse_datetime),
             scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)
@@ -262,10 +262,10 @@ class BatchChangeSummary(object):
             owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
-            reviewer_username=d.get('reviewerUsername'),
+            reviewer_username=d.get('reviewerUserName'),
             review_comment=d.get('reviewComment'),
             review_timestamp=d.get('reviewTimestamp'),
-            scheduled_time=d.get('scheduledTime')
+            scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)
         )
 
 
