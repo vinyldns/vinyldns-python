@@ -609,6 +609,7 @@ class VinylDNSClient(object):
 
         url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + arg
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
+
         return BatchChange.from_dict(data)
 
     def get_batch_change(self, batch_change_id, **kwargs):
@@ -620,6 +621,7 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}'.format(batch_change_id))
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
+
         return BatchChange.from_dict(data) if data is not None else None
 
     def list_batch_change_summaries(self, start_from=None, max_items=None,

@@ -164,7 +164,7 @@ class BatchChange(object):
     def __init__(self, user_id, user_name, created_timestamp, changes, id,
                  status, approval_status, comments=None, owner_group_id=None,
                  owner_group_name=None, reviewer_id=None,
-                 reviewer_username=None, review_comment=None,
+                 reviewer_user_name=None, review_comment=None,
                  review_timestamp=None, scheduled_time=None):
         self.user_id = user_id
         self.user_name = user_name
@@ -177,7 +177,7 @@ class BatchChange(object):
         self.owner_group_name = owner_group_name
         self.approval_status = approval_status
         self.reviewer_id = reviewer_id
-        self.reviewer_username = reviewer_username
+        self.reviewer_user_name = reviewer_user_name
         self.review_comment = review_comment
         self.review_timestamp = review_timestamp
         self.scheduled_time = scheduled_time
@@ -196,7 +196,7 @@ class BatchChange(object):
             owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
-            reviewer_username=d.get('reviewerUserName'),
+            reviewer_user_name=d.get('reviewerUserName'),
             review_comment=d.get('reviewComment'),
             review_timestamp=map_option(d.get('reviewTimestamp'), parse_datetime),
             scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)

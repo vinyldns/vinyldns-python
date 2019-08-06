@@ -55,7 +55,7 @@ def check_batch_changes_are_same(a, b):
     assert a.owner_group_name == b.owner_group_name
     assert a.approval_status == b.approval_status
     assert a.reviewer_id == b.reviewer_id
-    assert a.reviewer_username == b.reviewer_username
+    assert a.reviewer_user_name == b.reviewer_user_name
     assert a.review_comment == b.review_comment
     assert a.review_timestamp == b.review_timestamp
     assert a.scheduled_time == b.scheduled_time
@@ -72,7 +72,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    tomorrow = datetime.utcnow() + timedelta(1)
+    tomorrow = datetime.now().astimezone() + timedelta(1)
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Scheduled', 'PendingReview',
@@ -129,7 +129,7 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Complete', 'ManuallyApproved',
                      comments='batch change test', owner_group_id='owner-group-id',
-                     reviewer_id='admin-id', reviewer_username='admin',
+                     reviewer_id='admin-id', reviewer_user_name='admin',
                      review_comment='looks good', review_timestamp=datetime.utcnow())
 
     mocked_responses.add(
@@ -159,7 +159,7 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Rejected', 'Rejected',
                      comments='batch change test', owner_group_id='owner-group-id',
-                     reviewer_id='admin-id', reviewer_username='admin',
+                     reviewer_id='admin-id', reviewer_user_name='admin',
                      review_comment='not good', review_timestamp=datetime.utcnow())
 
     mocked_responses.add(
