@@ -70,6 +70,9 @@ class ForbiddenError(ClientError):
     """403 Forbidden Error"""
     pass
 
+class NotFoundError(ClientError):
+    """404 Not Found Error"""
+    pass
 
 class ConflictError(ClientError):
     """409 Conflict error"""
@@ -168,7 +171,7 @@ class VinylDNSClient(object):
         elif status == 403:
             raise ForbiddenError(response.text)
         elif status == 404:
-            return 404, None
+            raise NotFoundError(response.text)
         elif status == 409:
             raise ConflictError(response.text)
         elif status == 422:
