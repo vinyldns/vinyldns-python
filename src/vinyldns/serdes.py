@@ -133,4 +133,4 @@ def to_utc_strftime(t):
     if t.tzinfo is not None:
         return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
-        raise TypeError("Expected datetime object with tzinfo attribute.")
+        raise ValueError("Expected datetime object with tzinfo attribute.")
