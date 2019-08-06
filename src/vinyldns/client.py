@@ -158,9 +158,9 @@ class VinylDNSClient(object):
 
         response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
-        return self.__check_response(response)
+        return self.__check_response(response, method)
 
-    def __check_response(self, response):
+    def __check_response(self, response, method):
         status = response.status_code
         if status == 200 or status == 202:
             return response.status_code, response.json()
@@ -171,7 +171,10 @@ class VinylDNSClient(object):
         elif status == 403:
             raise ForbiddenError(response.text)
         elif status == 404:
-            raise NotFoundError(response.text)
+            if method == 'GET':
+                return 404, None
+            else:
+                raise NotFoundError(response.text)
         elif status == 409:
             raise ConflictError(response.text)
         elif status == 422:
