@@ -31,10 +31,10 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
-from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries
+from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
     ListAdminsResponse
-from vinyldns.serdes import to_json_string, to_review_json
+from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
 from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
 

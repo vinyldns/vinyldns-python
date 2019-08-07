@@ -15,7 +15,20 @@
 
 from vinyldns.serdes import parse_datetime, map_option, to_utc_strftime
 from vinyldns.record import rdata_converters
+import json
 
+def to_review_json(s):
+    """
+    Converts the string to json
+    :param s: A string
+    :return: A json formatted string representation of the object
+    """
+    b = {}
+    if s:
+        b.update({"reviewComment": s})
+        return json.dumps(b)
+    else:
+        return None
 
 class AddRecord(object):
     def __init__(self, input_name, type, ttl, record):
@@ -207,7 +220,7 @@ class BatchChangeSummary(object):
     def __init__(self, user_id, user_name, created_timestamp, total_changes, id,
                  status, approval_status, comments=None, owner_group_id=None,
                  owner_group_name=None, reviewer_id=None,
-                 reviewer_username=None, review_comment=None,
+                 reviewer_user_name=None, review_comment=None,
                  review_timestamp=None, scheduled_time=None):
         self.user_id = user_id
         self.user_name = user_name
@@ -220,7 +233,7 @@ class BatchChangeSummary(object):
         self.owner_group_name = owner_group_name
         self.approval_status = approval_status
         self.reviewer_id = reviewer_id
-        self.reviewer_username = reviewer_username
+        self.reviewer_user_name = reviewer_user_name
         self.review_comment = review_comment
         self.review_timestamp = review_timestamp
         self.scheduled_time = scheduled_time
@@ -239,7 +252,7 @@ class BatchChangeSummary(object):
             owner_group_name=d.get('ownerGroupName'),
             approval_status=d['approvalStatus'],
             reviewer_id=d.get('reviewerId'),
-            reviewer_username=d.get('reviewerUserName'),
+            reviewer_user_name=d.get('reviewerUserName'),
             review_comment=d.get('reviewComment'),
             review_timestamp=d.get('reviewTimestamp'),
             scheduled_time=map_option(d.get('scheduledTime'), parse_datetime)

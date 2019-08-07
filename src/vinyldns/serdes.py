@@ -90,19 +90,6 @@ def to_json_string(o):
     """
     return json.dumps(to_dict(o))
 
-def to_review_json(s):
-    """
-    Converts the string to json
-    :param s: A string
-    :return: A json formatted string representation of the object
-    """
-    b = {}
-    if s:
-        b.update({"reviewComment": s})
-        return json.dumps(b)
-    else:
-        return None
-
 def map_option(v, f):
     """
     Applies the function f to the value if it is not None

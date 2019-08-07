@@ -47,8 +47,6 @@ def test_record_sets(vinyldns_test_context):
     assert r.ttl == rs.ttl
     assert all([l.__dict__ == r.__dict__ for l, r in zip(rs.records, r.records)])
 
-    wait_until_recordset_deleted(vinyldns_test_context.client, rs.zone_id, rs.id)
-
 
 def test_create_batch_change(vinyldns_test_context):
     changes = [
@@ -75,9 +73,6 @@ def test_create_batch_change(vinyldns_test_context):
     assert change2.record.ptrdname == 'change-test.vinyldns.'
     assert change2.type == RecordType.PTR
 
-    wait_until_recordset_deleted(vinyldns_test_context.client, r.changes[0].zone_id, r.changes[0].record_set_id)
-    wait_until_recordset_deleted(vinyldns_test_context.client, r.changes[1].zone_id, r.changes[1].record_set_id)
-
 
 def test_batch_change_review_process_reject(vinyldns_test_context):
     changes = [
@@ -99,7 +94,7 @@ def test_batch_change_review_process_reject(vinyldns_test_context):
     assert completed_bc.status == 'Rejected'
     assert completed_bc.approval_status == 'ManuallyRejected'
     assert completed_bc.reviewer_id == 'support-user-id'
-    assert completed_bc.reviewer_username == 'support-user'
+    assert completed_bc.reviewer_user_name == 'support-user'
     assert completed_bc.review_comment == 'cannot create the zone'
 
 
@@ -134,11 +129,7 @@ def test_batch_change_review_process_approve(vinyldns_test_context):
 
     completed_bc = vinyldns_test_context.client.get_batch_change(bc.id)
 
-    print(to_json_string(completed_bc))
-
     assert completed_bc.approval_status == 'ManuallyApproved'
     assert completed_bc.reviewer_id == 'support-user-id'
-    assert completed_bc.reviewer_username == 'support-user'
+    assert completed_bc.reviewer_user_name == 'support-user'
     assert completed_bc.review_comment == 'all good!'
-
-    wait_until_zone_deleted(approver, to_disconnect.id)
