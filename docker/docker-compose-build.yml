@@ -10,7 +10,7 @@ services:
       - "19002:3306"
 
   bind9:
-    image: "vinyldns/bind9:0.0.1"
+    image: "vinyldns/bind9:0.0.4"
     container_name: "vinyldns-bind9"
     ports:
       - "19001:53/udp"
