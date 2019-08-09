@@ -18,7 +18,7 @@ import json
 try:
     from datetime import timezone
 except ImportError:
-    from dateutil.tz import *
+    from dateutil.tz import tzutc
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
