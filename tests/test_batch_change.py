@@ -13,7 +13,7 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 from datetime import datetime, timedelta
-from dateutil.tz import tzutc
+from dateutil.tz import tzlocal
 
 import responses
 from sampledata import forward_zone
@@ -80,7 +80,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     try:
         tomorrow = datetime.now().astimezone() + timedelta(1)
     except TypeError:
-        tomorrow = datetime.now(tzutc()).astimezone() + timedelta(1)
+        tomorrow = datetime.now(tzlocal()).astimezone(tzlocal()) + timedelta(1)
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Scheduled', 'PendingReview',
