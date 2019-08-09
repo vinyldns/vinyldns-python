@@ -13,6 +13,7 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 from datetime import datetime, timedelta
+from dateutil.tz import tzutc
 
 import responses
 from sampledata import forward_zone
