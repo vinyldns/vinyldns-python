@@ -136,7 +136,7 @@ class AddRecordChange(object):
             record_change_id=d.get('recordChangeId'),
             record_set_id=d.get('recordSetId'),
             validation_errors=[ValidationError.from_dict(elem)
-            for elem in d.get('validationErrors', [])]
+                for elem in d.get('validationErrors', [])]
         )
 
 
