@@ -13,8 +13,12 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 import re
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 import json
+try:
+    from datetime import timezone
+except ImportError:
+    from dateutil.tz import *
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -120,6 +124,9 @@ def to_utc_strftime(t):
     :return:
     """
     if t.tzinfo is not None:
-        return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        try:
+            return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except NameError:
+            return t.astimezone(tzutc()).strftime("%Y-%m-%dT%H:%M:%SZ")
     else:
         raise ValueError("Expected datetime object with tzinfo attribute.")
