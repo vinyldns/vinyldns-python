@@ -17,6 +17,7 @@ from vinyldns.serdes import parse_datetime, map_option, to_utc_strftime
 from vinyldns.record import rdata_converters
 import json
 
+
 def to_review_json(s):
     """
     Converts the string to json
@@ -29,6 +30,7 @@ def to_review_json(s):
         return json.dumps(b)
     else:
         return None
+
 
 class AddRecord(object):
     def __init__(self, input_name, type, ttl, record):
@@ -61,6 +63,7 @@ class DeleteRecordSet(object):
             type=d['type']
         )
 
+
 class ValidationError(object):
     def __init__(self, error_type, message):
         self.error_type = error_type
@@ -72,6 +75,7 @@ class ValidationError(object):
             error_type=d['errorType'],
             message=d['message']
         )
+
 
 class BatchChangeRequest(object):
     change_type_converters = {
@@ -138,7 +142,7 @@ class AddRecordChange(object):
 
 class DeleteRecordSetChange(object):
     def __init__(self, zone_id, zone_name, record_name, input_name, type, status,
-    id, validation_errors, system_message=None, record_change_id=None, record_set_id=None):
+                 id, validation_errors, system_message=None, record_change_id=None, record_set_id=None):
         self.zone_id = zone_id
         self.zone_name = zone_name
         self.record_name = record_name
@@ -167,6 +171,7 @@ class DeleteRecordSetChange(object):
             record_set_id=d.get('recordSetId'),
             validation_errors=[ValidationError.from_dict(elem) for elem in d.get('validation_errors', [])]
         )
+
 
 class BatchChange(object):
     change_type_converters = {

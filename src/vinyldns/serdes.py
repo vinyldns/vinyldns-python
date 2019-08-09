@@ -90,6 +90,7 @@ def to_json_string(o):
     """
     return json.dumps(to_dict(o))
 
+
 def map_option(v, f):
     """
     Applies the function f to the value if it is not None
@@ -111,6 +112,7 @@ def parse_datetime(s):
     """
     import dateutil.parser
     return dateutil.parser.parse(s)
+
 
 def to_utc_strftime(t):
     """

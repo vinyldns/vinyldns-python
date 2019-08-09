@@ -22,9 +22,11 @@ from vinyldns.batch_change import AddRecordChange, DeleteRecordSetChange, BatchC
     DeleteRecordSet, AddRecord, BatchChangeSummary, ListBatchChangeSummaries, \
     ValidationError
 
+
 def check_validation_errors_are_same(a, b):
     assert a.error_type == b.error_type
     assert a.message == b.message
+
 
 def check_single_changes_are_same(a, b):
     assert a.zone_id == b.zone_id
@@ -44,6 +46,7 @@ def check_single_changes_are_same(a, b):
         for l, r in zip(a.validation_errors, b.validation_errors):
             check_validation_errors_are_same(l, r)
 
+
 def check_batch_changes_are_same(a, b):
     assert a.user_id == b.user_id
     assert a.user_name == b.user_name
@@ -61,6 +64,7 @@ def check_batch_changes_are_same(a, b):
     assert a.scheduled_time == b.scheduled_time
     for l, r in zip(a.changes, b.changes):
         check_single_changes_are_same(l, r)
+
 
 def test_create_batch_change(mocked_responses, vinyldns_client):
     ar = AddRecord('foo.baa.com', RecordType.A, 100, AData('1.2.3.4'))
@@ -116,6 +120,7 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
     r = vinyldns_client.get_batch_change('bcid')
 
     check_batch_changes_are_same(r, bc)
+
 
 def test_approve_batch_change(mocked_responses, vinyldns_client):
     arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com',

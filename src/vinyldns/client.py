@@ -70,9 +70,11 @@ class ForbiddenError(ClientError):
     """403 Forbidden Error"""
     pass
 
+
 class NotFoundError(ClientError):
     """404 Not Found Error"""
     pass
+
 
 class ConflictError(ClientError):
     """409 Conflict error"""

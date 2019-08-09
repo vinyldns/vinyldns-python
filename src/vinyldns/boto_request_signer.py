@@ -103,14 +103,15 @@ class BotoRequestSigner(object):
 
         return auth_header
 
+
 def generate_canonical_query_string(params):
     """
     Using in place of canonical_query_string from boto/auth.py to support POST requests with query parameters
     """
-    l = []
+    post_params = []
     for param in sorted(params):
         value = params[param].encode('utf-8')
         import urllib
-        l.append('%s=%s' % (urllib.parse.quote(param, safe='-_.~'),
+        post_params.append('%s=%s' % (urllib.parse.quote(param, safe='-_.~'),
                             urllib.parse.quote(value, safe='-_.~')))
     return '&'.join(l)
