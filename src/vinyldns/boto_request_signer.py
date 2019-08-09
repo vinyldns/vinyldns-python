@@ -113,5 +113,5 @@ def generate_canonical_query_string(params):
         value = params[param].encode('utf-8')
         import urllib
         post_params.append('%s=%s' % (urllib.parse.quote(param, safe='-_.~'),
-                            urllib.parse.quote(value, safe='-_.~')))
-    return '&'.join(l)
+                           urllib.parse.quote(value, safe='-_.~')))
+    return '&'.join(post_params)
