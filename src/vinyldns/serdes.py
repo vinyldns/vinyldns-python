@@ -15,6 +15,7 @@
 import re
 from datetime import date, datetime
 import json
+# Python 2/3 compatibility
 try:
     from datetime import timezone
 except ImportError:
@@ -120,8 +121,10 @@ def parse_datetime(s):
 
 def to_utc_strftime(t):
     """
-    :param t:
-    :return:
+    Converts the provided datetime to UTC then to a string
+    Includes Python 2/3 compatibility
+    :param t: Datetime with time zone
+    :return: A string
     """
     if t.tzinfo is not None:
         try:

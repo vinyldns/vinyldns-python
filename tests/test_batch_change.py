@@ -77,6 +77,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
+    # Python 2/3 compatibility
     try:
         tomorrow = datetime.now().astimezone() + timedelta(1)
     except TypeError:
