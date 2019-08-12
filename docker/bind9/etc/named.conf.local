@@ -31,3 +31,9 @@ zone "sync-test" {
 	file "/var/bind/sync-test.hosts";
 	allow-update { key "vinyldns."; };
 	};
+
+zone "not.loaded" {
+	type master;
+	file "/var/bind/not.loaded.hosts";
+	allow-update { key "vinyldns."; };
+	};

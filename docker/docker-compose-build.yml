@@ -10,7 +10,7 @@ services:
       - "19002:3306"
 
   bind9:
-    image: "vinyldns/bind9:0.0.1"
+    image: "vinyldns/bind9:0.0.4"
     container_name: "vinyldns-bind9"
     ports:
       - "19001:53/udp"
@@ -20,7 +20,7 @@ services:
       - ./bind9/zones:/var/cache/bind/zones
 
   api:
-    image: "vinyldns/api:latest"
+    image: "vinyldns/api:0.9.3"
     container_name: "vinyldns-api"
     ports:
       - "9000:9000"

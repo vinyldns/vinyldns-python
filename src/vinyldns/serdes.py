@@ -13,6 +13,13 @@
 # limitations under the License.
 """TODO: Add module docstring."""
 import re
+from datetime import date, datetime
+import json
+# Python 2/3 compatibility
+try:
+    from datetime import timezone
+except ImportError:
+    from dateutil.tz import tzutc
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
@@ -45,7 +52,6 @@ def to_dict(obj, cls=None):
     :param cls: The type of class, useful for recursion
     :return: A fully populated dictionary with field names converted to camelCase
     """
-    from datetime import date, datetime
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, dict):
@@ -77,7 +83,6 @@ def from_json_string(s, object_hook):
     :param object_hook: A function that takes a dictionary and yields a new object instance
     :return: A populated object instance generated from the object_ctor
     """
-    import json
     d = json.loads(s)
     return object_hook(d)
 
@@ -88,7 +93,6 @@ def to_json_string(o):
     :param o: An object that can be serialized to json
     :return: A json formatted string representation of the object
     """
-    import json
     return json.dumps(to_dict(o))
 
 
@@ -113,3 +117,19 @@ def parse_datetime(s):
     """
     import dateutil.parser
     return dateutil.parser.parse(s)
+
+
+def to_utc_strftime(t):
+    """
+    Converts the provided datetime to UTC then to a string
+    Includes Python 2/3 compatibility
+    :param t: Datetime with time zone
+    :return: A string
+    """
+    if t.tzinfo is not None:
+        try:
+            return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except NameError:
+            return t.astimezone(tzutc()).strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        raise ValueError("Expected datetime object with tzinfo attribute.")

@@ -31,7 +31,7 @@ from requests.packages.urllib3.util.retry import Retry
 # TODO: Didn't like this boto request signer, fix when moving back
 from vinyldns.boto_request_signer import BotoRequestSigner
 
-from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries
+from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
     ListAdminsResponse
 from vinyldns.serdes import to_json_string
@@ -68,6 +68,11 @@ class UnauthorizedError(ClientError):
 
 class ForbiddenError(ClientError):
     """403 Forbidden Error"""
+    pass
+
+
+class NotFoundError(ClientError):
+    """404 Not Found Error"""
     pass
 
 
@@ -152,11 +157,12 @@ class VinylDNSClient(object):
 
         signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
                                                                     with_headers=headers or {}, **kwargs)
+
         response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
 
-        return self.__check_response(response)
+        return self.__check_response(response, method)
 
-    def __check_response(self, response):
+    def __check_response(self, response, method):
         status = response.status_code
         if status == 200 or status == 202:
             return response.status_code, response.json()
@@ -167,7 +173,10 @@ class VinylDNSClient(object):
         elif status == 403:
             raise ForbiddenError(response.text)
         elif status == 404:
-            return 404, None
+            if method == 'GET':
+                return 404, None
+            else:
+                raise NotFoundError(response.text)
         elif status == 409:
             raise ConflictError(response.text)
         elif status == 422:
@@ -589,15 +598,23 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListRecordSetChangesResponse.from_dict(data)
 
-    def create_batch_change(self, batch_change_input, **kwargs):
+    def create_batch_change(self, batch_change_input, allow_manual_review=None, **kwargs):
         """
         Create a new batch change.
 
         :param batch_change_input: the batchchange to be created
+        :param allow_manual_review: set to false to fail rather than go to
+        review if there are errors
         :return: the content of the response
         """
-        url = urljoin(self.index_url, u'/zones/batchrecordchanges')
+        arg = ''
+
+        if allow_manual_review is not None:
+            arg = u'allowManualReview={0}'.format(allow_manual_review)
+
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + arg
         response, data = self.__make_request(url, u'POST', self.headers, to_json_string(batch_change_input), **kwargs)
+
         return BatchChange.from_dict(data)
 
     def get_batch_change(self, batch_change_id, **kwargs):
@@ -609,9 +626,11 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}'.format(batch_change_id))
         response, data = self.__make_request(url, u'GET', self.headers, None, **kwargs)
+
         return BatchChange.from_dict(data) if data is not None else None
 
-    def list_batch_change_summaries(self, start_from=None, max_items=None, **kwargs):
+    def list_batch_change_summaries(self, start_from=None, max_items=None,
+                                    ignore_access=None, approval_status=None, **kwargs):
         """
         Get list of user's batch change summaries.
 
@@ -622,11 +641,38 @@ class VinylDNSClient(object):
             args.append(u'startFrom={0}'.format(start_from))
         if max_items is not None:
             args.append(u'maxItems={0}'.format(max_items))
+        if ignore_access:
+            args.append(u'ignoreAccess={0}'.format(ignore_access))
+        if approval_status:
+            args.append(u'approvalStatus={0}'.format(approval_status))
 
         url = urljoin(self.index_url, u'/zones/batchrecordchanges') + u'?' + u'&'.join(args)
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListBatchChangeSummaries.from_dict(data)
+
+    def approve_batch_change(self, batch_change_id, approval=None, **kwargs):
+        """
+        Approve a batch change
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, '/zones/batchrecordchanges/{0}/approve'.format(batch_change_id),
+                      to_json_string(approval))
+        response, data = self.__make_request(url, u'POST', self.headers, to_review_json(approval), **kwargs)
+
+        return BatchChange.from_dict(data)
+
+    def reject_batch_change(self, batch_change_id, rejection=None, **kwargs):
+        """
+        Reject a batch change
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/reject'.format(batch_change_id))
+        response, data = self.__make_request(url, u'POST', self.headers,  to_review_json(rejection), **kwargs)
+
+        return BatchChange.from_dict(data)
 
     def add_zone_acl_rule(self, zone_id, acl_rule, **kwargs):
         """

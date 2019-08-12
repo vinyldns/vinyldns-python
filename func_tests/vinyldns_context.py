@@ -13,6 +13,7 @@ class VinylDNSContext(object):
     """
     def __init__(self):
         self.client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
+        self.support_client = VinylDNSClient("http://localhost:9000", "supportUserAccessKey", "supportUserSecretKey")
         self.group = None
         self.tear_down()
 
@@ -20,8 +21,8 @@ class VinylDNSContext(object):
             name='vinyldns-python-test-group',
             email='test@test.com',
             description='this is a description',
-            members=[User(id='ok')],
-            admins=[User(id='ok')]
+            members=[User(id='ok'), User(id='support-user-id')],
+            admins=[User(id='ok'), User(id='support-user-id')]
         )
 
         self.group = self.client.create_group(group)
