@@ -134,7 +134,7 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
 
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz',
                                 'baz.bar.com', RecordType.A, 'PendingReview',
-                                'id2', 'system-message', [], 'rchangeid2', 'rsid2')
+                                'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
     bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
                      'bcid', 'Complete', 'ManuallyApproved',
