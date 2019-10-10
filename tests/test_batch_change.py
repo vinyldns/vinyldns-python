@@ -70,6 +70,7 @@ def check_batch_changes_are_same(a, b):
 def test_create_batch_change(mocked_responses, vinyldns_client):
     ar = AddRecord('foo.baa.com', RecordType.A, 100, AData('1.2.3.4'))
     drs = DeleteRecordSet('baz.bar.com', RecordType.A)
+    drs_with_data = DeleteRecordSet('baz-with-data.bar.com', RecordType.A, AData('5.6.7.8'))
 
     arc = AddRecordChange(forward_zone.id, forward_zone.name, 'foo', 'foo.bar.com', RecordType.A, 200,
                           AData('1.2.3.4'), 'Complete', 'id1', [], 'system-message', 'rchangeid1', 'rsid1')
@@ -77,13 +78,17 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     drc = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz', 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
+    drc_with_data = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'baz-with-data', 'baz-with-data.bar.com',
+                                          RecordType.A, 'Complete', 'id2', [], 'system-message', 'rchangeid3', 'rsid3',
+                                          AData('5.6.7.8'))
+
     # Python 2/3 compatibility
     try:
         tomorrow = datetime.now().astimezone() + timedelta(1)
     except TypeError:
         tomorrow = datetime.now(tzlocal()).astimezone(tzlocal()) + timedelta(1)
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
                      'bcid', 'Scheduled', 'PendingReview',
                      comments='batch change test', owner_group_id='owner-group-id',
                      scheduled_time=tomorrow)
@@ -95,7 +100,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
 
     r = vinyldns_client.create_batch_change(
         BatchChangeRequest(
-            changes=[ar, drs],
+            changes=[ar, drs, drs_with_data],
             comments='batch change test',
             owner_group_id='owner-group-id',
             scheduled_time=tomorrow
