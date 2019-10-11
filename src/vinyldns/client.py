@@ -663,6 +663,17 @@ class VinylDNSClient(object):
 
         return BatchChange.from_dict(data)
 
+    def cancel_batch_change(self, batch_change_id, **kwargs):
+        """
+        Cancel a batch change
+
+        :return: the content of the response
+        """
+        url = urljoin(self.index_url, u'/zones/batchrecordchanges/{0}/cancel'.format(batch_change_id))
+        response, data = self.__make_request(url, u'POST', self.headers, **kwargs)
+
+        return BatchChange.from_dict(data) if data is not None else None
+
     def reject_batch_change(self, batch_change_id, rejection=None, **kwargs):
         """
         Reject a batch change
