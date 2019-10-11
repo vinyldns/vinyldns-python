@@ -59,10 +59,13 @@ class DeleteRecordSet(object):
 
     @staticmethod
     def from_dict(d):
+        record = d.get('record')
+        if record is not None:
+            record = rdata_converters[d['type']](record)
         return DeleteRecordSet(
             input_name=d['inputName'],
             type=d['type'],
-            record=d.get('record')
+            record=record
         )
 
 
@@ -160,13 +163,16 @@ class DeleteRecordSetChange(object):
 
     @staticmethod
     def from_dict(d):
+        record = d.get('record')
+        if record is not None:
+            record = rdata_converters[d['type']](record)
         return DeleteRecordSetChange(
             zone_id=d['zoneId'],
             zone_name=d['zoneName'],
             record_name=d['recordName'],
             input_name=d['inputName'],
             type=d['type'],
-            record=d.get('record'),
+            record=record,
             status=d['status'],
             id=d['id'],
             system_message=d.get('systemMessage'),
