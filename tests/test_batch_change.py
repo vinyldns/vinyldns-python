@@ -118,7 +118,11 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                                 'baz.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    drc_with_data = DeleteRecordSetChange(forward_zone.id, forward_zone.name, 'biz',
+                                          'biz.bar.com', RecordType.A, 'Complete',
+                                          'id3', [], 'system-message', 'rchangeid3', 'rsid3', AData("5.6.7.8"))
+
+    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
                      'bcid', 'Complete', 'AutoApproved',
                      comments='batch change test', owner_group_id='owner-group-id')
 
