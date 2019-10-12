@@ -51,16 +51,18 @@ class AddRecord(object):
 
 
 class DeleteRecordSet(object):
-    def __init__(self, input_name, type):
+    def __init__(self, input_name, type, record=None):
         self.input_name = input_name
         self.type = type
+        self.record = record
         self.change_type = 'DeleteRecordSet'
 
     @staticmethod
     def from_dict(d):
         return DeleteRecordSet(
             input_name=d['inputName'],
-            type=d['type']
+            type=d['type'],
+            record=map_option(d.get('record'), rdata_converters[d['type']])
         )
 
 
@@ -141,12 +143,13 @@ class AddRecordChange(object):
 
 class DeleteRecordSetChange(object):
     def __init__(self, zone_id, zone_name, record_name, input_name, type, status,
-                 id, validation_errors, system_message=None, record_change_id=None, record_set_id=None):
+                 id, validation_errors, system_message=None, record_change_id=None, record_set_id=None, record=None):
         self.zone_id = zone_id
         self.zone_name = zone_name
         self.record_name = record_name
         self.input_name = input_name
         self.type = type
+        self.record = record
         self.status = status
         self.id = id
         self.system_message = system_message
@@ -163,12 +166,13 @@ class DeleteRecordSetChange(object):
             record_name=d['recordName'],
             input_name=d['inputName'],
             type=d['type'],
+            record=map_option(d.get('record'), rdata_converters[d['type']]),
             status=d['status'],
             id=d['id'],
             system_message=d.get('systemMessage'),
             record_change_id=d.get('recordChangeId'),
             record_set_id=d.get('recordSetId'),
-            validation_errors=[ValidationError.from_dict(elem) for elem in d.get('validation_errors', [])]
+            validation_errors=[ValidationError.from_dict(elem) for elem in d.get('validationErrors', [])]
         )
 
 
