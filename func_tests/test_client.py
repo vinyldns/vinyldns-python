@@ -98,6 +98,26 @@ def test_batch_change_review_process_reject(vinyldns_test_context):
     assert completed_bc.review_comment == 'cannot create the zone'
 
 
+def test_batch_change_review_process_cancel(vinyldns_test_context):
+    changes = [
+        AddRecord('test-approve-success.not.loaded.', RecordType.A, 200,
+                  AData("4.3.2.1"))
+    ]
+
+    bc = vinyldns_test_context.client.create_batch_change(
+        BatchChangeRequest(changes, 'comments', vinyldns_test_context.group.id)
+    )
+
+    assert bc.status == 'PendingReview'
+    assert bc.approval_status == 'PendingReview'
+    assert len(bc.changes[0].validation_errors) == 1
+
+    cancelled_bc = vinyldns_test_context.client.cancel_batch_change(bc.id)
+
+    assert cancelled_bc.status == 'Cancelled'
+    assert cancelled_bc.approval_status == 'Cancelled'
+
+
 def test_batch_change_review_process_approve(vinyldns_test_context):
     approver = vinyldns_test_context.support_client
 

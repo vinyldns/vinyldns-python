@@ -191,6 +191,41 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
     check_batch_changes_are_same(r, bc)
 
 
+def test_cancel_batch_change(mocked_responses, vinyldns_client):
+    error_message = (
+        "Zone Discovery Failed: zone for 'foo.bar.com' does not exist in"
+        " VinylDNS. If zone exists, then it must be connected to in VinylDNS."
+    )
+
+    error = ValidationError('ZoneDiscoveryError', error_message)
+
+    arc = AddRecordChange(
+        forward_zone.id, forward_zone.name, 'cancel', 'cancel.bar.com',
+        RecordType.A, 200, AData('1.2.3.4'), 'PendingReview', 'id1',
+        [error], 'system-message', 'cchangeid1', 'csid1'
+    )
+
+    drc = DeleteRecordSetChange(
+        forward_zone.id, forward_zone.name, 'cancel2', 'cancel2.bar.com',
+        RecordType.A, 'Complete', 'id2', [], 'system-message', 'cchangeid2',
+        'csid2'
+    )
+
+    bc = BatchChange(
+        'user-id', 'user-name', datetime.utcnow(), [arc, drc], 'bcid',
+        'Cancelled', 'Cancelled', owner_group_id='owner-group-id'
+    )
+
+    mocked_responses.add(
+        responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/cancel',
+        body=to_json_string(bc), status=200
+    )
+
+    c = vinyldns_client.cancel_batch_change('bcid')
+
+    check_batch_changes_are_same(c, bc)
+
+
 def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
     bcs1 = BatchChangeSummary('user-id', 'user-name', datetime.utcnow(), 10, 'id1',
                               'Complete', 'AutoApproved', comments='comments',
