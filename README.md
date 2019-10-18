@@ -69,4 +69,4 @@ VinylDNS api for details on how to start up a local instance of the api in docke
 running, you can make requests with the following client details:
 ```python
 local_client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
-``` 
+```
