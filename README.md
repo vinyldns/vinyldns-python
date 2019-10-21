@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/vinyldns-python.svg)](https://badge.fury.io/py/vinyldns-python) [![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-python.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-python)
+![GitHub](https://img.shields.io/github/license/vinyldns/vinyldns-python)
 
 # vinyldns-python
 
@@ -68,4 +69,4 @@ VinylDNS api for details on how to start up a local instance of the api in docke
 running, you can make requests with the following client details:
 ```python
 local_client = VinylDNSClient("http://localhost:9000", "okAccessKey", "okSecretKey")
-``` 
+```
