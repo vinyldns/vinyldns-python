@@ -14,15 +14,11 @@ function usage {
 
 RELEASE_URL="--repository-url https://test.pypi.org/legacy/"
 KEY_ID=
-GIT_PUSH="false"
 KEY_ID=
 VERSION_SEGMENT="patch"
 
 while [ "$1" != "" ]; do
     case "$1" in
-        -g | --git )
-            GIT_PUSH="true"
-            ;;
         -p | --production )
             RELEASE_URL=""
             ;;
@@ -63,9 +59,16 @@ if [ "${VERSION_SEGMENT}" == "major" ]; then
 elif [ "${VERSION_SEGMENT}" == "minor" ]; then
     echo "Bumping the minor version..."
     bumpversion minor
-else
+elif [ "${VERSION_SEGMENT}" == "patch" ]; then
     echo "Bumping the patch version..."
     bumpversion patch
+else
+    echo "Using override version ${VERSION_SEGMENT}"
+    if [ -z "${RELEASE_URL}" ]; then
+        bumpversion "${VERSION_SEGMENT}"
+    else
+        bumpversion "${VERSION_SEGMENT}" --no-tag --no-commit
+    fi
 fi
 bump_result=$?
 
@@ -88,7 +91,7 @@ done
 echo "Uploading to pypi at ${RELEASE_URL}..."
 twine upload ${RELEASE_URL} ${DIR}/dist/*
 
-if [[ "$GIT_PUSH" == "true" ]]; then
+if [ -z "${RELEASE_URL}" ]; then
     echo "Pushing git tags..."
     git push
     git push --tags
