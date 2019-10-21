@@ -7,7 +7,6 @@ function usage {
     printf "Bumps the version and releases the package to pypi\n\n"
     printf "options:\n"
     printf "\t-b, --bump: which segment to bump: major | minor | patch\n"
-    printf "\t-g, --git: push after release to git (default is off)\n"
     printf "\t-p, --production: use real pypi instead of test pypi (test is default)\n"
     printf "\t-k, --key-id: the key id to use to sign the artifacts\n"
 }
@@ -55,21 +54,19 @@ rm -rf ${DIR}/dist
 
 if [ "${VERSION_SEGMENT}" == "major" ]; then
     echo "Bumping the major version..."
-    bumpversion major
 elif [ "${VERSION_SEGMENT}" == "minor" ]; then
     echo "Bumping the minor version..."
-    bumpversion minor
-elif [ "${VERSION_SEGMENT}" == "patch" ]; then
-    echo "Bumping the patch version..."
-    bumpversion patch
 else
-    echo "Using override version ${VERSION_SEGMENT}"
-    if [ -z "${RELEASE_URL}" ]; then
-        bumpversion "${VERSION_SEGMENT}"
-    else
-        bumpversion "${VERSION_SEGMENT}" --no-tag --no-commit
-    fi
+    echo "Bumping the patch version..."
+    VERSION_SEGMENT="patch" # ensure we are setting patch here
 fi
+
+if [ -z "${RELEASE_URL}" ]; then
+    bumpversion "${VERSION_SEGMENT}"
+else
+    bumpversion "${VERSION_SEGMENT}" --no-tag --no-commit
+fi
+
 bump_result=$?
 
 if [ "${bump_result}" != 0 ]; then
