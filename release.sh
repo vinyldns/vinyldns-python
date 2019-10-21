@@ -7,22 +7,17 @@ function usage {
     printf "Bumps the version and releases the package to pypi\n\n"
     printf "options:\n"
     printf "\t-b, --bump: which segment to bump: major | minor | patch\n"
-    printf "\t-g, --git: push after release to git (default is off)\n"
     printf "\t-p, --production: use real pypi instead of test pypi (test is default)\n"
     printf "\t-k, --key-id: the key id to use to sign the artifacts\n"
 }
 
 RELEASE_URL="--repository-url https://test.pypi.org/legacy/"
 KEY_ID=
-GIT_PUSH="false"
 KEY_ID=
 VERSION_SEGMENT="patch"
 
 while [ "$1" != "" ]; do
     case "$1" in
-        -g | --git )
-            GIT_PUSH="true"
-            ;;
         -p | --production )
             RELEASE_URL=""
             ;;
@@ -59,14 +54,19 @@ rm -rf ${DIR}/dist
 
 if [ "${VERSION_SEGMENT}" == "major" ]; then
     echo "Bumping the major version..."
-    bumpversion major
 elif [ "${VERSION_SEGMENT}" == "minor" ]; then
     echo "Bumping the minor version..."
-    bumpversion minor
 else
     echo "Bumping the patch version..."
-    bumpversion patch
+    VERSION_SEGMENT="patch" # ensure we are setting patch here
 fi
+
+if [ -z "${RELEASE_URL}" ]; then
+    bumpversion "${VERSION_SEGMENT}"
+else
+    bumpversion "${VERSION_SEGMENT}" --no-tag --no-commit
+fi
+
 bump_result=$?
 
 if [ "${bump_result}" != 0 ]; then
@@ -88,7 +88,7 @@ done
 echo "Uploading to pypi at ${RELEASE_URL}..."
 twine upload ${RELEASE_URL} ${DIR}/dist/*
 
-if [[ "$GIT_PUSH" == "true" ]]; then
+if [ -z "${RELEASE_URL}" ]; then
     echo "Pushing git tags..."
     git push
     git push --tags
