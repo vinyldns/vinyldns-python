@@ -565,6 +565,40 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListRecordSetsResponse.from_dict(data)
 
+    def global_list_record_sets(self, start_from=None, max_items=None, record_name_filter=None,
+                                record_type_filter=None, record_owner_group_filter=None, name_sort=None, **kwargs):
+        """
+        Retrieves a list of RecordSets globally in the VinylDNS database based on search criteria.
+        A minimum of two alpha-numeric characters is required.
+
+        :param start_from: the start key of the page
+        :param max_items: the page limit
+        :param record_name_filter: only returns record_sets whose names contain filter string
+        :param record_type_filter: only returns record_sets whose type is present in the given list
+        :param record_owner_group_filter: only returns record_sets belonging to the given owner
+        :param name_sort: sort the results as per given order
+        :return: the content of the response
+        """
+        args = []
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+        if record_name_filter:
+            args.append(u'recordNameFilter={0}'.format(record_name_filter))
+        if record_type_filter:
+            for record_type in record_type_filter:
+                args.append(u'recordTypeFilter[]={0}'.format(record_type))
+        if record_owner_group_filter:
+            args.append(u'recordOwnerGroupFilter={0}'.format(record_owner_group_filter))
+        if name_sort:
+            args.append(u'nameSort={0}'.format(name_sort))
+
+        url = urljoin(self.index_url, u'/recordsets') + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return ListRecordSetsResponse.from_dict(data)
+
     def get_record_set_change(self, zone_id, rs_id, change_id, **kwargs):
         """
         Get an existing record_set change.

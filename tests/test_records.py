@@ -15,7 +15,7 @@
 import copy
 
 import responses
-from sampledata import record_set_values, gen_rs_change, forward_zone
+from sampledata import record_sets, record_set_values, gen_rs_change, forward_zone
 from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse
 from vinyldns.serdes import to_json_string, from_json_string
 
@@ -106,6 +106,27 @@ def test_list_record_sets(mocked_responses, vinyldns_client):
         body=to_json_string(lrr), status=200
     )
     r = vinyldns_client.list_record_sets(forward_zone.id, 'start', 100, '*')
+    assert r.start_from == lrr.start_from
+    assert r.next_id == lrr.next_id
+    assert r.record_name_filter == lrr.record_name_filter
+    assert r.max_items == lrr.max_items
+    for l, r in zip(r.record_sets, lrr.record_sets):
+        check_record_sets_are_equal(l, r)
+
+
+def test_global_list_record_sets(mocked_responses, vinyldns_client):
+    lrr = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
+    all_record_types = list(record_sets.keys())
+    record_type_filter = ''
+    for record_type in all_record_types:
+        record_type_filter += f'&recordTypeFilter[]={record_type}'
+    mocked_responses.add(
+        responses.GET,
+        'http://test.com/recordsets?startFrom=start&maxItems=100&recordNameFilter=*' +
+        record_type_filter + '&recordOwnerGroupFilter=owner-group-id&nameSort=DESC',
+        body=to_json_string(lrr), status=200
+    )
+    r = vinyldns_client.global_list_record_sets('start', 100, '*', all_record_types, 'owner-group-id', 'DESC')
     assert r.start_from == lrr.start_from
     assert r.next_id == lrr.next_id
     assert r.record_name_filter == lrr.record_name_filter
