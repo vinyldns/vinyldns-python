@@ -119,7 +119,7 @@ def test_global_list_record_sets(mocked_responses, vinyldns_client):
     all_record_types = list(record_sets.keys())
     record_type_filter = ''
     for record_type in all_record_types:
-        record_type_filter += f'&recordTypeFilter[]={record_type}'
+        record_type_filter += '&recordTypeFilter[]={0}'.format(record_type)
     mocked_responses.add(
         responses.GET,
         'http://test.com/recordsets?startFrom=start&maxItems=100&recordNameFilter=*' +
