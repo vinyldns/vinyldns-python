@@ -566,7 +566,7 @@ class VinylDNSClient(object):
         return ListRecordSetsResponse.from_dict(data)
 
     def search_record_sets(self, start_from=None, max_items=None, record_name_filter=None,
-                                record_type_filter=None, record_owner_group_filter=None, name_sort=None, **kwargs):
+                           record_type_filter=None, record_owner_group_filter=None, name_sort=None, **kwargs):
         """
         Retrieves a list of RecordSets globally in the VinylDNS database based on search criteria.
         A minimum of two alpha-numeric characters is required.
