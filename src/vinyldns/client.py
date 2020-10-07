@@ -580,18 +580,18 @@ class VinylDNSClient(object):
         :return: the content of the response
         """
         args = []
-        if start_from:
+        if start_from is not None:
             args.append(u'startFrom={0}'.format(start_from))
         if max_items is not None:
             args.append(u'maxItems={0}'.format(max_items))
-        if record_name_filter:
+        if record_name_filter is not None:
             args.append(u'recordNameFilter={0}'.format(record_name_filter))
-        if record_type_filter:
+        if record_type_filter is not None:
             for record_type in record_type_filter:
                 args.append(u'recordTypeFilter[]={0}'.format(record_type))
-        if record_owner_group_filter:
+        if record_owner_group_filter is not None:
             args.append(u'recordOwnerGroupFilter={0}'.format(record_owner_group_filter))
-        if name_sort:
+        if name_sort is not None:
             args.append(u'nameSort={0}'.format(name_sort))
 
         url = urljoin(self.index_url, u'/recordsets') + u'?' + u'&'.join(args)
