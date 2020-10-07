@@ -565,7 +565,7 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListRecordSetsResponse.from_dict(data)
 
-    def global_list_record_sets(self, start_from=None, max_items=None, record_name_filter=None,
+    def search_record_sets(self, start_from=None, max_items=None, record_name_filter=None,
                                 record_type_filter=None, record_owner_group_filter=None, name_sort=None, **kwargs):
         """
         Retrieves a list of RecordSets globally in the VinylDNS database based on search criteria.

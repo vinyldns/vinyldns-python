@@ -114,7 +114,7 @@ def test_list_record_sets(mocked_responses, vinyldns_client):
         check_record_sets_are_equal(l, r)
 
 
-def test_global_list_record_sets(mocked_responses, vinyldns_client):
+def test_search_record_sets(mocked_responses, vinyldns_client):
     lrr = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
     all_record_types = list(record_sets.keys())
     record_type_filter = ''
@@ -126,7 +126,7 @@ def test_global_list_record_sets(mocked_responses, vinyldns_client):
         record_type_filter + '&recordOwnerGroupFilter=owner-group-id&nameSort=DESC',
         body=to_json_string(lrr), status=200
     )
-    r = vinyldns_client.global_list_record_sets('start', 100, '*', all_record_types, 'owner-group-id', 'DESC')
+    r = vinyldns_client.search_record_sets('start', 100, '*', all_record_types, 'owner-group-id', 'DESC')
     assert r.start_from == lrr.start_from
     assert r.next_id == lrr.next_id
     assert r.record_name_filter == lrr.record_name_filter
