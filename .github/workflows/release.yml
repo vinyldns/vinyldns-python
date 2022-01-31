@@ -1,0 +1,52 @@
+# This GitHub action can publish assets for release when a tag is created.
+# Currently, it's setup to run on any tag that matches the pattern "v*" (ie. v0.1.0).
+
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        chmod +x ./bootstrap.sh
+        ./bootstrap.sh
+      shell: bash
+      
+    - name: Run tests
+      run: tox -e check,py39
+      shell: bash
+
+    - name: Import GPG key
+        id: import_gpg
+        uses: hashicorp/ghaction-import-gpg@v2.1.0
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+
+    - name: Publish to PyPI
+        run: |
+          chmod +x ./release.sh
+          ./release.sh -p $RELEASE_URL -k $KEY_ID
+        shell: bash
+        env:
+          KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
+          RELEASE_URL: https://pypi.org/project/vinyldns-python/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  

@@ -82,5 +82,6 @@ setup(
     tests_require=[
         'responses==0.10.4',
         'pytest==3.10.1',
+        'tox>=3.24.5',
     ],
 )
