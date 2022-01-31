@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    
+    - id: get-version
+      run: echo "::set-output name=CURRENT_VERSION::$(cat setup.cfg | head -2 | tail -1 | awk -F= '{print $2}'| sed 's/ //g')"
 
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
@@ -33,20 +36,31 @@ jobs:
       shell: bash
 
     - name: Import GPG key
-        id: import_gpg
-        uses: hashicorp/ghaction-import-gpg@v2.1.0
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+      id: import_gpg
+      uses: hashicorp/ghaction-import-gpg@v2.1.0
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        PASSPHRASE: ${{ secrets.PASSPHRASE }}
 
     - name: Publish to PyPI
-        run: |
-          chmod +x ./release.sh
-          ./release.sh -p $RELEASE_URL -k $KEY_ID
-        shell: bash
-        env:
-          KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
-          RELEASE_URL: https://pypi.org/project/vinyldns-python/
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        chmod +x ./release.sh
+        ./release.sh -p $RELEASE_URL -k $KEY_ID
+      shell: bash
+      env:
+        KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
+        RELEASE_URL: https://pypi.org/project/vinyldns-python/
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      # Only create a release on push to the main branch
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      uses: softprops/action-gh-release@v0.1.13
+      with:
+        name: Release v${{ steps.get-version.outputs.CURRENT_VERSION }}
+        tag_name: v${{ steps.get-version.outputs.CURRENT_VERSION }}
+        draft: true
+        prerelease: true
+        generate_release_notes: true
 
   
