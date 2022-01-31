@@ -54,7 +54,6 @@ jobs:
       run: echo "::set-output name=CURRENT_VERSION::$(cat setup.cfg | head -2 | tail -1 | awk -F= '{print $2}'| sed 's/ //g')"
 
     - name: Create Release
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: softprops/action-gh-release@v0.1.13
       with:
         name: Release v${{ steps.get-version.outputs.CURRENT_VERSION }}
