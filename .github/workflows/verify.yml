@@ -24,10 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install virtualenv
         chmod +x ./bootstrap.sh
         ./bootstrap.sh
       shell: bash
 
     - name: Run tests
-      run: tox -e check,py39,func_test
+      run: |
+        pip install tox docker-compose
+        tox -e check,py39,func_test
       shell: bash
