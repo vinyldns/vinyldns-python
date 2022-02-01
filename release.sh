@@ -89,5 +89,9 @@ echo "Uploading to pypi at ${RELEASE_URL}..."
 twine upload ${RELEASE_URL} ${DIR}/dist/*
 
 if [ -z "${RELEASE_URL}" ]; then
-    echo "Push to git"
+    echo "Pushing git tags..."
     git push
+    git push --tags
+else
+    echo "Skipping push to git!"
+fi
