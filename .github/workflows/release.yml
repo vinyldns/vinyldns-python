@@ -54,5 +54,3 @@ jobs:
         draft: true
         prerelease: true
         generate_release_notes: true
-
-  

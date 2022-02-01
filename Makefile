@@ -1,5 +1,4 @@
 SHELL=bash
-RELEASE_URL=https://pypi.org/project/vinyldns-python
 
 # Check that the required version of make is being used
 REQ_MAKE_VER:=3.82
