@@ -31,6 +31,7 @@ To run, `pip install vinyldns-python` and then:
 * `python3`
 * `pip`
 * `virtualenv`
+* `docker`
 
 To get started, you will want to setup your virtual environment.
 
@@ -43,25 +44,19 @@ To get started, you will want to setup your virtual environment.
 Unit tests are developed using [pytest](https://docs.pytest.org/en/latest/).  We use
 [Responses](https://github.com/getsentry/responses), which allows for simple mocking of HTTP endpoints.
 
-To run unit tests, you can simply run `python3 setup.py test`.  To target a specific test, you can
+To run unit tests, you can simply run `python3 setup.py test` from your virtualenv.  To target a specific test, you can
 run `python3 setup.py test -a "-k my_test"`
 
 **Functional Tests**
 
-Functional tests are also developed with pytest. These tests run against a local instance of VinylDNS. Note that for now
-they are not tied into our travis build, so they must be run locally for validation.
+Functional tests are also developed with pytest. These tests run against a local instance of VinylDNS.
 
 From your virtualenv, run `tox -e func_test`
 
 **Running a full build**
 
 When you are finished writing your code you will want to run everything including linters.  The
-simplest way to do this is to run `tox -e check,py36`, which will run static checks and run unit tests.
-
-If you see any failures / warnings, correct them until `tox` runs successfully.
-
-If you do not have `tox` in your environment, `pip install tox` to add it.  For more information you can
-read the [tox docs](https://tox.readthedocs.io/en/latest/index.html).
+simplest way to do this is to run `tox -e check,py39,func_test` from virtualenv, which will run static checks and run unit tests, functional tests.
 
 ## Local Development
 See the [quickstart](https://github.com/vinyldns/vinyldns/blob/master/README.md#quickstart) in the
