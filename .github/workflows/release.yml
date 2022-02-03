@@ -22,7 +22,7 @@ jobs:
         python-version: "3.9"
 
     - name: Install Dependencies
-      uses: make install
+      run: make install
       shell: bash
 
     - name: Run tests
