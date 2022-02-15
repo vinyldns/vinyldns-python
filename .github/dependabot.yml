@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Keep pip dependencies up to date
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "area/dependencies"
+      - "kind/maintenance"
+      - "status/needs-triage"
