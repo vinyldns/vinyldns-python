@@ -147,8 +147,8 @@ def test_list_group_admins(mocked_responses, vinyldns_client):
 
 
 def test_list_group_changes(mocked_responses, vinyldns_client):
-    change1 = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.datetime.utcnow())
-    change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.datetime.utcnow())
+    change1 = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.datetime.utcnow(), 'test200', 'Group Created.')
+    change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.datetime.utcnow(), 'test200', 'Group name changed to \'ok2\'.')
     lgcr = ListGroupChangesResponse([change1, change2], 'start', 'next', 100)
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/foo/activity?startFrom=start&maxItems=100',
@@ -163,9 +163,24 @@ def test_list_group_changes(mocked_responses, vinyldns_client):
         assert l.user_id == r.user_id
         assert l.id == r.id
         assert l.created == r.created
+        assert l.user_name == r.user_name
+        assert l.group_change_message == r.group_change_message
         check_groups_are_same(l.new_group, r.new_group)
         check_groups_are_same(l.old_group, r.old_group)
 
+def test_get_group_change(mocked_responses, vinyldns_client):
+    change = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.datetime.utcnow(), 'test200', 'Group Created.')
+    mocked_responses.add(
+        responses.GET, 'http://test.com/groups/change/123',
+        body=to_json_string(change), status=200)
+    r = vinyldns_client.get_group_change('123')
+    assert r.change_type == change.change_type
+    assert r.user_id == change.user_id
+    assert r.id == change.id
+    assert r.created == change.created
+    assert r.user_name == change.user_name
+    assert r.group_change_message == change.group_change_message
+       
 
 def test_group_serdes():
     r = from_json_string(to_json_string(sample_group), Group.from_dict)
