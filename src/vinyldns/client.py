@@ -32,8 +32,8 @@ from requests.packages.urllib3.util.retry import Retry
 from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
-from vinyldns.membership import Group, ListGroupsResponse, GroupChange, ListGroupChangesResponse, ListMembersResponse, \
-    ListAdminsResponse
+from vinyldns.membership import Group, ListGroupsResponse, GroupChange, ListGroupChangesResponse, \
+    ListMembersResponse, ListAdminsResponse
 from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
 from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
@@ -379,7 +379,7 @@ class VinylDNSClient(object):
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
 
         return ListGroupChangesResponse.from_dict(data)
-    
+
     def get_group_change(self, group_change_id, **kwargs):
         """
         Get a group change.
