@@ -151,12 +151,12 @@ def test_list_group_changes(mocked_responses, vinyldns_client):
                           'Group Created.')
     change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.datetime.utcnow(),
                           'test200', 'Group name changed to \'ok2\'.')
-    lgcr = ListGroupChangesResponse([change1, change2], 'start', 'next', 100)
+    lgcr = ListGroupChangesResponse([change1, change2], 1, 3, 100)
     mocked_responses.add(
-        responses.GET, 'http://test.com/groups/foo/activity?startFrom=start&maxItems=100',
+        responses.GET, 'http://test.com/groups/foo/activity?startFrom=1&maxItems=100',
         body=to_json_string(lgcr), status=200
     )
-    r = vinyldns_client.list_group_changes('foo', 'start', 100)
+    r = vinyldns_client.list_group_changes('foo', 1, 100)
     assert r.next_id == lgcr.next_id
     assert r.start_from == lgcr.start_from
     assert r.max_items == lgcr.max_items
