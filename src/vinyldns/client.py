@@ -35,7 +35,7 @@ from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_revi
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
     ListAdminsResponse
 from vinyldns.serdes import to_json_string
-from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
+from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange, ListAbandonedZonesResponse
 from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
 
 try:
@@ -490,6 +490,30 @@ class VinylDNSClient(object):
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListZonesResponse.from_dict(data)
+
+    def list_abandoned_zones(self, name_filter=None, start_from=None, max_items=None, **kwargs):
+        """
+        Get a list of abandoned zones that currently exist.
+
+        :return: a list of abandoned zones
+        """
+        url = urljoin(self.index_url, u'/zones/deleted/changes')
+
+        query = []
+        if name_filter:
+            query.append(u'nameFilter=' + name_filter)
+
+        if start_from:
+            query.append(u'startFrom=' + str(start_from))
+
+        if max_items:
+            query.append(u'maxItems=' + str(max_items))
+
+        if query:
+            url = url + u'?' + u'&'.join(query)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return ListAbandonedZonesResponse.from_dict(data)    
 
     def create_record_set(self, record_set, **kwargs):
         """
