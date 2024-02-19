@@ -32,6 +32,9 @@ ip6_zone = Zone(id='ip6', name='1.9.e.f.c.c.7.2.9.6.d.f.ip6.arpa', email='test@t
 sample_zone_change = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending',
                                 created=datetime.utcnow(), system_message=None, id='zone-change-id')
 
+abondonded_zone = Zone(id='foo', name='bar', email='test@test.com',status="Deleted", admin_group_id='foo', connection=conn,
+                    transfer_connection=conn, acl=ZoneACL([acl_rule]))
+
 record_sets = {
     RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')],
                             owner_group_id='owner-group-id'),
