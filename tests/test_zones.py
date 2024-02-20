@@ -173,16 +173,16 @@ def test_list_abandoned_zone(mocked_responses, vinyldns_client):
                                 created=datetime.utcnow(), system_message=None, id='zone-change-id'),
                                 admin_group_name = 'some-group-name', user_name = 'some-user-name', access_level = 'delete')
 
-    lzcr = ListAbandonedZonesResponse([sample_abondonded_zone_change], 'next', 'start', 100)
+    lazr = ListAbandonedZonesResponse([sample_abondonded_zone_change], 'next', 'start', 100)
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/deleted/changes?startFrom=start&maxItems=100',
-        body=to_json_string(lzcr), status=200
+        body=to_json_string(lazr), status=200
     )
     r = vinyldns_client.list_abandoned_zones('*', 'start', 100)
-    assert r.start_from == lzcr.start_from
-    assert r.next_id == lzcr.next_id
-    assert r.max_items == lzcr.max_items
-    for l, r in zip(lzcr.deleted_zone_changes, r.deleted_zone_changes):
+    assert r.start_from == lazr.start_from
+    assert r.next_id == lazr.next_id
+    assert r.max_items == lazr.max_items
+    for l, r in zip(lazr.deleted_zone_changes, r.deleted_zone_changes):
         assert l.zone_changes.id == r.zone_changes.id
         assert l.user_name == r.user_name
         assert l.access_level == r.access_level
