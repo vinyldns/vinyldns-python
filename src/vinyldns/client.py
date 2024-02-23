@@ -501,7 +501,7 @@ class VinylDNSClient(object):
 
         query = []
         if name_filter:
-            query.append(u'nameFilter=' + name_filter)
+            query.append(u'zoneChangeFilter=' + name_filter)
 
         if start_from:
             query.append(u'startFrom=' + str(start_from))

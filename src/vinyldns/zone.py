@@ -129,11 +129,16 @@ class ListAbandonedZonesResponse(object):
 
     @staticmethod
     def from_dict(d):
-        deleted_zone_changes =[ZoneChangeInfo.from_dict(elem) for elem in d.get('zonesDeletedInfo', [])]
-        return ListAbandonedZonesResponse(deleted_zone_changes=deleted_zone_changes, name_filter=d.get('nameFilter'), start_from=d.get('startFrom'),
-                                 next_id=d.get('nextId'), max_items=d.get('maxItems', 100))
+        deleted_zone_changes =[ZonesDeletedInfo.from_dict(elem) for elem in d.get('zonesDeletedInfo', [])]
+        print("deleted_zone_changes",deleted_zone_changes)
+        return ListAbandonedZonesResponse(
+            deleted_zone_changes=deleted_zone_changes, 
+            name_filter=d.get('zoneChangeFilter'), 
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'), 
+            max_items=d.get('maxItems', 100))
 
-class ZoneChangeInfo(object):
+class ZonesDeletedInfo(object):
     def __init__(self, zone_changes, admin_group_name, user_name, access_level):
         self.zone_changes = zone_changes
         self.admin_group_name = admin_group_name
@@ -143,7 +148,11 @@ class ZoneChangeInfo(object):
     @staticmethod
     def from_dict(d):
         zone_changes = ZoneChange.from_dict(d['zoneChange'])
-        return ZoneChangeInfo(zone_changes=zone_changes, admin_group_name=d['adminGroupName'], user_name=d['userName'], access_level=d['accessLevel'])
+        return ZonesDeletedInfo(
+            zone_changes=zone_changes, 
+            admin_group_name=d['adminGroupName'], 
+            user_name=d['userName'], 
+            access_level=d['accessLevel'])
 
 class ZoneChange(object):
     def __init__(self, zone, user_id, change_type, status, created, system_message, id):
