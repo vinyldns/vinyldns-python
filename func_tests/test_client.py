@@ -155,14 +155,15 @@ def test_batch_change_review_process_approve(vinyldns_test_context):
     assert completed_bc.review_comment == 'all good!'
 
 def test_list_abandoned_zones(vinyldns_test_context):
+    vinyldns_test_context.clear_zones()
     list_abandoned_zones = vinyldns_test_context.client.list_abandoned_zones()
-    assert len(list_abandoned_zones.zones) > 0
+    assert len(list_abandoned_zones.deleted_zone_changes) > 0
     assert list_abandoned_zones.max_items > 0
-    abandoned_zone = [x for x in list_abandoned_zones.zones if x.name == vinyldns_test_context.zone.name][0]
+    abandoned_zone = [x for x in list_abandoned_zones.deleted_zone_changes][0]    
     assert abandoned_zone is not None
-    assert abandoned_zone.name == vinyldns_test_context.zone.name
-    assert abandoned_zone.email == vinyldns_test_context.zone.email
-    assert abandoned_zone.admin_group_id == vinyldns_test_context.zone.admin_group_id
-    assert abandoned_zone.id is not None
-    assert abandoned_zone.created is not None
-
+    assert abandoned_zone.zone_changes.zone.name == vinyldns_test_context.zone.name
+    assert abandoned_zone.zone_changes.zone.email == vinyldns_test_context.zone.email
+    assert abandoned_zone.zone_changes.zone.admin_group_id == vinyldns_test_context.zone.admin_group_id
+    assert abandoned_zone.zone_changes.zone.id is not None
+    assert abandoned_zone.zone_changes.zone.created is not None
+    assert abandoned_zone.zone_changes.zone.status == 'Deleted'
