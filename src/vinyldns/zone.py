@@ -130,7 +130,6 @@ class ListAbandonedZonesResponse(object):
     @staticmethod
     def from_dict(d):
         deleted_zone_changes =[ZonesDeletedInfo.from_dict(elem) for elem in d.get('zonesDeletedInfo', [])]
-        print("deleted_zone_changes",deleted_zone_changes)
         return ListAbandonedZonesResponse(
             deleted_zone_changes=deleted_zone_changes, 
             name_filter=d.get('zoneChangeFilter'), 

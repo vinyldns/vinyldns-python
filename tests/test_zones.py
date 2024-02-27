@@ -180,12 +180,10 @@ def test_list_abandoned_zone(mocked_responses, vinyldns_client):
     )
 
     r = vinyldns_client.list_abandoned_zones('*', 'start', 100)
-    print("lzcr" ,ldzc.deleted_zone_changes[0].zone_changes.id, "r", r.deleted_zone_changes)
     assert r.start_from == ldzc.start_from
     assert r.next_id == ldzc.next_id
     assert r.max_items == ldzc.max_items
     for l, r in zip(ldzc.deleted_zone_changes, r.deleted_zone_changes):
-        print("l" ,l.zone_changes, "r", r.zone_changes)
         assert l.zone_changes.id == r.zone_changes.id
         assert l.user_name == r.user_name
         assert l.access_level == r.access_level
