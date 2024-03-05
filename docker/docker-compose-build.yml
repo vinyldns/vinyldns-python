@@ -5,7 +5,7 @@ services:
     hostname: "vinyldns-integration"
     image: "vinyldns/build:base-test-integration-latest"
     environment:
-      RUN_SERVICES: "deps-only tail-logs all"
+      RUN_SERVICES: "tail-logs all"
     env_file:
       - "${ENV_FILE:-.env}"
     ports:
