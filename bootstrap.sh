@@ -7,3 +7,6 @@ python3 setup.py install
 
 echo "Installing twine..."
 pip install twine
+
+echo "Installing tox, docker-compose and wheel..."
+pip install tox docker-compose wheel
