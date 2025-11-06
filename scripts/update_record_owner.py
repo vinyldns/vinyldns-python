@@ -87,11 +87,8 @@ def update_record_owner_group(client: VinylDNSClient, record_names: list[str], n
 
 def main() -> None:
     """
-    Main program entry point.
-
-    Parses command-line arguments for the CSV file path containing DNS records
-    and the new owner group ID to assign. It reads the DNS record FQDNs from the CSV file,
-    and updates their ownership in VinylDNS using the provided owner group ID.
+    Reads a list of DNS records from a CSV file, and updates their ownership in VinylDNS
+    using the provided owner group ID.
 
     Environment variables must be set for VinylDNS authentication:
         - VINYLDNS_HOST

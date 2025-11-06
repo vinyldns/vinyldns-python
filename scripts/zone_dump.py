@@ -152,10 +152,7 @@ def write_records_to_csv(records: list[dict[str, str]], zone_name: str, output_d
 
 def main() -> None:
     """
-    Main program entry point.
-
-    Parses command-line arguments to obtain the zone name.
-    Fetches all DNS records from VinylDNS in the matching zone.
+    Fetches all DNS records from the matching zone.
     Outputs result in JSON format to stdout and writes to a timestamped CSV file.
 
     Environment variables must be set for VinylDNS authentication:

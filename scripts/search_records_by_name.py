@@ -154,10 +154,7 @@ def write_records_to_csv(records: list[dict[str, str]], record_name_filter: str,
 
 def main() -> None:
     """
-    Main program entry point.
-
-    Parses command-line arguments to obtain the record name filter.
-    Fetches matching DNS records from VinylDNS using the record name filter.
+    Fetches matching DNS records from VinylDNS using a record name filter.
     Outputs result in JSON format to stdout and writes to a timestamped CSV file.
 
     Environment variables must be set for VinylDNS authentication:

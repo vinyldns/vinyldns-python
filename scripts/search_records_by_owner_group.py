@@ -188,9 +188,6 @@ def write_records_to_csv(records: list[dict[str, str]], owner_group_id: str, out
 
 def main() -> None:
     """
-    Main program entry point.
-
-    Parses command-line arguments to obtain owner group ID and path to a filter file.
     Loads record name filters from the specified file and fetches matching DNS records
     from VinylDNS filtered by owner group and record names. Outputs result in JSON format
     to stdout and writes to a timestamped CSV file.
