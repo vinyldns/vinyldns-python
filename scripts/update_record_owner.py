@@ -59,22 +59,26 @@ def read_record_names_from_csv(csv_path: str) -> list[str]:
         raise
 
 
-def update_record_owner_group(client: VinylDNSClient, record_names: list[str], new_owner_group_id: str) -> None:
+def update_record_owner_group(client: VinylDNSClient, record_names: list[str], old_owner_group_id: str,
+                              new_owner_group_id: str) -> None:
     """
     Updates the owner group of all record sets matching provided record names.
 
     Args:
         client (VinylDNSClient): An authenticated VinylDNS client instance.
         record_names (list[str]): List of fully qualified domain names to update.
+        old_owner_group_id (str): The old owner group ID to update.
         new_owner_group_id (str): The new owner group ID to apply.
     """
     for record_name in record_names:
         try:
-            response = client.search_record_sets(record_name_filter=record_name)
+            response = client.search_record_sets(record_name_filter=record_name,
+                                                 record_owner_group_filter=old_owner_group_id)
             for recordset in response.record_sets:
                 if recordset.owner_group_id != new_owner_group_id:
                     logging.info(
-                        f"Updating owner group for {recordset.fqdn} from {recordset.owner_group_id} to {new_owner_group_id}")
+                        f"Updating owner group for {recordset.fqdn} from {recordset.owner_group_id} "
+                        f"to {new_owner_group_id}")
                     recordset.owner_group_id = new_owner_group_id
                     updated = client.update_record_set(recordset)
                     logging.info(f"Updated owner group: {updated.record_set.owner_group_id}")
@@ -96,7 +100,7 @@ def main() -> None:
         - VINYLDNS_SECRET_KEY
 
     Usage:
-        python update_record_owner_group.py <path_to_records_csv> <new_owner_group_id>
+        python update_record_owner_group.py <path_to_records_csv> <old_owner_group_id> <new_owner_group_id>
     """
     parser = argparse.ArgumentParser(
         description="Update Vinyldns ownership for all records in a list of records.")
@@ -106,7 +110,12 @@ def main() -> None:
         help="Path to CSV file containing DNS records (must include 'fqdn' column)."
     )
     parser.add_argument(
-        "owner_group_id",
+        "old_owner_group_id",
+        type=str,
+        help="Old owner group ID to update."
+    )
+    parser.add_argument(
+        "new_owner_group_id",
         type=str,
         help="New owner group ID to assign to these records."
     )
@@ -123,7 +132,7 @@ def main() -> None:
         record_names = read_record_names_from_csv(args.csv_file)
         logging.info(f"Loaded {len(record_names)} unique DNS records from CSV {args.csv_file}")
 
-        update_record_owner_group(client, record_names, args.owner_group_id)
+        update_record_owner_group(client, record_names, args.old_owner_group_id, args.new_owner_group_id)
 
     except EnvironmentError as env_err:
         logging.error(f"Environment error: {env_err}")
