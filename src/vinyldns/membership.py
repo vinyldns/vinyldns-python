@@ -90,13 +90,15 @@ class ListGroupsResponse(object):
 
 
 class GroupChange(object):
-    def __init__(self, new_group, change_type, user_id, old_group, id, created):
+    def __init__(self, new_group, change_type, user_id, old_group, id, created, user_name, group_change_message):
         self.new_group = new_group
         self.change_type = change_type
         self.user_id = user_id
         self.old_group = old_group
         self.id = id
         self.created = created
+        self.user_name = user_name
+        self.group_change_message = group_change_message
 
     @staticmethod
     def from_dict(d):
@@ -106,7 +108,9 @@ class GroupChange(object):
             user_id=d['userId'],
             old_group=map_option(d.get('oldGroup'), Group.from_dict),
             id=d['id'],
-            created=map_option(d.get('created'), parse_datetime)
+            created=map_option(d.get('created'), parse_datetime),
+            user_name=d['userName'],
+            group_change_message=d['groupChangeMessage']
         )
 
 
