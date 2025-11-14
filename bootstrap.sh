@@ -6,4 +6,4 @@ echo "Installing dependencies..."
 python3 setup.py install
 
 echo "Installing twine..."
-pip install twine
+pip3 install twine
