@@ -1,31 +1,33 @@
 version: "3.0"
 services:
-  mysql:
-    image: "mysql:5.7"
+  integration:
+    container_name: "vinyldns-api-integration"
+    hostname: "vinyldns-integration"
+    image: "vinyldns/build:base-test-integration-latest"
     environment:
-      - MYSQL_ROOT_PASSWORD=pass
-      - MYSQL_ROOT_HOST=%
-    container_name: "vinyldns-mysql"
+      RUN_SERVICES: "tail-logs all"
+    env_file:
+      - "${ENV_FILE:-.env}"
     ports:
-      - "19002:3306"
-
-  bind9:
-    image: "vinyldns/bind9:0.0.4"
-    container_name: "vinyldns-bind9"
-    ports:
-      - "19001:53/udp"
-      - "19001:53"
+      - "19001-19003:19001-19003/tcp"
+      - "19001:19001/udp"
+    command: bash -c "cp -R /app/bind9/etc/named.conf.* /etc/bind/ && cp -R /app/bind9/zones/* /var/bind/ && named-checkconf"  
     volumes:
-      - ./bind9/etc:/var/cache/bind/config
-      - ./bind9/zones:/var/cache/bind/zones
+      - ./bind9:/app/bind9   
 
   api:
-    image: "vinyldns/api:0.9.4-SNAPSHOT"
+    image: "vinyldns/api:latest"
     container_name: "vinyldns-api"
     ports:
       - "9000:9000"
     depends_on:
-      - mysql
-      - bind9
+      - integration
+    env_file:
+      - "${ENV_FILE:-.env}"  
     volumes:
       - "./conf:/opt/docker/conf"
+
+networks:
+  default:
+    name: "vinyldns_net"
+    external: true      
