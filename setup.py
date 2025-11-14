@@ -75,7 +75,6 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         'boto>=2.48.0',
-        'future>=0.17.1',
         'requests>=2.20.0',
         'python-dateutil>=2.7.5',
     ],
