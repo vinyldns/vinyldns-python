@@ -126,6 +126,11 @@ def search_records_by_owner_group(client: VinylDNSClient, record_owner_filter: s
             - 'record_data': Formatted string describing the DNS record's data.
     """
     all_records = []
+    group = client.get_group(record_owner_filter)
+    if group is None:
+        logging.error(f"Group with ID {record_owner_filter} not found. Please check your group ID.")
+        return all_records
+
     for name_filter in record_name_filter_list:
         next_id = None
         while True:

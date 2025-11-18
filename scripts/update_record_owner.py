@@ -70,6 +70,11 @@ def update_record_owner_group(client: VinylDNSClient, record_names: list[str], o
         old_owner_group_id (str): The old owner group ID to update.
         new_owner_group_id (str): The new owner group ID to apply.
     """
+    new_group = client.get_group(new_owner_group_id)
+    if new_group is None:
+        logging.error(f"Group with ID {new_owner_group_id} not found. Please check your group ID.")
+        return
+
     for record_name in record_names:
         try:
             response = client.search_record_sets(record_name_filter=record_name,
