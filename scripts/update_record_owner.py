@@ -5,6 +5,20 @@ import os
 import sys
 from vinyldns.client import VinylDNSClient
 
+"""
+Reads a list of DNS records from a CSV file, and updates their ownership in VinylDNS
+to the provided new_owner_group_id. Ownership is only transferred if the record exists, and is currently owned by the 
+specified old_owner_group_id. Nothing is returned, logs are printed to STDOUT.
+
+Environment variables must be set for VinylDNS authentication:
+    - VINYLDNS_HOST
+    - VINYLDNS_ACCESS_KEY
+    - VINYLDNS_SECRET_KEY
+
+Usage:
+    python update_record_owner_group.py <path_to_records_csv> <old_owner_group_id> <new_owner_group_id>
+"""
+
 REQUIRED_ENV_VARS = ["VINYLDNS_HOST", "VINYLDNS_ACCESS_KEY", "VINYLDNS_SECRET_KEY"]
 
 logging.basicConfig(
@@ -77,36 +91,33 @@ def update_record_owner_group(client: VinylDNSClient, record_names: list[str], o
 
     for record_name in record_names:
         try:
-            response = client.search_record_sets(record_name_filter=record_name,
-                                                 record_owner_group_filter=old_owner_group_id)
-            for recordset in response.record_sets:
-                if recordset.owner_group_id != new_owner_group_id:
-                    logging.info(
-                        f"Updating owner group for {recordset.fqdn} from {recordset.owner_group_id} "
-                        f"to {new_owner_group_id}")
-                    recordset.owner_group_id = new_owner_group_id
-                    updated = client.update_record_set(recordset)
-                    logging.info(f"Updated owner group: {updated.record_set.owner_group_id}")
-                else:
-                    logging.info(
-                        f"Record {recordset.fqdn} is already owned by group {new_owner_group_id}; skipping")
+            response = client.search_record_sets(record_name_filter=record_name)
+            if not response.record_sets:
+                logging.info(
+                    f"No record with name {record_name} found; skipping")
+            else:
+                for recordset in response.record_sets:
+                    if recordset.owner_group_id == new_owner_group_id:
+                        logging.info(
+                            f"Record {recordset.fqdn} is already owned by group {new_owner_group_id}; skipping"
+                        )
+                    elif recordset.owner_group_id == old_owner_group_id:
+                        logging.info(
+                            f"Updating owner group for {recordset.fqdn} from {recordset.owner_group_id} "
+                            f"to {new_owner_group_id}"
+                        )
+                        recordset.owner_group_id = new_owner_group_id
+                        updated = client.update_record_set(recordset)
+                        logging.info(f"Successfully updated owner group for {updated.recordset.fqdn}.")
+                    else:
+                        logging.info(
+                            f"Record {recordset.fqdn} is not owned by group {old_owner_group_id}; skipping"
+                        )
         except Exception as e:
             logging.error(f"Failed to update record {record_name}: {e}")
 
 
 def main() -> None:
-    """
-    Reads a list of DNS records from a CSV file, and updates their ownership in VinylDNS
-    using the provided owner group ID.
-
-    Environment variables must be set for VinylDNS authentication:
-        - VINYLDNS_HOST
-        - VINYLDNS_ACCESS_KEY
-        - VINYLDNS_SECRET_KEY
-
-    Usage:
-        python update_record_owner_group.py <path_to_records_csv> <old_owner_group_id> <new_owner_group_id>
-    """
     parser = argparse.ArgumentParser(
         description="Update Vinyldns ownership for all records in a list of records.")
     parser.add_argument(

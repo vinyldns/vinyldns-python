@@ -8,6 +8,31 @@ from typing import Any
 from datetime import datetime
 from vinyldns.client import VinylDNSClient
 
+"""
+Loads record name filters from the specified file and fetches matching DNS records
+from VinylDNS filtered by owner group and record names. The record name filter file specifies what domains to search in.
+Outputs result in JSON format to stdout and writes to a timestamped CSV file.
+
+Environment variables must be set for VinylDNS authentication:
+    - VINYLDNS_HOST
+    - VINYLDNS_ACCESS_KEY
+    - VINYLDNS_SECRET_KEY
+
+Usage:
+    python search_records_by_owner_group.py <path_to_filter_file> <owner_group_id>
+    
+Record Name Filter File Example:
+    *.arpa.
+    *.com.
+    *.net.
+    ...
+    
+Output Example:
+    fqdn,type,record_data
+    test.example.com.,A,1.2.3.4
+    4.3.2.1.in-addr.arpa.,PTR,test.example.com.
+"""
+
 REQUIRED_ENV_VARS = ["VINYLDNS_HOST", "VINYLDNS_ACCESS_KEY", "VINYLDNS_SECRET_KEY"]
 
 logging.basicConfig(
@@ -192,19 +217,6 @@ def write_records_to_csv(records: list[dict[str, str]], owner_group_id: str, out
 
 
 def main() -> None:
-    """
-    Loads record name filters from the specified file and fetches matching DNS records
-    from VinylDNS filtered by owner group and record names. Outputs result in JSON format
-    to stdout and writes to a timestamped CSV file.
-
-    Environment variables must be set for VinylDNS authentication:
-        - VINYLDNS_HOST
-        - VINYLDNS_ACCESS_KEY
-        - VINYLDNS_SECRET_KEY
-
-    Usage:
-        python search_records_by_owner_group.py <path_to_filter_file> <owner_group_id>
-    """
     parser = argparse.ArgumentParser(
         description="Search VinylDNS records filtered by owner group and record name patterns."
     )

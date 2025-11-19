@@ -8,6 +8,24 @@ from typing import Any
 from datetime import datetime
 from vinyldns.client import VinylDNSClient
 
+"""
+Fetches matching DNS records from VinylDNS using a record name filter.
+Outputs result in JSON format to stdout and writes to a timestamped CSV file.
+
+Environment variables must be set for VinylDNS authentication:
+    - VINYLDNS_HOST
+    - VINYLDNS_ACCESS_KEY
+    - VINYLDNS_SECRET_KEY
+
+Usage:
+    python search_records_by_name.py <record_name_filter>
+    
+Output example:
+    fqdn,type,record_data
+    test.example.com.,A,1.2.3.4
+    4.3.2.1.in-addr.arpa.,PTR,test.example.com.
+"""
+
 REQUIRED_ENV_VARS = ["VINYLDNS_HOST", "VINYLDNS_ACCESS_KEY", "VINYLDNS_SECRET_KEY"]
 
 logging.basicConfig(
@@ -153,18 +171,6 @@ def write_records_to_csv(records: list[dict[str, str]], record_name_filter: str,
 
 
 def main() -> None:
-    """
-    Fetches matching DNS records from VinylDNS using a record name filter.
-    Outputs result in JSON format to stdout and writes to a timestamped CSV file.
-
-    Environment variables must be set for VinylDNS authentication:
-        - VINYLDNS_HOST
-        - VINYLDNS_ACCESS_KEY
-        - VINYLDNS_SECRET_KEY
-
-    Usage:
-        python search_records_by_name.py <record_name_filter>
-    """
     parser = argparse.ArgumentParser(
         description="Search VinylDNS records by name filter and output results."
     )

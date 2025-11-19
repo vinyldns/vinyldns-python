@@ -8,6 +8,24 @@ from typing import Any
 from datetime import datetime
 from vinyldns.client import VinylDNSClient
 
+"""
+Fetches all DNS records from the matching zone.
+Outputs result in JSON format to stdout and writes to a timestamped CSV file.
+
+Environment variables must be set for VinylDNS authentication:
+    - VINYLDNS_HOST
+    - VINYLDNS_ACCESS_KEY
+    - VINYLDNS_SECRET_KEY
+
+Usage:
+    python zone_dump.py <zone_name>
+    
+Output example:
+    fqdn,type,record_data
+    test.example.com.,A,1.2.3.4
+    testcname.example.com.,CNAME,test.example.com.
+"""
+
 REQUIRED_ENV_VARS = ["VINYLDNS_HOST", "VINYLDNS_ACCESS_KEY", "VINYLDNS_SECRET_KEY"]
 
 logging.basicConfig(
@@ -153,18 +171,6 @@ def write_records_to_csv(records: list[dict[str, str]], zone_name: str, output_d
 
 
 def main() -> None:
-    """
-    Fetches all DNS records from the matching zone.
-    Outputs result in JSON format to stdout and writes to a timestamped CSV file.
-
-    Environment variables must be set for VinylDNS authentication:
-        - VINYLDNS_HOST
-        - VINYLDNS_ACCESS_KEY
-        - VINYLDNS_SECRET_KEY
-
-    Usage:
-        python zone_dump.py <zone_name>
-    """
     parser = argparse.ArgumentParser(
         description="Dump VinylDNS zone records and output results."
     )
