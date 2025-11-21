@@ -128,6 +128,8 @@ def search_records(client: VinylDNSClient, record_name_filter: str) -> list[dict
         next_id = response.next_id
         if not next_id:
             break
+    if not all_records:
+        logging.error(f"No records found matching filter {record_name_filter}")
 
     return all_records
 

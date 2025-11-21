@@ -109,10 +109,11 @@ def dump_zone_records(client: VinylDNSClient, zone_name: str) -> list[dict[str, 
         list[dict[str, str]]: List of dictionaries with keys 'fqdn', 'type', and formatted 'record_data'.
     """
     zone = client.get_zone_by_name(zone_name)
-    if zone is None:
-        logging.error(f"Zone with name {zone_name} does not exist. Please check your zone name.")
     all_records = []
     next_id = None
+
+    if zone is None:
+        logging.error(f"Zone with name {zone_name} does not exist. Please check your zone name.")
 
     while zone:
         response = client.list_record_sets(zone.id, start_from=next_id)
@@ -128,6 +129,9 @@ def dump_zone_records(client: VinylDNSClient, zone_name: str) -> list[dict[str, 
         next_id = response.next_id
         if not next_id:
             break
+
+    if not all_records:
+        logging.error(f"No records found for zone {zone_name}")
 
     return all_records
 

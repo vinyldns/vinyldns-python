@@ -176,6 +176,9 @@ def search_records_by_owner_group(client: VinylDNSClient, record_owner_filter: s
             next_id = response.next_id
             if not next_id:
                 break
+    if not all_records:
+        logging.error(f"No records found matching owner group {record_owner_filter}.")
+
     return all_records
 
 
