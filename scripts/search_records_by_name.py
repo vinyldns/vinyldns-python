@@ -112,6 +112,7 @@ def search_records(client: VinylDNSClient, record_name_filter: str) -> list[dict
               - 'record_data': Formatted string with record-specific data.
     """
     all_records = []
+    seen_records = set()
     next_id = None
 
     while True:
@@ -119,6 +120,11 @@ def search_records(client: VinylDNSClient, record_name_filter: str) -> list[dict
         for record_set in response.record_sets:
             record_type = record_set.type
             for record in record_set.records:
+                # check for duplicate records
+                key = (record_set.fqdn, record_set.type, format_record_data(record_type, record))
+                if key in seen_records:
+                    continue
+                seen_records.add(key)
                 record_info = {
                     "fqdn": record_set.fqdn,
                     "type": record_set.type,
