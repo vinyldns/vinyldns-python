@@ -27,8 +27,7 @@ from requests.compat import urlparse
 from requests.compat import urlsplit
 from requests.packages.urllib3.util.retry import Retry
 
-# TODO: Didn't like this boto request signer, fix when moving back
-from vinyldns.boto_request_signer import BotoRequestSigner
+from vinyldns.aws4auth_request_signer import Aws4AuthRequestSigner
 
 from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
@@ -96,8 +95,8 @@ class VinylDNSClient(object):
             u'Content-Type': u'application/json'
         }
 
-        self.signer = BotoRequestSigner(self.index_url,
-                                        access_key, secret_key)
+        self.signer = Aws4AuthRequestSigner(self.index_url,
+                                            access_key, secret_key)
 
         self.session = self.__requests_retry_session()
 
