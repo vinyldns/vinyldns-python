@@ -19,6 +19,7 @@ import os
 from builtins import str
 
 import requests
+from datetime import datetime, UTC
 from future.moves.urllib.parse import parse_qs
 from future.utils import iteritems
 from requests.adapters import HTTPAdapter
@@ -209,8 +210,7 @@ class VinylDNSClient(object):
         def canonical_header_name(field_name):
             return u'-'.join(word.capitalize() for word in field_name.split(u'-'))
 
-        import datetime
-        now = datetime.datetime.utcnow()
+        now = datetime.now(UTC)
         headers = {u'Content-Type': u'application/x-amz-json-1.0',
                    u'Date': now.strftime(u'%a, %d %b %Y %H:%M:%S GMT'),
                    u'X-Amz-Date': now.strftime(u'%Y%m%dT%H%M%SZ')}

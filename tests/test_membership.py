@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
+from datetime import datetime, UTC
 
 import responses
 
@@ -103,8 +103,8 @@ def test_list_all_my_groups(mocked_responses, vinyldns_client):
 
 
 def test_list_members(mocked_responses, vinyldns_client):
-    member1 = Member('some-id', 'user-name', 'first', 'last', 'test@test.com', datetime.datetime.utcnow(), False)
-    member2 = Member('some-id2', 'user-name2', 'first2', 'last2', 'test2@test.com', datetime.datetime.utcnow(), False)
+    member1 = Member('some-id', 'user-name', 'first', 'last', 'test@test.com', datetime.now(UTC), False)
+    member2 = Member('some-id2', 'user-name2', 'first2', 'last2', 'test2@test.com', datetime.now(UTC), False)
     list_members_response = ListMembersResponse([member1, member2], start_from='start', next_id='next', max_items=100)
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/foo/members?startFrom=start&maxItems=100',
@@ -127,8 +127,8 @@ def test_list_members(mocked_responses, vinyldns_client):
 
 
 def test_list_group_admins(mocked_responses, vinyldns_client):
-    user1 = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.datetime.utcnow())
-    user2 = User('id2', 'test2002', 'Frank', 'Bonilla', 'frank@bob.com', datetime.datetime.utcnow())
+    user1 = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.now(UTC))
+    user2 = User('id2', 'test2002', 'Frank', 'Bonilla', 'frank@bob.com', datetime.now(UTC))
     list_admins_response = ListAdminsResponse([user1, user2])
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/foo/admins',
@@ -147,8 +147,8 @@ def test_list_group_admins(mocked_responses, vinyldns_client):
 
 
 def test_list_group_changes(mocked_responses, vinyldns_client):
-    change1 = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.datetime.utcnow())
-    change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.datetime.utcnow())
+    change1 = GroupChange(sample_group, 'Create', 'user', None, 'id', datetime.now(UTC))
+    change2 = GroupChange(sample_group2, 'Update', 'user', sample_group, 'id2', datetime.now(UTC))
     list_group_changes_response = ListGroupChangesResponse([change1, change2], 'start', 'next', 100)
     mocked_responses.add(
         responses.GET, 'http://test.com/groups/foo/activity?startFrom=start&maxItems=100',

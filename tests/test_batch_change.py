@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from dateutil.tz import tzlocal
 
 import responses
@@ -88,7 +88,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     except TypeError:
         tomorrow = datetime.now(tzlocal()).astimezone(tzlocal()) + timedelta(1)
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc, drc_with_data],
                      'bcid', 'Scheduled', 'PendingReview',
                      comments='batch change test', owner_group_id='owner-group-id',
                      scheduled_time=tomorrow)
@@ -122,7 +122,7 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                                           'biz.bar.com', RecordType.A, 'Complete',
                                           'id3', [], 'system-message', 'rchangeid3', 'rsid3', AData("5.6.7.8"))
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc, drc_with_data],
                      'bcid', 'Complete', 'AutoApproved',
                      comments='batch change test', owner_group_id='owner-group-id')
 
@@ -145,11 +145,11 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
                                 'baz.bar.com', RecordType.A, 'PendingReview',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc],
                      'bcid', 'Complete', 'ManuallyApproved',
                      comments='batch change test', owner_group_id='owner-group-id',
                      reviewer_id='admin-id', reviewer_user_name='admin',
-                     review_comment='looks good', review_timestamp=datetime.utcnow())
+                     review_comment='looks good', review_timestamp=datetime.now(UTC))
 
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/approve',
@@ -175,11 +175,11 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
                                 'reject2.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc],
                      'bcid', 'Rejected', 'Rejected',
                      comments='batch change test', owner_group_id='owner-group-id',
                      reviewer_id='admin-id', reviewer_user_name='admin',
-                     review_comment='not good', review_timestamp=datetime.utcnow())
+                     review_comment='not good', review_timestamp=datetime.now(UTC))
 
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/reject',
@@ -212,7 +212,7 @@ def test_cancel_batch_change(mocked_responses, vinyldns_client):
     )
 
     bc = BatchChange(
-        'user-id', 'user-name', datetime.utcnow(), [arc, drc], 'bcid',
+        'user-id', 'user-name', datetime.now(UTC), [arc, drc], 'bcid',
         'Cancelled', 'Cancelled', owner_group_id='owner-group-id'
     )
 
@@ -227,10 +227,10 @@ def test_cancel_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
-    bcs1 = BatchChangeSummary('user-id', 'user-name', datetime.utcnow(), 10, 'id1',
+    bcs1 = BatchChangeSummary('user-id', 'user-name', datetime.now(UTC), 10, 'id1',
                               'Complete', 'AutoApproved', comments='comments',
                               owner_group_id='owner-group-id')
-    bcs2 = BatchChangeSummary('user-id2', 'user-name2', datetime.utcnow(), 20,
+    bcs2 = BatchChangeSummary('user-id2', 'user-name2', datetime.now(UTC), 20,
                               'id2', 'Complete', 'AutoApproved', comments='comments2')
     lbcs = ListBatchChangeSummaries([bcs1, bcs2], 'start', 'next', 50)
     mocked_responses.add(

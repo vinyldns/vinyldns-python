@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict, Optional, Union
 import urllib.parse as urlparse
 
@@ -77,7 +77,7 @@ class BotoRequestSigner:
 
         amz_date = try_parse(headers.get("X-Amz-Date"), iso_format)
         http_date = try_parse(headers.get("Date"), http_format)
-        fallback_date = datetime.utcnow()
+        fallback_date = datetime.now(UTC)
 
         date = next(
             d for d in (amz_date, http_date, fallback_date) if d is not None
