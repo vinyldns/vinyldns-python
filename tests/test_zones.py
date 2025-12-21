@@ -1,7 +1,9 @@
 # Copyright 2018 Comcast Cable Communications Management, LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
+#
+# Licensed under the License, Version 2.0
+# You may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
@@ -45,7 +47,8 @@ def check_zones_are_same(a, b):
     assert a.backend_id == b.backend_id
     check_zone_connections_are_same(a.connection, b.connection)
     check_zone_connections_are_same(a.transfer_connection, b.transfer_connection)
-    assert all([l.__dict__ == r.__dict__ for l, r in zip(a.acl.rules, b.acl.rules)])
+    for left_rule, right_rule in zip(a.acl.rules, b.acl.rules):
+        assert left_rule.__dict__ == right_rule.__dict__
 
 
 def test_zone_serdes():
@@ -55,7 +58,8 @@ def test_zone_serdes():
 
     assert z.name == forward_zone.name
     assert z.connection.primary_server == forward_zone.connection.primary_server
-    assert all([a.__dict__ == b.__dict__ for a, b in zip(z.acl.rules, forward_zone.acl.rules)])
+    for left_rule, right_rule in zip(z.acl.rules, forward_zone.acl.rules):
+        assert left_rule.__dict__ == right_rule.__dict__
 
 
 def test_connect_zone(mocked_responses, vinyldns_client):
@@ -68,7 +72,7 @@ def test_connect_zone(mocked_responses, vinyldns_client):
 
 def test_update_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.PUT, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        responses.PUT, f'http://test.com/zones/{forward_zone.id}',
         body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.update_zone(forward_zone)
     check_zones_are_same(forward_zone, r.zone)
@@ -76,7 +80,7 @@ def test_update_zone(mocked_responses, vinyldns_client):
 
 def test_abandon_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.DELETE, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        responses.DELETE, f'http://test.com/zones/{forward_zone.id}',
         body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.abandon_zone(forward_zone.id)
     check_zones_are_same(forward_zone, r.zone)
@@ -84,7 +88,7 @@ def test_abandon_zone(mocked_responses, vinyldns_client):
 
 def test_sync_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.POST, 'http://test.com/zones/{0}/sync'.format(forward_zone.id),
+        responses.POST, f'http://test.com/zones/{forward_zone.id}/sync',
         body=to_json_string(sample_zone_change), status=200)
     r = vinyldns_client.sync_zone(forward_zone.id)
     assert sample_zone_change.id == r.id
@@ -96,8 +100,13 @@ def test_sync_zone(mocked_responses, vinyldns_client):
 
 
 def test_list_zones(mocked_responses, vinyldns_client):
-    lzr = ListZonesResponse(zones=[forward_zone, ip4_zone, ip6_zone], name_filter='*', start_from='start-from',
-                            next_id='next', max_items=100)
+    lzr = ListZonesResponse(
+        zones=[forward_zone, ip4_zone, ip6_zone],
+        name_filter='*',
+        start_from='start-from',
+        next_id='next',
+        max_items=100
+    )
     mocked_responses.add(
         responses.GET, 'http://test.com/zones?nameFilter=*&startFrom=start-from&maxItems=100',
         body=to_json_string(lzr), status=200
@@ -107,13 +116,13 @@ def test_list_zones(mocked_responses, vinyldns_client):
     assert r.start_from == lzr.start_from
     assert r.next_id == lzr.next_id
     assert r.max_items == lzr.max_items
-    for l, r in zip(lzr.zones, r.zones):
-        check_zones_are_same(l, r)
+    for left_zone, right_zone in zip(lzr.zones, r.zones):
+        check_zones_are_same(left_zone, right_zone)
 
 
 def test_get_zone(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.GET, 'http://test.com/zones/{0}'.format(forward_zone.id),
+        responses.GET, f'http://test.com/zones/{forward_zone.id}',
         body=to_json_string({'zone': forward_zone}), status=200)
     r = vinyldns_client.get_zone(forward_zone.id)
     check_zones_are_same(forward_zone, r)
@@ -121,7 +130,7 @@ def test_get_zone(mocked_responses, vinyldns_client):
 
 def test_get_zone_by_name(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.GET, 'http://test.com/zones/name/{0}'.format(forward_zone.name),
+        responses.GET, f'http://test.com/zones/name/{forward_zone.name}',
         body=to_json_string({'zone': forward_zone}), status=200)
     r = vinyldns_client.get_zone_by_name(forward_zone.name)
     check_zones_are_same(forward_zone, r)
@@ -134,26 +143,26 @@ def test_list_zone_changes(mocked_responses, vinyldns_client):
                          created=datetime.utcnow(), system_message='msg', id='zone-change-id2')
     lzcr = ListZoneChangesResponse(forward_zone.id, [change1, change2], 'next', 'start', 100)
     mocked_responses.add(
-        responses.GET, 'http://test.com/zones/{0}/changes?startFrom=start&maxItems=100'.format(forward_zone.id),
+        responses.GET, f'http://test.com/zones/{forward_zone.id}/changes?startFrom=start&maxItems=100',
         body=to_json_string(lzcr), status=200
     )
     r = vinyldns_client.list_zone_changes(forward_zone.id, 'start', 100)
     assert r.start_from == lzcr.start_from
     assert r.next_id == lzcr.next_id
     assert r.max_items == lzcr.max_items
-    for l, r in zip(lzcr.zone_changes, r.zone_changes):
-        assert l.id == r.id
-        assert l.user_id == r.user_id
-        assert l.change_type == r.change_type
-        assert l.status == r.status
-        assert l.created == r.created
-        assert l.system_message == r.system_message
-        check_zones_are_same(l.zone, r.zone)
+    for left_change, right_change in zip(lzcr.zone_changes, r.zone_changes):
+        assert left_change.id == right_change.id
+        assert left_change.user_id == right_change.user_id
+        assert left_change.change_type == right_change.change_type
+        assert left_change.status == right_change.status
+        assert left_change.created == right_change.created
+        assert left_change.system_message == right_change.system_message
+        check_zones_are_same(left_change.zone, right_change.zone)
 
 
 def test_add_acl_rule(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.PUT, 'http://test.com/zones/{0}/acl/rules'.format(forward_zone.id),
+        responses.PUT, f'http://test.com/zones/{forward_zone.id}/acl/rules',
         body=to_json_string(sample_zone_change)
     )
     r = vinyldns_client.add_zone_acl_rule(forward_zone.id, acl_rule)
@@ -162,7 +171,7 @@ def test_add_acl_rule(mocked_responses, vinyldns_client):
 
 def test_delete_acl_rule(mocked_responses, vinyldns_client):
     mocked_responses.add(
-        responses.DELETE, 'http://test.com/zones/{0}/acl/rules'.format(forward_zone.id),
+        responses.DELETE, f'http://test.com/zones/{forward_zone.id}/acl/rules',
         body=to_json_string(sample_zone_change)
     )
     r = vinyldns_client.delete_zone_acl_rule(forward_zone.id, acl_rule)

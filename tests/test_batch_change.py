@@ -1,7 +1,9 @@
 # Copyright 2018 Comcast Cable Communications Management, LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
+#
+# Licensed under the License, Version 2.0
+# You may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
@@ -44,8 +46,8 @@ def check_single_changes_are_same(a, b):
         assert a.ttl == b.ttl
         assert a.record_data == b.record_data
     if a.validation_errors:
-        for l, r in zip(a.validation_errors, b.validation_errors):
-            check_validation_errors_are_same(l, r)
+        for left_error, right_error in zip(a.validation_errors, b.validation_errors):
+            check_validation_errors_are_same(left_error, right_error)
 
 
 def check_batch_changes_are_same(a, b):
@@ -63,8 +65,8 @@ def check_batch_changes_are_same(a, b):
     assert a.review_comment == b.review_comment
     assert a.review_timestamp == b.review_timestamp
     assert a.scheduled_time == b.scheduled_time
-    for l, r in zip(a.changes, b.changes):
-        check_single_changes_are_same(l, r)
+    for left_change, right_change in zip(a.changes, b.changes):
+        check_single_changes_are_same(left_change, right_change)
 
 
 def test_create_batch_change(mocked_responses, vinyldns_client):
@@ -162,8 +164,8 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_reject_batch_change(mocked_responses, vinyldns_client):
-    error_message = "Zone Discovery Failed: zone for \"foo.bar.com\" does not exist in VinylDNS. \
-    If zone exists, then it must be connected to in VinylDNS."
+    error_message = "Zone Discovery Failed: zone for \"foo.bar.com\" does not exist in VinylDNS. " \
+                    "If zone exists, then it must be connected to in VinylDNS."
 
     error = ValidationError('ZoneDiscoveryError', error_message)
 
@@ -243,12 +245,12 @@ def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
     assert r.max_items == lbcs.max_items
     assert r.ignore_access == lbcs.ignore_access
     assert r.approval_status == lbcs.approval_status
-    for l, r in zip(r.batch_changes, lbcs.batch_changes):
-        assert l.user_id == r.user_id
-        assert l.user_name == r.user_name
-        assert l.comments == r.comments
-        assert l.created_timestamp == r.created_timestamp
-        assert l.total_changes == r.total_changes
-        assert l.status == r.status
-        assert l.id == r.id
-        assert l.owner_group_id == r.owner_group_id
+    for left_bc, right_bc in zip(r.batch_changes, lbcs.batch_changes):
+        assert left_bc.user_id == right_bc.user_id
+        assert left_bc.user_name == right_bc.user_name
+        assert left_bc.comments == right_bc.comments
+        assert left_bc.created_timestamp == right_bc.created_timestamp
+        assert left_bc.total_changes == right_bc.total_changes
+        assert left_bc.status == right_bc.status
+        assert left_bc.id == right_bc.id
+        assert left_bc.owner_group_id == right_bc.owner_group_id
