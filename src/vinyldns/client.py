@@ -20,16 +20,11 @@ from builtins import str
 
 import requests
 from datetime import datetime, UTC
-from future.moves.urllib.parse import parse_qs
-from future.utils import iteritems
-from requests.adapters import HTTPAdapter
-# Python 2/3 compatibility
-from requests.compat import urljoin
-from requests.compat import urlparse
-from requests.compat import urlsplit
-from requests.packages.urllib3.util.retry import Retry
+from urllib.parse import parse_qs, urljoin, urlparse, urlsplit
 
-# TODO: Didn't like this boto request signer, fix when moving back
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
