@@ -154,7 +154,7 @@ class VinylDNSClient(object):
             # the problem with parse_qs is that it will return a list for ALL params, even if they are a single value
             # we need to essentially flatten the params if a param has only one value
             query = dict((k, v if len(v) > 1 else v[0])
-                         for k, v in iteritems(query))
+                         for k, v in query.items())
 
         signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
                                                                     with_headers=headers or {}, **kwargs)
@@ -215,7 +215,7 @@ class VinylDNSClient(object):
                    u'Date': now.strftime(u'%a, %d %b %Y %H:%M:%S GMT'),
                    u'X-Amz-Date': now.strftime(u'%Y%m%dT%H%M%SZ')}
 
-        for k, v in iteritems(new_headers):
+        for k, v in new_headers.items():
             headers[canonical_header_name(k)] = v
 
         for k in map(canonical_header_name, suppressed_keys):

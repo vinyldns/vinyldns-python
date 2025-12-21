@@ -47,8 +47,11 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "boto3>=1.26.0",
-        "future>=0.17.1",
         "requests>=2.20.0",
         "python-dateutil>=2.7.5",
+    ],
+    tests_require=[
+        "responses==0.10.4",
+        "pytest==3.10.1",
     ],
 )
