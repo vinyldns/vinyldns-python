@@ -47,8 +47,8 @@ class BotoRequestSigner:
         if host is None:
             raise ValueError(f"Invalid index_url (missing host): {index_url}")
 
-        self.netloc = f"{host}: {port}" if port else host
-        self.base_url = f"{scheme}: //{self.netloc}"
+        self.netloc = f"{host}:{port}" if port else host
+        self.base_url = f"{scheme}://{self.netloc}"
         self.region_name = "us-east-1"
         self.service_name = "VinylDNS"
         self.credentials = Credentials(access_key, secret_access_key)
