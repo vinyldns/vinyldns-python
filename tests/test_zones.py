@@ -18,9 +18,9 @@ from datetime import datetime
 
 import responses
 
-from sampledata import acl_rule, forward_zone, ip4_zone, ip6_zone, sample_zone_change
+from sampledata import acl_rule, forward_zone, ip4_zone, ip6_zone, sample_zone_change, abondonded_zone
 from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.zone import Zone, ZoneChange, ListZonesResponse, ListZoneChangesResponse
+from vinyldns.zone import Zone, ZoneChange, ListZonesResponse, ListZoneChangesResponse, ZonesDeletedInfo, ListAbandonedZonesResponse
 
 
 def check_zone_connections_are_same(a, b):
@@ -167,3 +167,26 @@ def test_delete_acl_rule(mocked_responses, vinyldns_client):
     )
     r = vinyldns_client.delete_zone_acl_rule(forward_zone.id, acl_rule)
     check_zones_are_same(r.zone, sample_zone_change.zone)
+
+def test_list_abandoned_zone(mocked_responses, vinyldns_client):
+    sample_abondonded_zone_change = [ZonesDeletedInfo(zone_changes = ZoneChange(zone=abondonded_zone, user_id='some-user', change_type='Create', status='Pending',
+                                created=datetime.utcnow(), system_message=None, id='zone-change-id'),
+                                admin_group_name = 'some-group-name', user_name = 'some-user-name', access_level = 'delete')]                         
+
+    ldzc = ListAbandonedZonesResponse(deleted_zone_changes=sample_abondonded_zone_change, name_filter='*', next_id= 'next', start_from= 'start', max_items=100)
+    mocked_responses.add(
+        responses.GET, 'http://test.com/zones/deleted/changes?zoneChangeFilter=*&startFrom=start&maxItems=100',
+        body=to_json_string(ldzc), status=200
+    )
+
+    r = vinyldns_client.list_abandoned_zones('*', 'start', 100)
+    assert r.start_from == ldzc.start_from
+    assert r.next_id == ldzc.next_id
+    assert r.max_items == ldzc.max_items
+    for l, r in zip(ldzc.deleted_zone_changes, r.deleted_zone_changes):
+        assert l.zone_changes.id == r.zone_changes.id
+        assert l.user_name == r.user_name
+        assert l.access_level == r.access_level
+        assert l.admin_group_name == r.admin_group_name
+        assert l.zone_changes.zone.status == r.zone_changes.zone.status
+        check_zones_are_same(l.zone_changes.zone, r.zone_changes.zone)
