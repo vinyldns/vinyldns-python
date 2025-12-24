@@ -97,6 +97,8 @@ class BotoRequestSigner:
         """
         hdrs: Dict[str, str] = dict(headers or {})
         hdrs.setdefault("Host", self.netloc)
+        # Remove Date header if present
+        hdrs.pop("Date", None)
 
         # Normalize body to bytes
         if body is None:
