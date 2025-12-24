@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TODO: Add module docstring."""
+
 import copy
 
 import responses
@@ -29,7 +29,8 @@ def check_record_sets_are_equal(a, b):
         assert a.ttl == b.ttl
         assert a.name == b.name
         assert a.owner_group_id == b.owner_group_id
-        assert all([l.__dict__ == r.__dict__ for l, r in zip(a.records, b.records)])
+        for left_record, right_record in zip(a.records, b.records):
+            assert left_record.__dict__ == right_record.__dict__
 
 
 def check_record_set_changes_are_equal(a, b):
@@ -51,7 +52,7 @@ def check_record_set_changes_are_equal(a, b):
 def test_create_record_set(record_set, mocked_responses, vinyldns_client):
     change = gen_rs_change(record_set)
     mocked_responses.add(
-        responses.POST, 'http://test.com/zones/{0}/recordsets'.format(record_set.zone_id),
+        responses.POST, f'http://test.com/zones/{record_set.zone_id}/recordsets',
         body=to_json_string(change), status=200
     )
     r = vinyldns_client.create_record_set(record_set)
@@ -64,7 +65,7 @@ def test_update_record_set(record_set, mocked_responses, vinyldns_client):
     rs.id = rs.name + 'id'
     change = gen_rs_change(rs)
     mocked_responses.add(
-        responses.PUT, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        responses.PUT, f'http://test.com/zones/{rs.zone_id}/recordsets/{rs.id}',
         body=to_json_string(change), status=200
     )
     r = vinyldns_client.update_record_set(rs)
@@ -77,7 +78,7 @@ def test_delete_record_set(record_set, mocked_responses, vinyldns_client):
     rs.id = rs.name + 'id'
     change = gen_rs_change(rs)
     mocked_responses.add(
-        responses.DELETE, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        responses.DELETE, f'http://test.com/zones/{rs.zone_id}/recordsets/{rs.id}',
         body=to_json_string(change), status=200
     )
     r = vinyldns_client.delete_record_set(rs.zone_id, rs.id)
@@ -90,7 +91,7 @@ def test_get_record_set(record_set, mocked_responses, vinyldns_client):
     rs.id = rs.name + 'id'
     response = {'recordSet': rs}
     mocked_responses.add(
-        responses.GET, 'http://test.com/zones/{0}/recordsets/{1}'.format(rs.zone_id, rs.id),
+        responses.GET, f'http://test.com/zones/{rs.zone_id}/recordsets/{rs.id}',
         body=to_json_string(response), status=200
     )
     r = vinyldns_client.get_record_set(rs.zone_id, rs.id)
@@ -99,47 +100,47 @@ def test_get_record_set(record_set, mocked_responses, vinyldns_client):
 
 
 def test_list_record_sets(mocked_responses, vinyldns_client):
-    lrr = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
+    list_response = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
     mocked_responses.add(
         responses.GET,
-        'http://test.com/zones/{0}/recordsets?startFrom=start&maxItems=100&recordNameFilter=*'.format(forward_zone.id),
-        body=to_json_string(lrr), status=200
+        f'http://test.com/zones/{forward_zone.id}/recordsets?startFrom=start&maxItems=100&recordNameFilter=*',
+        body=to_json_string(list_response), status=200
     )
     r = vinyldns_client.list_record_sets(forward_zone.id, 'start', 100, '*')
-    assert r.start_from == lrr.start_from
-    assert r.next_id == lrr.next_id
-    assert r.record_name_filter == lrr.record_name_filter
-    assert r.max_items == lrr.max_items
-    for l, r in zip(r.record_sets, lrr.record_sets):
-        check_record_sets_are_equal(l, r)
+    assert r.start_from == list_response.start_from
+    assert r.next_id == list_response.next_id
+    assert r.record_name_filter == list_response.record_name_filter
+    assert r.max_items == list_response.max_items
+    for left_rs, right_rs in zip(r.record_sets, list_response.record_sets):
+        check_record_sets_are_equal(left_rs, right_rs)
 
 
 def test_search_record_sets(mocked_responses, vinyldns_client):
-    lrr = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
+    list_response = ListRecordSetsResponse(record_set_values, 'start', 'next', 100, '*')
     all_record_types = list(record_sets.keys())
     record_type_filter = ''
     for record_type in all_record_types:
-        record_type_filter += '&recordTypeFilter[]={0}'.format(record_type)
+        record_type_filter += f'&recordTypeFilter[]={record_type}'
     mocked_responses.add(
         responses.GET,
-        'http://test.com/recordsets?startFrom=start&maxItems=100&recordNameFilter=*' +
-        record_type_filter + '&recordOwnerGroupFilter=owner-group-id&nameSort=DESC',
-        body=to_json_string(lrr), status=200
+        f'http://test.com/recordsets?startFrom=start&maxItems=100&recordNameFilter=*{record_type_filter}'
+        '&recordOwnerGroupFilter=owner-group-id&nameSort=DESC',
+        body=to_json_string(list_response), status=200
     )
     r = vinyldns_client.search_record_sets('start', 100, '*', all_record_types, 'owner-group-id', 'DESC')
-    assert r.start_from == lrr.start_from
-    assert r.next_id == lrr.next_id
-    assert r.record_name_filter == lrr.record_name_filter
-    assert r.max_items == lrr.max_items
-    for l, r in zip(r.record_sets, lrr.record_sets):
-        check_record_sets_are_equal(l, r)
+    assert r.start_from == list_response.start_from
+    assert r.next_id == list_response.next_id
+    assert r.record_name_filter == list_response.record_name_filter
+    assert r.max_items == list_response.max_items
+    for left_rs, right_rs in zip(r.record_sets, list_response.record_sets):
+        check_record_sets_are_equal(left_rs, right_rs)
 
 
 def test_get_record_set_change(record_set, mocked_responses, vinyldns_client):
     change = gen_rs_change(record_set)
     mocked_responses.add(
         responses.GET,
-        'http://test.com/zones/{0}/recordsets/{1}/changes/{2}'.format(record_set.zone_id, record_set.id, change.id),
+        f'http://test.com/zones/{record_set.zone_id}/recordsets/{record_set.id}/changes/{change.id}',
         body=to_json_string(change), status=200
     )
     r = vinyldns_client.get_record_set_change(record_set.zone_id, record_set.id, change.id)
@@ -148,17 +149,19 @@ def test_get_record_set_change(record_set, mocked_responses, vinyldns_client):
 
 def test_list_record_set_changes(mocked_responses, vinyldns_client):
     changes = [gen_rs_change(c) for c in record_set_values]
-    lrscr = ListRecordSetChangesResponse(forward_zone.id, changes, 'next', 'start', 100)
-    mocked_responses.add(responses.GET,
-                         'http://test.com/zones/{0}/recordsetchanges?startFrom=start&maxItems=100'.format(
-                             forward_zone.id), body=to_json_string(lrscr), status=200)
+    list_changes_response = ListRecordSetChangesResponse(forward_zone.id, changes, 'next', 'start', 100)
+    mocked_responses.add(
+        responses.GET,
+        f'http://test.com/zones/{forward_zone.id}/recordsetchanges?startFrom=start&maxItems=100',
+        body=to_json_string(list_changes_response), status=200
+    )
     r = vinyldns_client.list_record_set_changes(forward_zone.id, 'start', 100)
-    r.start_from = lrscr.start_from
-    r.next_id = lrscr.next_id
-    r.max_items = lrscr.max_items
-    r.zone_id = lrscr.zone_id
-    for l, r in zip(r.record_set_changes, lrscr.record_set_changes):
-        check_record_set_changes_are_equal(l, r)
+    r.start_from = list_changes_response.start_from
+    r.next_id = list_changes_response.next_id
+    r.max_items = list_changes_response.max_items
+    r.zone_id = list_changes_response.zone_id
+    for left_change, right_change in zip(r.record_set_changes, list_changes_response.record_set_changes):
+        check_record_set_changes_are_equal(left_change, right_change)
 
 
 def test_record_set_serdes(record_set):
@@ -169,33 +172,34 @@ def test_record_set_serdes(record_set):
 
 
 def test_record_set_changes_serdes(record_set):
-    a = gen_rs_change(record_set)
-    s = to_json_string(a)
-    b = from_json_string(s, RecordSetChange.from_dict)
+    change = gen_rs_change(record_set)
+    s = to_json_string(change)
+    parsed_change = from_json_string(s, RecordSetChange.from_dict)
 
-    assert a.user_id == b.user_id
-    assert a.change_type == b.change_type
-    assert a.status == b.status
-    assert a.created == b.created
-    assert a.system_message == b.system_message
-    assert a.id == b.id
-    assert a.user_name == b.user_name
-    assert a.zone.id == b.zone.id
-    check_record_sets_are_equal(a.record_set, b.record_set)
-    check_record_sets_are_equal(a.updates, b.updates)
+    assert change.user_id == parsed_change.user_id
+    assert change.change_type == parsed_change.change_type
+    assert change.status == parsed_change.status
+    assert change.created == parsed_change.created
+    assert change.system_message == parsed_change.system_message
+    assert change.id == parsed_change.id
+    assert change.user_name == parsed_change.user_name
+    assert change.zone.id == parsed_change.zone.id
+    check_record_sets_are_equal(change.record_set, parsed_change.record_set)
+    check_record_sets_are_equal(change.updates, parsed_change.updates)
 
 
 def test_list_record_set_response_serdes():
-    a = ListRecordSetsResponse(record_sets=record_set_values, start_from='some-start', next_id='next',
-                               max_items=100,
-                               record_name_filter='foo*')
-    s = to_json_string(a)
-    b = from_json_string(s, ListRecordSetsResponse.from_dict)
+    response = ListRecordSetsResponse(
+        record_sets=record_set_values, start_from='some-start', next_id='next',
+        max_items=100, record_name_filter='foo*'
+    )
+    s = to_json_string(response)
+    parsed_response = from_json_string(s, ListRecordSetsResponse.from_dict)
 
-    assert a.start_from == b.start_from
-    assert a.next_id == b.next_id
-    assert a.max_items == b.max_items
-    assert a.record_name_filter == b.record_name_filter
-    assert len(a.record_sets) == len(b.record_sets)
-    for l, r in zip(a.record_sets, b.record_sets):
-        check_record_sets_are_equal(l, r)
+    assert response.start_from == parsed_response.start_from
+    assert response.next_id == parsed_response.next_id
+    assert response.max_items == parsed_response.max_items
+    assert response.record_name_filter == parsed_response.record_name_filter
+    assert len(response.record_sets) == len(parsed_response.record_sets)
+    for left_rs, right_rs in zip(response.record_sets, parsed_response.record_sets):
+        check_record_sets_are_equal(left_rs, right_rs)

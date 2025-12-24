@@ -11,107 +11,152 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TODO: Add module docstring."""
+
+from __future__ import annotations
 
 import logging
-from datetime import datetime
-from hashlib import sha256
+from datetime import datetime, UTC
+from typing import Dict, Optional, Union
+import urllib.parse as urlparse
 
-import requests.compat as urlparse
-from boto.dynamodb2.layer1 import DynamoDBConnection
+from botocore.auth import SigV4Auth
+from botocore.awsrequest import AWSRequest
+from botocore.credentials import Credentials
 
 logger = logging.getLogger(__name__)
 
-__all__ = [u'BotoRequestSigner']
+__all__ = ["BotoRequestSigner"]
 
 
-class BotoRequestSigner(object):
-    """TODO: Add class docstring."""
+class BotoRequestSigner:
+    """
+    Signs HTTP requests using AWS Signature Version 4 for the VinylDNS service.
+    """
 
-    def __init__(self, index_url, access_key, secret_access_key):
-        """TODO: Add method docstring."""
+    def __init__(
+        self,
+        index_url: str,
+        access_key: str,
+        secret_access_key: str,
+    ) -> None:
         url = urlparse.urlparse(index_url)
-        self.boto_connection = DynamoDBConnection(
-            host=url.hostname,
-            port=url.port,
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_access_key,
-            is_secure=False)
+        scheme = url.scheme or "https"
+        host = url.hostname
+        port = url.port
+
+        if host is None:
+            raise ValueError(f"Invalid index_url (missing host): {index_url}")
+
+        self.netloc = f"{host}:{port}" if port else host
+        self.base_url = f"{scheme}://{self.netloc}"
+        self.region_name = "us-east-1"
+        self.service_name = "VinylDNS"
+        self.credentials = Credentials(access_key, secret_access_key)
 
     @staticmethod
-    def __canonical_date(headers):
+    def __canonical_date(headers: Dict[str, str]) -> str:
         """
-        Derive canonical date (ISO 8601 string).
+        Resolve an ISO8601-like date from headers, falling back to current UTC.
 
-        Either from headers (if possible) or synthesize it if no usable header exists.
+        Checks 'X-Amz-Date' (ISO8601 basic) and 'Date' (HTTP-date),
+        and returns an ISO8601 basic formatted string.
         """
-        iso_format = u'%Y%m%dT%H%M%SZ'
-        http_format = u'%a, %d %b %Y %H:%M:%S GMT'
+        iso_format = "%Y%m%dT%H%M%SZ"
+        http_format = "%a, %d %b %Y %H:%M:%S GMT"
 
-        def try_parse(date_string, format):
+        def try_parse(
+            date_string: Optional[str],
+            fmt: str,
+        ) -> Optional[datetime]:
             if date_string is None:
                 return None
             try:
-                return datetime.strptime(date_string, format)
+                return datetime.strptime(date_string, fmt)
             except ValueError:
                 return None
 
-        amz_date = try_parse(headers.get(u'X-Amz-Date'), iso_format)
-        http_date = try_parse(headers.get(u'Date'), http_format)
-        fallback_date = datetime.utcnow()
+        amz_date = try_parse(headers.get("X-Amz-Date"), iso_format)
+        http_date = try_parse(headers.get("Date"), http_format)
+        fallback_date = datetime.now(UTC)
 
-        date = next(d for d in [amz_date, http_date, fallback_date] if d is not None)
+        date = next(
+            d for d in (amz_date, http_date, fallback_date) if d is not None
+        )
         return date.strftime(iso_format)
 
-    def build_auth_header(self, method, path, headers, body, params=None):
-        """Construct an Authorization header, using boto."""
-        request = self.boto_connection.build_base_http_request(
+    def build_auth_header(
+        self,
+        method: str,
+        path: str,
+        headers: Optional[Dict[str, str]],
+        body: Optional[Union[str, bytes]],
+        params: Optional[Dict[str, Union[str, bytes]]] = None,
+    ) -> str:
+        """
+        Build the AWS SigV4 Authorization header for the given request parameters.
+        """
+        hdrs: Dict[str, str] = dict(headers or {})
+        hdrs.setdefault("Host", self.netloc)
+        # Remove Date header if present
+        hdrs.pop("Date", None)
+
+        # Normalize body to bytes
+        if body is None:
+            data = b""
+        elif isinstance(body, str):
+            data = body.encode("utf-8")
+        else:
+            data = body
+
+        query = generate_canonical_query_string(params or {})
+
+        if not path.startswith("/"):
+            path = "/" + path
+
+        url = f"{self.base_url}{path}"
+        if query:
+            url = f"{url}?{query}"
+
+        aws_request = AWSRequest(
             method=method,
-            path=path,
-            auth_path=path,
-            headers=headers,
-            data=body,
-            params=params or {})
+            url=url,
+            data=data,
+            headers=hdrs,
+        )
 
-        auth_handler = self.boto_connection._auth_handler
+        SigV4Auth(
+            self.credentials,
+            self.service_name,
+            self.region_name,
+        ).add_auth(aws_request)
 
-        timestamp = BotoRequestSigner.__canonical_date(headers)
-        request.timestamp = timestamp[0:8]
-
-        request.region_name = u'us-east-1'
-        request.service_name = u'VinylDNS'
-
-        credential_scope = u'/'.join([request.timestamp, request.region_name, request.service_name, u'aws4_request'])
-
-        canonical_request = auth_handler.canonical_request(request)
-        split_request = canonical_request.split('\n')
-
-        if params != {} and split_request[2] == '':
-            split_request[2] = generate_canonical_query_string(params)
-            canonical_request = '\n'.join(split_request)
-
-        hashed_request = sha256(canonical_request.encode(u'utf-8')).hexdigest()
-
-        string_to_sign = u'\n'.join([u'AWS4-HMAC-SHA256', timestamp, credential_scope, hashed_request])
-        signature = auth_handler.signature(request, string_to_sign)
-        headers_to_sign = auth_handler.headers_to_sign(request)
-
-        auth_header = u','.join([
-            u'AWS4-HMAC-SHA256 Credential=%s' % auth_handler.scope(request),
-            u'SignedHeaders=%s' % auth_handler.signed_headers(headers_to_sign),
-            u'Signature=%s' % signature])
-
-        return auth_header
+        return aws_request.headers["Authorization"]
 
 
-def generate_canonical_query_string(params):
+def generate_canonical_query_string(
+    params: Dict[str, Union[str, bytes]],
+) -> str:
     """
-    Using in place of canonical_query_string from boto/auth.py to support POST requests with query parameters
+    Generate a canonical (sorted + percent-encoded) query string suitable for SigV4.
     """
-    post_params = []
+    if not params:
+        return ""
+
+    def _to_str(value: Union[str, bytes]) -> str:
+        if isinstance(value, bytes):
+            return value.decode("utf-8")
+        return str(value)
+
+    encoded_pairs = []
+
     for param in sorted(params):
-        value = params[param].encode('utf-8')
-        import urllib
-        post_params.append('%s=%s' % (urllib.parse.quote(param, safe='-_.~'),
-                           urllib.parse.quote(value, safe='-_.~')))
-    return '&'.join(post_params)
+        value = _to_str(params[param])
+        encoded_pairs.append(
+            "%s=%s"
+            % (
+                urlparse.quote(param, safe="-_.~"),
+                urlparse.quote(value, safe="-_.~"),
+            )
+        )
+
+    return "&".join(encoded_pairs)

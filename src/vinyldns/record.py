@@ -180,7 +180,7 @@ rdata_converters = {
 
 class RecordSet(object):
     def __init__(self, zone_id, name, type, ttl, status=None, created=None,
-                 updated=None, records=[], id=None, owner_group_id=None,fqdn=None):
+                 updated=None, records=[], id=None, owner_group_id=None, fqdn=None):
         self.zone_id = zone_id
         self.name = name
         self.type = type
@@ -191,7 +191,7 @@ class RecordSet(object):
         self.records = records
         self.id = id
         self.owner_group_id = owner_group_id
-        self.fqdn=fqdn
+        self.fqdn = fqdn
 
     @staticmethod
     def from_dict(d):
