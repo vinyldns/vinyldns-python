@@ -16,8 +16,6 @@
 import json
 import logging
 import os
-from builtins import str
-
 import requests
 from datetime import datetime, UTC
 from urllib.parse import parse_qs, urljoin, urlparse, urlsplit

@@ -24,7 +24,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="vinyldns-python",
-    version="0.9.7",
+    version="0.9.8",
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
@@ -51,7 +51,7 @@ setup(
         "python-dateutil>=2.7.5",
     ],
     tests_require=[
-        "responses==0.10.4",
-        "pytest==3.10.1",
-    ],
+        "responses==0.25.8",
+        "pytest==9.0.2",
+    ]
 )
