@@ -32,10 +32,13 @@ from vinyldns.boto_request_signer import BotoRequestSigner
 
 from vinyldns.batch_change import BatchChange, ListBatchChangeSummaries, to_review_json
 from vinyldns.membership import Group, ListGroupsResponse, ListGroupChangesResponse, ListMembersResponse, \
-    ListAdminsResponse
+    ListAdminsResponse, GroupChange, UserInfo
 from vinyldns.serdes import to_json_string
-from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
-from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
+from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange, ZoneDetails, \
+    ZoneChangeFailuresResponse, DeletedZonesResponse
+from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange, \
+    RecordSetCount, RecordSetChangeFailuresResponse, OwnershipTransfer, OwnershipTransferStatus
+from vinyldns.status import SystemStatus
 
 try:
     basestring
@@ -161,6 +164,24 @@ class VinylDNSClient(object):
 
         return self.__check_response(response, method)
 
+    def __make_request_raw(self, url, method=u'GET', headers=None, body_string=None, **kwargs):
+
+        # remove retries arg if provided
+        kwargs.pop(u'retries', None)
+
+        path = urlparse(url).path
+        query = parse_qs(urlsplit(url).query)
+        if query:
+            query = dict((k, v if len(v) > 1 else v[0])
+                         for k, v in query.items())
+
+        signed_headers, signed_body = self.__build_vinyldns_request(method, path, body_string, query,
+                                                                    with_headers=headers or {}, **kwargs)
+
+        response = self.session.request(method, url, data=signed_body, headers=signed_headers, **kwargs)
+
+        return self.__check_response_raw(response, method)
+
     def __check_response(self, response, method):
         status = response.status_code
         if status == 200 or status == 202:
@@ -176,6 +197,28 @@ class VinylDNSClient(object):
                 return 404, None
             else:
                 raise NotFoundError(response.text)
+        elif status == 409:
+            raise ConflictError(response.text)
+        elif status == 422:
+            raise UnprocessableError(response.text)
+        else:
+            raise ClientError(response.text)
+
+    def __check_response_raw(self, response, method):
+        status = response.status_code
+        if status == 200 or status == 202:
+            return response.status_code, response.text
+        elif status == 404:
+            if method == 'GET':
+                return 404, None
+            else:
+                raise NotFoundError(response.text)
+        elif status == 400:
+            raise BadRequestError(response.text)
+        elif status == 401:
+            raise UnauthorizedError(response.text)
+        elif status == 403:
+            raise ForbiddenError(response.text)
         elif status == 409:
             raise ConflictError(response.text)
         elif status == 422:
@@ -379,6 +422,28 @@ class VinylDNSClient(object):
 
         return ListGroupChangesResponse.from_dict(data)
 
+    def get_group_change(self, group_change_id, **kwargs):
+        """
+        Get a group change by ID.
+
+        :param group_change_id: the group change ID
+        :return: the group change details
+        """
+        url = urljoin(self.index_url, u'/groups/change/{0}'.format(group_change_id))
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+
+        return GroupChange.from_dict(data) if data is not None else None
+
+    def list_group_valid_domains(self, **kwargs):
+        """
+        List valid email domains for groups.
+
+        :return: list of valid domains
+        """
+        url = urljoin(self.index_url, u'/groups/valid/domains')
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return data if data is not None else []
+
     def connect_zone(self, zone, **kwargs):
         """
         Create a new zone with the given name and email.
@@ -446,6 +511,71 @@ class VinylDNSClient(object):
         url = urljoin(self.index_url, u'/zones/name/{0}'.format(name))
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return Zone.from_dict(data['zone']) if data is not None else None
+
+    def get_zone_details(self, zone_id, **kwargs):
+        """
+        Get detailed zone info for the given zone id.
+
+        :param zone_id: the id of the zone to retrieve
+        :return: the zone details, or will 404 if not found
+        """
+        url = urljoin(self.index_url, u'/zones/{0}/details'.format(zone_id))
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+
+        return ZoneDetails.from_dict(data['zone']) if data is not None else None
+
+    def list_zone_backend_ids(self, **kwargs):
+        """
+        List configured backend IDs.
+        """
+        url = urljoin(self.index_url, u'/zones/backendids')
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+
+        if data is None:
+            return []
+        if isinstance(data, dict):
+            return data.get('backendIds', [])
+        return data
+
+    def list_zone_changes_failure(self, name_filter=None, start_from=None, max_items=None, **kwargs):
+        """
+        List failed zone changes.
+        """
+        args = []
+        if name_filter:
+            args.append(u'nameFilter={0}'.format(name_filter))
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+
+        url = urljoin(self.index_url, u'/metrics/health/zonechangesfailure')
+        if args:
+            url = url + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return ZoneChangeFailuresResponse.from_dict(data)
+
+    def list_deleted_zones(self, name_filter=None, start_from=None, max_items=None, ignore_access=None, **kwargs):
+        """
+        List deleted zone changes.
+        """
+        args = []
+        if name_filter:
+            args.append(u'nameFilter={0}'.format(name_filter))
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+        if ignore_access is not None:
+            args.append(u'ignoreAccess={0}'.format(ignore_access))
+
+        url = urljoin(self.index_url, u'/zones/deleted/changes')
+        if args:
+            url = url + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return DeletedZonesResponse.from_dict(data)
 
     def list_zone_changes(self, zone_id, start_from=None, max_items=None, **kwargs):
         """
@@ -563,6 +693,84 @@ class VinylDNSClient(object):
 
         response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
         return ListRecordSetsResponse.from_dict(data)
+
+    def get_record_set_count(self, zone_id, **kwargs):
+        """
+        Get record set count for a zone.
+        """
+        url = urljoin(self.index_url, u'/zones/{0}/recordsetcount'.format(zone_id))
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return RecordSetCount.from_dict(data)
+
+    def list_record_set_change_history(self, zone_id, fqdn, record_type, start_from=None, max_items=None, **kwargs):
+        """
+        Retrieve record set change history for a FQDN and type.
+        """
+        args = [u'zoneId={0}'.format(zone_id), u'fqdn={0}'.format(fqdn), u'recordType={0}'.format(record_type)]
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+
+        url = urljoin(self.index_url, u'/recordsetchange/history') + u'?' + u'&'.join(args)
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return ListRecordSetChangesResponse.from_dict(data)
+
+    def list_record_set_changes_failure(self, zone_id, start_from=None, max_items=None, **kwargs):
+        """
+        List failed record set changes for a zone.
+        """
+        args = []
+        if start_from:
+            args.append(u'startFrom={0}'.format(start_from))
+        if max_items is not None:
+            args.append(u'maxItems={0}'.format(max_items))
+
+        url = urljoin(self.index_url, u'/metrics/health/zones/{0}/recordsetchangesfailure'.format(zone_id))
+        if args:
+            url = url + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return RecordSetChangeFailuresResponse.from_dict(data)
+
+    def request_record_set_ownership(self, record_set, requested_owner_group_id, **kwargs):
+        """
+        Request record set ownership transfer.
+        """
+        return self.__record_set_ownership_transfer(record_set, OwnershipTransferStatus.Requested,
+                                                    requested_owner_group_id, **kwargs)
+
+    def approve_record_set_ownership(self, record_set, requested_owner_group_id, **kwargs):
+        """
+        Approve record set ownership transfer.
+        """
+        return self.__record_set_ownership_transfer(record_set, OwnershipTransferStatus.ManuallyApproved,
+                                                    requested_owner_group_id, update_owner_group=True, **kwargs)
+
+    def reject_record_set_ownership(self, record_set, requested_owner_group_id, **kwargs):
+        """
+        Reject record set ownership transfer.
+        """
+        return self.__record_set_ownership_transfer(record_set, OwnershipTransferStatus.ManuallyRejected,
+                                                    requested_owner_group_id, **kwargs)
+
+    def cancel_record_set_ownership(self, record_set, requested_owner_group_id, **kwargs):
+        """
+        Cancel record set ownership transfer.
+        """
+        return self.__record_set_ownership_transfer(record_set, OwnershipTransferStatus.Cancelled,
+                                                    requested_owner_group_id, **kwargs)
+
+    def __record_set_ownership_transfer(self, record_set, status, requested_owner_group_id,
+                                        update_owner_group=False, **kwargs):
+        record_set.record_set_group_change = OwnershipTransfer(
+            ownership_transfer_status=status,
+            requested_owner_group_id=requested_owner_group_id
+        )
+        if update_owner_group:
+            record_set.owner_group_id = requested_owner_group_id
+
+        return self.update_record_set(record_set, **kwargs)
 
     def search_record_sets(self, start_from=None, max_items=None, record_name_filter=None,
                            record_type_filter=None, record_owner_group_filter=None, name_sort=None, **kwargs):
@@ -745,3 +953,83 @@ class VinylDNSClient(object):
                                              to_json_string(acl_rule), **kwargs)
 
         return ZoneChange.from_dict(data)
+
+    def ping(self, **kwargs):
+        """
+        Simple health check.
+        """
+        url = urljoin(self.index_url, u'/ping')
+        response, data = self.__make_request_raw(url, u'GET', self.headers, **kwargs)
+        return data
+
+    def health(self, **kwargs):
+        """
+        Comprehensive health check.
+        """
+        url = urljoin(self.index_url, u'/health')
+        response, data = self.__make_request_raw(url, u'GET', self.headers, **kwargs)
+        return data
+
+    def color(self, **kwargs):
+        """
+        Blue/green deployment status.
+        """
+        url = urljoin(self.index_url, u'/color')
+        response, data = self.__make_request_raw(url, u'GET', self.headers, **kwargs)
+        return data
+
+    def metrics_prometheus(self, names=None, **kwargs):
+        """
+        Prometheus metrics export.
+        """
+        args = []
+        if names:
+            for name in names:
+                args.append(u'name={0}'.format(name))
+
+        url = urljoin(self.index_url, u'/metrics/prometheus')
+        if args:
+            url = url + u'?' + u'&'.join(args)
+
+        response, data = self.__make_request_raw(url, u'GET', self.headers, **kwargs)
+        return data
+
+    def get_status(self, **kwargs):
+        """
+        Get system processing status.
+        """
+        url = urljoin(self.index_url, u'/status')
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return SystemStatus.from_dict(data)
+
+    def update_status(self, processing_disabled, **kwargs):
+        """
+        Enable/disable processing (admin).
+        """
+        url = urljoin(self.index_url, u'/status?processingDisabled={0}'.format(str(processing_disabled).lower()))
+        response, data = self.__make_request(url, u'POST', self.headers, **kwargs)
+        return SystemStatus.from_dict(data)
+
+    def get_user(self, user_id, **kwargs):
+        """
+        Get user by ID.
+        """
+        url = urljoin(self.index_url, u'/users/{0}'.format(user_id))
+        response, data = self.__make_request(url, u'GET', self.headers, **kwargs)
+        return UserInfo.from_dict(data) if data is not None else None
+
+    def lock_user(self, user_id, **kwargs):
+        """
+        Lock a user (admin).
+        """
+        url = urljoin(self.index_url, u'/users/{0}/lock'.format(user_id))
+        response, data = self.__make_request(url, u'PUT', self.headers, **kwargs)
+        return UserInfo.from_dict(data)
+
+    def unlock_user(self, user_id, **kwargs):
+        """
+        Unlock a user (admin).
+        """
+        url = urljoin(self.index_url, u'/users/{0}/unlock'.format(user_id))
+        response, data = self.__make_request(url, u'PUT', self.headers, **kwargs)
+        return UserInfo.from_dict(data)
