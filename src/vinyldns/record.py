@@ -41,6 +41,28 @@ class RecordSetStatus:
     PendingDelete = "PendingDelete"
 
 
+class OwnershipTransferStatus:
+    AutoApproved = "AutoApproved"
+    Cancelled = "Cancelled"
+    ManuallyApproved = "ManuallyApproved"
+    ManuallyRejected = "ManuallyRejected"
+    Requested = "Requested"
+    PendingReview = "PendingReview"
+
+
+class OwnershipTransfer(object):
+    def __init__(self, ownership_transfer_status, requested_owner_group_id=None):
+        self.ownership_transfer_status = ownership_transfer_status
+        self.requested_owner_group_id = requested_owner_group_id
+
+    @staticmethod
+    def from_dict(d):
+        return OwnershipTransfer(
+            ownership_transfer_status=d.get('ownershipTransferStatus'),
+            requested_owner_group_id=d.get('requestedOwnerGroupId')
+        )
+
+
 class AData(object):
     def __init__(self, address):
         self.address = address
@@ -180,7 +202,8 @@ rdata_converters = {
 
 class RecordSet(object):
     def __init__(self, zone_id, name, type, ttl, status=None, created=None,
-                 updated=None, records=[], id=None, owner_group_id=None,fqdn=None):
+                 updated=None, records=[], id=None, owner_group_id=None, fqdn=None,
+                 record_set_group_change=None):
         self.zone_id = zone_id
         self.name = name
         self.type = type
@@ -191,7 +214,8 @@ class RecordSet(object):
         self.records = records
         self.id = id
         self.owner_group_id = owner_group_id
-        self.fqdn=fqdn
+        self.fqdn = fqdn
+        self.record_set_group_change = record_set_group_change
 
     @staticmethod
     def from_dict(d):
@@ -206,7 +230,8 @@ class RecordSet(object):
             records=[rdata_converters[d['type']](rd) for rd in d.get('records', [])],
             id=d.get('id'),
             owner_group_id=d.get('ownerGroupId'),
-            fqdn=d.get('fqdn')
+            fqdn=d.get('fqdn'),
+            record_set_group_change=map_option(d.get('recordSetGroupChange'), OwnershipTransfer.from_dict)
         )
 
 
@@ -273,3 +298,30 @@ class ListRecordSetChangesResponse(object):
         return ListRecordSetChangesResponse(zone_id=d['zoneId'], record_set_changes=changes,
                                             next_id=d.get('nextId'), start_from=d.get('startFrom'),
                                             max_items=d['maxItems'])
+
+
+class RecordSetCount(object):
+    def __init__(self, count):
+        self.count = count
+
+    @staticmethod
+    def from_dict(d):
+        return RecordSetCount(count=d.get('count'))
+
+
+class RecordSetChangeFailuresResponse(object):
+    def __init__(self, failed_record_set_changes, start_from=None, next_id=None, max_items=None):
+        self.failed_record_set_changes = failed_record_set_changes
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        changes = [RecordSetChange.from_dict(elem) for elem in d.get('failedRecordSetChanges', [])]
+        return RecordSetChangeFailuresResponse(
+            failed_record_set_changes=changes,
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems')
+        )
