@@ -23,6 +23,13 @@ from vinyldns.record import OwnershipTransferStatus
 from vinyldns.serdes import to_json_string
 
 
+def _request_json(request):
+    body = request.body
+    if isinstance(body, bytes):
+        body = body.decode('utf-8')
+    return json.loads(body)
+
+
 def test_get_record_set_count(mocked_responses, vinyldns_client):
     mocked_responses.add(
         responses.GET, 'http://test.com/zones/{0}/recordsetcount'.format(forward_zone.id),
@@ -76,7 +83,7 @@ def test_record_set_ownership_request(mocked_responses, vinyldns_client):
     rs.id = 'rs-id'
 
     def request_callback(request):
-        payload = json.loads(request.body.decode('utf-8'))
+        payload = _request_json(request)
         group_change = payload.get('recordSetGroupChange')
         assert group_change['ownershipTransferStatus'] == OwnershipTransferStatus.Requested
         assert group_change['requestedOwnerGroupId'] == 'target-group'
@@ -96,7 +103,7 @@ def test_record_set_ownership_approve(mocked_responses, vinyldns_client):
     rs.id = 'rs-id'
 
     def request_callback(request):
-        payload = json.loads(request.body.decode('utf-8'))
+        payload = _request_json(request)
         group_change = payload.get('recordSetGroupChange')
         assert group_change['ownershipTransferStatus'] == OwnershipTransferStatus.ManuallyApproved
         assert group_change['requestedOwnerGroupId'] == 'target-group'
@@ -117,7 +124,7 @@ def test_record_set_ownership_reject(mocked_responses, vinyldns_client):
     rs.id = 'rs-id'
 
     def request_callback(request):
-        payload = json.loads(request.body.decode('utf-8'))
+        payload = _request_json(request)
         group_change = payload.get('recordSetGroupChange')
         assert group_change['ownershipTransferStatus'] == OwnershipTransferStatus.ManuallyRejected
         assert group_change['requestedOwnerGroupId'] == 'target-group'
@@ -137,7 +144,7 @@ def test_record_set_ownership_cancel(mocked_responses, vinyldns_client):
     rs.id = 'rs-id'
 
     def request_callback(request):
-        payload = json.loads(request.body.decode('utf-8'))
+        payload = _request_json(request)
         group_change = payload.get('recordSetGroupChange')
         assert group_change['ownershipTransferStatus'] == OwnershipTransferStatus.Cancelled
         assert group_change['requestedOwnerGroupId'] == 'target-group'
