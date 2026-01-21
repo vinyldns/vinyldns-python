@@ -148,11 +148,11 @@ def test_get_record_set_change(record_set, mocked_responses, vinyldns_client):
 
 def test_list_record_set_changes(mocked_responses, vinyldns_client):
     changes = [gen_rs_change(c) for c in record_set_values]
-    lrscr = ListRecordSetChangesResponse(forward_zone.id, changes, 'next', 'start', 100)
+    lrscr = ListRecordSetChangesResponse(forward_zone.id, changes, 1, 3, 100)
     mocked_responses.add(responses.GET,
-                         'http://test.com/zones/{0}/recordsetchanges?startFrom=start&maxItems=100'.format(
+                         'http://test.com/zones/{0}/recordsetchanges?startFrom=1&maxItems=100'.format(
                              forward_zone.id), body=to_json_string(lrscr), status=200)
-    r = vinyldns_client.list_record_set_changes(forward_zone.id, 'start', 100)
+    r = vinyldns_client.list_record_set_changes(forward_zone.id, 1, 100)
     r.start_from = lrscr.start_from
     r.next_id = lrscr.next_id
     r.max_items = lrscr.max_items
