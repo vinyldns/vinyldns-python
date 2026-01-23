@@ -194,15 +194,7 @@ def read_ip_subnets(file_path: str) -> List[str]:
                     
                 # Check if line contains a subnet (IPv4 or IPv6)
                 if '/' in line:
-                    # IPv6 subnet (contains ::)
-                    if '::' in line or ':' in line:
-                        subnets.append(line)
-                    # IPv4 subnet (contains dots)
-                    elif '.' in line:
-                        subnets.append(line)
-                    # Generic subnet with CIDR notation
-                    else:
-                        subnets.append(line)
+                    subnets.append(line)
         
         logging.info(f"Read {len(subnets)} IP subnets from {file_path}")
         return subnets
@@ -237,7 +229,6 @@ def check_zone_exists(client: VinylDNSClient, zone_name: str) -> Dict[str, Any]:
                 "error": None
             }
         else:
-            logging.warning(f"Zone not found log: {zone_name}")
             return {
                 "exists": False,
                 "zone_id": None,
