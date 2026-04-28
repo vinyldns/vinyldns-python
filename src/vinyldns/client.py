@@ -32,11 +32,6 @@ from vinyldns.serdes import to_json_string
 from vinyldns.zone import ListZonesResponse, ListZoneChangesResponse, Zone, ZoneChange
 from vinyldns.record import ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSet, RecordSetChange
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
 logger = logging.getLogger(__name__)
 
 __all__ = [u'VinylDNSClient', u'MAX_RETRIES', u'RETRY_WAIT']
@@ -180,7 +175,7 @@ class VinylDNSClient(object):
 
     def __build_vinyldns_request(self, method, path, body_data, params=None, **kwargs):
 
-        if isinstance(body_data, basestring):
+        if isinstance(body_data, str):
             body_string = body_data
         else:
             body_string = json.dumps(body_data)

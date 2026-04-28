@@ -45,8 +45,9 @@ setup(
     description="Python client library for VinylDNS",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    python_requires=">=3.11",
     install_requires=[
-        "boto3>=1.26.0",
+        "botocore>=1.42.97",
         "requests>=2.20.0",
         "python-dateutil>=2.7.5",
     ],
