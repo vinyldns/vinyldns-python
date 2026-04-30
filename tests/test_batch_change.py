@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""TODO: Add module docstring."""
-from datetime import datetime, timedelta
+
+from datetime import datetime, timedelta, UTC
 from dateutil.tz import tzlocal
 
 import responses
@@ -44,8 +44,8 @@ def check_single_changes_are_same(a, b):
         assert a.ttl == b.ttl
         assert a.record_data == b.record_data
     if a.validation_errors:
-        for l, r in zip(a.validation_errors, b.validation_errors):
-            check_validation_errors_are_same(l, r)
+        for left_error, right_error in zip(a.validation_errors, b.validation_errors):
+            check_validation_errors_are_same(left_error, right_error)
 
 
 def check_batch_changes_are_same(a, b):
@@ -63,8 +63,8 @@ def check_batch_changes_are_same(a, b):
     assert a.review_comment == b.review_comment
     assert a.review_timestamp == b.review_timestamp
     assert a.scheduled_time == b.scheduled_time
-    for l, r in zip(a.changes, b.changes):
-        check_single_changes_are_same(l, r)
+    for left_change, right_change in zip(a.changes, b.changes):
+        check_single_changes_are_same(left_change, right_change)
 
 
 def test_create_batch_change(mocked_responses, vinyldns_client):
@@ -88,7 +88,7 @@ def test_create_batch_change(mocked_responses, vinyldns_client):
     except TypeError:
         tomorrow = datetime.now(tzlocal()).astimezone(tzlocal()) + timedelta(1)
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc, drc_with_data],
                      'bcid', 'Scheduled', 'PendingReview',
                      comments='batch change test', owner_group_id='owner-group-id',
                      scheduled_time=tomorrow)
@@ -122,7 +122,7 @@ def test_get_batch_change(mocked_responses, vinyldns_client):
                                           'biz.bar.com', RecordType.A, 'Complete',
                                           'id3', [], 'system-message', 'rchangeid3', 'rsid3', AData("5.6.7.8"))
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc, drc_with_data],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc, drc_with_data],
                      'bcid', 'Complete', 'AutoApproved',
                      comments='batch change test', owner_group_id='owner-group-id')
 
@@ -145,11 +145,11 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
                                 'baz.bar.com', RecordType.A, 'PendingReview',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc],
                      'bcid', 'Complete', 'ManuallyApproved',
                      comments='batch change test', owner_group_id='owner-group-id',
                      reviewer_id='admin-id', reviewer_user_name='admin',
-                     review_comment='looks good', review_timestamp=datetime.utcnow())
+                     review_comment='looks good', review_timestamp=datetime.now(UTC))
 
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/approve',
@@ -162,8 +162,8 @@ def test_approve_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_reject_batch_change(mocked_responses, vinyldns_client):
-    error_message = "Zone Discovery Failed: zone for \"foo.bar.com\" does not exist in VinylDNS. \
-    If zone exists, then it must be connected to in VinylDNS."
+    error_message = "Zone Discovery Failed: zone for \"foo.bar.com\" does not exist in VinylDNS. " \
+                    "If zone exists, then it must be connected to in VinylDNS."
 
     error = ValidationError('ZoneDiscoveryError', error_message)
 
@@ -175,11 +175,11 @@ def test_reject_batch_change(mocked_responses, vinyldns_client):
                                 'reject2.bar.com', RecordType.A, 'Complete',
                                 'id2', [], 'system-message', 'rchangeid2', 'rsid2')
 
-    bc = BatchChange('user-id', 'user-name', datetime.utcnow(), [arc, drc],
+    bc = BatchChange('user-id', 'user-name', datetime.now(UTC), [arc, drc],
                      'bcid', 'Rejected', 'Rejected',
                      comments='batch change test', owner_group_id='owner-group-id',
                      reviewer_id='admin-id', reviewer_user_name='admin',
-                     review_comment='not good', review_timestamp=datetime.utcnow())
+                     review_comment='not good', review_timestamp=datetime.now(UTC))
 
     mocked_responses.add(
         responses.POST, 'http://test.com/zones/batchrecordchanges/bcid/reject',
@@ -212,7 +212,7 @@ def test_cancel_batch_change(mocked_responses, vinyldns_client):
     )
 
     bc = BatchChange(
-        'user-id', 'user-name', datetime.utcnow(), [arc, drc], 'bcid',
+        'user-id', 'user-name', datetime.now(UTC), [arc, drc], 'bcid',
         'Cancelled', 'Cancelled', owner_group_id='owner-group-id'
     )
 
@@ -227,10 +227,10 @@ def test_cancel_batch_change(mocked_responses, vinyldns_client):
 
 
 def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
-    bcs1 = BatchChangeSummary('user-id', 'user-name', datetime.utcnow(), 10, 'id1',
+    bcs1 = BatchChangeSummary('user-id', 'user-name', datetime.now(UTC), 10, 'id1',
                               'Complete', 'AutoApproved', comments='comments',
                               owner_group_id='owner-group-id')
-    bcs2 = BatchChangeSummary('user-id2', 'user-name2', datetime.utcnow(), 20,
+    bcs2 = BatchChangeSummary('user-id2', 'user-name2', datetime.now(UTC), 20,
                               'id2', 'Complete', 'AutoApproved', comments='comments2')
     lbcs = ListBatchChangeSummaries([bcs1, bcs2], 'start', 'next', 50)
     mocked_responses.add(
@@ -243,12 +243,12 @@ def test_list_batch_change_summaries(mocked_responses, vinyldns_client):
     assert r.max_items == lbcs.max_items
     assert r.ignore_access == lbcs.ignore_access
     assert r.approval_status == lbcs.approval_status
-    for l, r in zip(r.batch_changes, lbcs.batch_changes):
-        assert l.user_id == r.user_id
-        assert l.user_name == r.user_name
-        assert l.comments == r.comments
-        assert l.created_timestamp == r.created_timestamp
-        assert l.total_changes == r.total_changes
-        assert l.status == r.status
-        assert l.id == r.id
-        assert l.owner_group_id == r.owner_group_id
+    for left_bc, right_bc in zip(r.batch_changes, lbcs.batch_changes):
+        assert left_bc.user_id == right_bc.user_id
+        assert left_bc.user_name == right_bc.user_name
+        assert left_bc.comments == right_bc.comments
+        assert left_bc.created_timestamp == right_bc.created_timestamp
+        assert left_bc.total_changes == right_bc.total_changes
+        assert left_bc.status == right_bc.status
+        assert left_bc.id == right_bc.id
+        assert left_bc.owner_group_id == right_bc.owner_group_id
