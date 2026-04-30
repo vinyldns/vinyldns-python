@@ -24,7 +24,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="vinyldns-python",
-    version="0.9.8",
+    version="0.9.9",
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
