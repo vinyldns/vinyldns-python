@@ -1,0 +1,11 @@
+
+repos:
+    - repo: local
+      hooks:
+          - id: apache-license-header-check
+            name: apache license header check
+            entry: python3 scripts/apache_header_check.py
+            language: system
+            types: [python]
+            pass_filenames: true
+
