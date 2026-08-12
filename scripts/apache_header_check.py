@@ -14,9 +14,18 @@
 import sys
 import tokenize
 
-license_to_check =  "http://www.apache.org/licenses/LICENSE-2.0"
+license_to_check ='''Licensed under the Apache License, Version 2.0 (the "License");'''
+'''you may not use this file except in compliance with the License.'''
+'''You may obtain a copy of the License at'''
+'''http://www.apache.org/licenses/LICENSE-2.0'''
+'''Unless required by applicable law or agreed to in writing, software'''
+'''distributed under the License is distributed on an "AS IS" BASIS,'''
+'''WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.'''
+'''See the License for the specific language governing permissions and'''
+'''limitations under the License.'''
 
 missing_license = False
+
 
 #checks if the license_to_check is in a comment in the files
 def is_string_in_comment(file_path, target_string):
@@ -28,7 +37,7 @@ def is_string_in_comment(file_path, target_string):
                 # Check if apache link string is inside that comment
                 if target_string in token.string:
                     return True
-    return False
+        return False
 
 #Iterate through the .py files passed by the .pre-commit-config.yaml file
 for filepath in sys.argv[1:]:
