@@ -37,7 +37,7 @@ def license_crosscheck(file_path, license_to_check, copyright_pattern):
 
         #if the boiler text exists, the first 10 comment tokens will always be the license tokens
 
-        if license_tokens[1:10] == license_to_check and copyright_pattern.fullmatch(license_tokens[0]):
+        if len(license_tokens) >= 10 and license_tokens[1:10] == license_to_check and copyright_pattern.fullmatch(license_tokens[0]):
             return True
         else:
             return False
