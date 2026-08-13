@@ -11,34 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import re
 import sys
 import tokenize
 
-license_to_check_18 = ['Copyright 2018 Comcast Cable Communications Management, LLC',
-                       'Licensed under the Apache License, Version 2.0 (the "License");',
-                       'you may not use this file except in compliance with the License.',
-                       'You may obtain a copy of the License at', '    http://www.apache.org/licenses/LICENSE-2.0',
-                       'Unless required by applicable law or agreed to in writing, software',
-                       'distributed under the License is distributed on an "AS IS" BASIS,',
-                       'WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
-                       'See the License for the specific language governing permissions and',
-                       'limitations under the License.']
-license_to_check_26 = ['Copyright 2026 Comcast Cable Communications Management, LLC',
-                       'Licensed under the Apache License, Version 2.0 (the "License");',
-                       'you may not use this file except in compliance with the License.',
-                       'You may obtain a copy of the License at', '    http://www.apache.org/licenses/LICENSE-2.0',
-                       'Unless required by applicable law or agreed to in writing, software',
-                       'distributed under the License is distributed on an "AS IS" BASIS,',
-                       'WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
-                       'See the License for the specific language governing permissions and',
-                       'limitations under the License.']
-
+copyright_pattern = re.compile(r"Copyright \d{4} Comcast Cable Communications Management, LLC")
+license_to_check = ['Licensed under the Apache License, Version 2.0 (the "License");','you may not use this file except in compliance with the License.','You may obtain a copy of the License at', '    http://www.apache.org/licenses/LICENSE-2.0','Unless required by applicable law or agreed to in writing, software','distributed under the License is distributed on an "AS IS" BASIS,','WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.','See the License for the specific language governing permissions and','limitations under the License.']
 missing_license = False
 
 
 #checks if the license_to_check is in a comment in the files
-def license_crosscheck(file_path, license_to_check_18, license_to_check_26):
+def license_crosscheck(file_path, license_to_check, copyright_pattern):
     with tokenize.open(file_path) as file:
         # this list will have all the comments tokens in the file
         license_tokens = []
@@ -54,7 +37,7 @@ def license_crosscheck(file_path, license_to_check_18, license_to_check_26):
 
         #if the boiler text exists, the first 10 comment tokens will always be the license tokens
 
-        if license_tokens[:10] == license_to_check_18 or license_tokens[:10] == license_to_check_26:
+        if license_tokens[1:10] == license_to_check and copyright_pattern.fullmatch(license_tokens[0]):
             return True
         else:
             return False
@@ -65,7 +48,7 @@ for filepath in sys.argv[1:]:
     with open(filepath, "r", encoding="utf-8") as f:
 
         #check if the first 10 comment tokens in the file match the licenses list for either 2018 or 2026 copyright boiler text
-        if not license_crosscheck(filepath, license_to_check_18, license_to_check_26):
+        if not license_crosscheck(filepath, license_to_check, copyright_pattern):
             print(f"Error: Missing Apache License header in {filepath}")
             missing_license = True
 
