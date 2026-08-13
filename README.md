@@ -31,12 +31,15 @@ To run, `pip install vinyldns-python` and then:
 * `python3`
 * `pip`
 * `virtualenv`
+* `pre-commit`
 
 To get started, you will want to setup your virtual environment.
 
 1. Ensure that you have `virtualenv` installed `> pip install virtualenv`
 1. Run `./bootstrap.sh` to setup your environment (unless you really want all these dependencies to be installed locally, which we do not recommend).
-1. Activate your virtual environment `> source .virtualenv/bin/activate` and you will be ready to go!
+1. Activate your virtual environment `> source .virtualenv/bin/activate`
+2. Install pre-commit so you can enable any pre-commit hooks > `pip install pre-commit`
+3. Enable the pre-commit hooks `> pre-commit install`. If installed correctly, you should see the following output: pre-commit installed at .git/hooks/pre-commit
 
 **Unit Tests**
 
@@ -62,6 +65,8 @@ If you see any failures / warnings, correct them until `tox` runs successfully.
 
 If you do not have `tox` in your environment, `pip install tox` to add it.  For more information you can
 read the [tox docs](https://tox.readthedocs.io/en/latest/index.html).
+
+You will also want to run the apache pre-commit hook check to make sure no files are missing the license before pushing code. To do this run `pre-commit run apache-license-header-check --all-files`
 
 ## Local Development
 See the [quickstart](https://github.com/vinyldns/vinyldns/blob/master/README.md#quickstart) in the
