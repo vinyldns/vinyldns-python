@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from vinyldns.record import RecordSet, RecordSetChange, AData, AAAAData, CNAMEData, PTRData, MXData, NSData, SOAData, \
     SRVData, SPFData, SSHFPData, TXTData, RecordType
@@ -30,7 +30,7 @@ ip6_zone = Zone(id='ip6', name='1.9.e.f.c.c.7.2.9.6.d.f.ip6.arpa', email='test@t
                 connection=conn, transfer_connection=conn, acl=ZoneACL([acl_rule]))
 
 sample_zone_change = ZoneChange(zone=forward_zone, user_id='some-user', change_type='Create', status='Pending',
-                                created=datetime.utcnow(), system_message=None, id='zone-change-id')
+                                created=datetime.now(UTC), system_message=None, id='zone-change-id')
 
 record_sets = {
     RecordType.A: RecordSet(forward_zone.id, 'a-test', RecordType.A, 200, records=[AData('1.2.3.4')],
@@ -61,14 +61,14 @@ record_sets = {
 
 record_set_values = record_sets.values()
 
-sample_user = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.utcnow())
-sample_group = Group('ok', 'test@test.com', 'description', datetime.utcnow(), members=[sample_user],
+sample_user = User('id', 'test200', 'Bobby', 'Bonilla', 'bob@bob.com', datetime.now(UTC))
+sample_group = Group('ok', 'test@test.com', 'description', datetime.now(UTC), members=[sample_user],
                      admins=[sample_user], id='sample-group')
-sample_group2 = Group('ok2', 'test@test.com', 'description', datetime.utcnow(), members=[sample_user],
+sample_group2 = Group('ok2', 'test@test.com', 'description', datetime.now(UTC), members=[sample_user],
                       admins=[sample_user], id='sample-group2')
 
 
 def gen_rs_change(record_set):
     return RecordSetChange(zone=forward_zone, record_set=record_set, user_id='test-user',
-                           change_type='Create', status='Pending', created=datetime.utcnow(), system_message=None,
+                           change_type='Create', status='Pending', created=datetime.now(UTC), system_message=None,
                            updates=record_set, id='some-id', user_name='some-username')
