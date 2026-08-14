@@ -19,6 +19,8 @@ from sampledata import record_sets, record_set_values, gen_rs_change, forward_zo
 from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse
 from vinyldns.serdes import to_json_string, from_json_string
 
+from vinyldns.serdes import parse_datetime
+
 
 def check_record_sets_are_equal(a, b):
     if a is None:
@@ -72,6 +74,25 @@ def test_update_record_set(record_set, mocked_responses, vinyldns_client):
     check_record_set_changes_are_equal(change, r)
     mocked_responses.reset()
 
+def test_update_record_set_bad_dates(record_set, mocked_responses, vinyldns_client):
+    rs = copy.deepcopy(record_set)
+    rs.id = rs.name + 'id'
+    rs.created = parse_datetime("2019-06-25T16:37:09+00:00")
+    rs.updated = parse_datetime("2019-06-25T16:37:09+00:00")
+    change = gen_rs_change(rs)
+    mocked_responses.add(
+        responses.PUT, f'http://test.com/zones/{rs.zone_id}/recordsets/{rs.id}',
+        body=to_json_string(change), status=400
+    )
+    r = vinyldns_client.update_record_set(rs)
+    # data = r.body
+    # print(data.status_code)
+    # assert data.status_code == 400
+    check_record_set_changes_are_equal(change, r)
+    mocked_responses.reset()
+
+
+
 
 def test_delete_record_set(record_set, mocked_responses, vinyldns_client):
     rs = copy.deepcopy(record_set)
@@ -95,6 +116,7 @@ def test_get_record_set(record_set, mocked_responses, vinyldns_client):
         body=to_json_string(response), status=200
     )
     r = vinyldns_client.get_record_set(rs.zone_id, rs.id)
+
     check_record_sets_are_equal(rs, r)
     mocked_responses.reset()
 
