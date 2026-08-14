@@ -53,6 +53,6 @@ setup(
     ],
     tests_require=[
         "responses==0.25.8",
-        "pytest==9.0.2",
+        "pytest==9.0.3",
     ]
 )
