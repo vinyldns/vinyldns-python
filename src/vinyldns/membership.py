@@ -46,6 +46,40 @@ class User(object):
         )
 
 
+class UserGroup(object):
+    def __init__(self, id):
+        self.id = id
+
+    @staticmethod
+    def from_dict(d):
+        return UserGroup(id=d.get('id'))
+
+
+class UserInfo(object):
+    def __init__(self, id, user_name=None, group_ids=None, lock_status=None):
+        self.id = id
+        self.user_name = user_name
+        self.group_ids = group_ids or []
+        self.lock_status = lock_status
+
+    @staticmethod
+    def from_dict(d):
+        group_ids = d.get('groupId', [])
+        parsed_groups = []
+        for entry in group_ids:
+            if isinstance(entry, dict):
+                parsed_groups.append(UserGroup.from_dict(entry))
+            else:
+                parsed_groups.append(UserGroup(entry))
+
+        return UserInfo(
+            id=d.get('id'),
+            user_name=d.get('userName'),
+            group_ids=parsed_groups,
+            lock_status=d.get('lockStatus')
+        )
+
+
 class Group(object):
     def __init__(self, name, email, description=None, created=None, members=[], admins=[], id=None):
         self.name = name
@@ -90,13 +124,16 @@ class ListGroupsResponse(object):
 
 
 class GroupChange(object):
-    def __init__(self, new_group, change_type, user_id, old_group, id, created):
+    def __init__(self, new_group, change_type, user_id, old_group, id, created,
+                 user_name=None, group_change_message=None):
         self.new_group = new_group
         self.change_type = change_type
         self.user_id = user_id
         self.old_group = old_group
         self.id = id
         self.created = created
+        self.user_name = user_name
+        self.group_change_message = group_change_message
 
     @staticmethod
     def from_dict(d):
@@ -106,7 +143,9 @@ class GroupChange(object):
             user_id=d['userId'],
             old_group=map_option(d.get('oldGroup'), Group.from_dict),
             id=d['id'],
-            created=map_option(d.get('created'), parse_datetime)
+            created=map_option(d.get('created'), parse_datetime),
+            user_name=d.get('userName'),
+            group_change_message=d.get('groupChangeMessage')
         )
 
 

@@ -105,6 +105,25 @@ class Zone(object):
         )
 
 
+class ZoneDetails(object):
+    def __init__(self, name, email, status, admin_group_id, admin_group_name):
+        self.name = name
+        self.email = email
+        self.status = status
+        self.admin_group_id = admin_group_id
+        self.admin_group_name = admin_group_name
+
+    @staticmethod
+    def from_dict(d):
+        return ZoneDetails(
+            name=d.get('name'),
+            email=d.get('email'),
+            status=d.get('status'),
+            admin_group_id=d.get('adminGroupId'),
+            admin_group_name=d.get('adminGroupName')
+        )
+
+
 class ListZonesResponse(object):
     def __init__(self, zones, name_filter, start_from=None, next_id=None, max_items=100):
         self.zones = zones
@@ -151,3 +170,58 @@ class ListZoneChangesResponse(object):
         zone_changes = [ZoneChange.from_dict(elem) for elem in d.get('zoneChanges', [])]
         return ListZoneChangesResponse(zone_id=d['zoneId'], zone_changes=zone_changes, next_id=d.get('nextId'),
                                        start_from=d.get('startFrom'), max_items=d.get('maxItems', 100))
+
+
+class ZoneChangeFailuresResponse(object):
+    def __init__(self, failed_zone_changes, start_from=None, next_id=None, max_items=None):
+        self.failed_zone_changes = failed_zone_changes
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+
+    @staticmethod
+    def from_dict(d):
+        changes = [ZoneChange.from_dict(elem) for elem in d.get('failedZoneChanges', [])]
+        return ZoneChangeFailuresResponse(
+            failed_zone_changes=changes,
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems')
+        )
+
+
+class DeletedZoneInfo(object):
+    def __init__(self, zone_change, admin_group_name=None, user_name=None, access_level=None):
+        self.zone_change = zone_change
+        self.admin_group_name = admin_group_name
+        self.user_name = user_name
+        self.access_level = access_level
+
+    @staticmethod
+    def from_dict(d):
+        return DeletedZoneInfo(
+            zone_change=ZoneChange.from_dict(d.get('zoneChange')),
+            admin_group_name=d.get('adminGroupName'),
+            user_name=d.get('userName'),
+            access_level=d.get('accessLevel')
+        )
+
+
+class DeletedZonesResponse(object):
+    def __init__(self, zones_deleted_info, start_from=None, next_id=None, max_items=None, ignore_access=None):
+        self.zones_deleted_info = zones_deleted_info
+        self.start_from = start_from
+        self.next_id = next_id
+        self.max_items = max_items
+        self.ignore_access = ignore_access
+
+    @staticmethod
+    def from_dict(d):
+        zones = [DeletedZoneInfo.from_dict(elem) for elem in d.get('zonesDeletedInfo', [])]
+        return DeletedZonesResponse(
+            zones_deleted_info=zones,
+            start_from=d.get('startFrom'),
+            next_id=d.get('nextId'),
+            max_items=d.get('maxItems'),
+            ignore_access=d.get('ignoreAccess')
+        )
