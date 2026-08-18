@@ -20,7 +20,6 @@ from sampledata import record_sets, record_set_values, gen_rs_change, forward_zo
 from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse
 from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.serdes import parse_datetime
-
 from vinyldns.record import RecordSetStatus
 
 
