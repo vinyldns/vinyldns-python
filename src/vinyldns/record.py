@@ -227,7 +227,6 @@ class RecordSet(object):
             status=d.get('status'),
             created=map_option(d.get('created'), parse_datetime),
             updated=d.get('updated'),
-            # updated=map_option(d.get('updated'), parse_datetime),
             records=[rdata_converters[d['type']](rd) for rd in d.get('records', [])],
             id=d.get('id'),
             owner_group_id=d.get('ownerGroupId'),

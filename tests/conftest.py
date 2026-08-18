@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """TODO: Add module docstring."""
+import copy
 
 import pytest
 import responses
-from sampledata import record_set_values
+from sampledata import record_set_values, record_sets
 from vinyldns.client import VinylDNSClient
+
+from vinyldns.record import RecordType
 
 
 def get_rs_type(rs):
@@ -37,3 +40,7 @@ def mocked_responses():
 @pytest.fixture(scope="module")
 def vinyldns_client():
     return VinylDNSClient('http://test.com', 'ok', 'ok')
+
+@pytest.fixture
+def txt_record_set():
+    return copy.deepcopy(record_sets[RecordType.TXT])
