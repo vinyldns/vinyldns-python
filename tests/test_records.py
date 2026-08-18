@@ -21,6 +21,8 @@ from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, 
 from vinyldns.serdes import to_json_string, from_json_string
 from vinyldns.serdes import parse_datetime
 
+from vinyldns.record import RecordSetStatus
+
 
 def check_record_sets_are_equal(a, b):
     if a is None:
