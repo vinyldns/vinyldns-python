@@ -603,7 +603,6 @@ class VinylDNSClient(object):
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(record_set.zone_id, record_set.id))
 
-        #update payload object to remove unnecessary fields such as status, created, updated, fqdn
         payload = self._record_set_update_payload(record_set)
         response, data = self.__make_request(url, u'PUT', self.headers,
                                              to_json_string(payload), **kwargs)

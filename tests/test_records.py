@@ -74,6 +74,7 @@ def test_update_record_set(record_set, mocked_responses, vinyldns_client):
     check_record_set_changes_are_equal(change, r)
     mocked_responses.reset()
 
+
 def test_update_record_set_bad_dates(txt_record_set, mocked_responses, vinyldns_client):
     rs = copy.deepcopy(txt_record_set)
     rs.id = rs.name + 'id'
