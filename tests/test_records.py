@@ -14,13 +14,10 @@
 
 import copy
 import json
-
 import responses
 from sampledata import record_sets, record_set_values, gen_rs_change, forward_zone
-from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse
-from vinyldns.serdes import to_json_string, from_json_string
-from vinyldns.serdes import parse_datetime
-from vinyldns.record import RecordSetStatus
+from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSetStatus
+from vinyldns.serdes import to_json_string, from_json_string, parse_datetime
 
 
 def check_record_sets_are_equal(a, b):
