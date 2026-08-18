@@ -16,7 +16,8 @@ import copy
 import json
 import responses
 from sampledata import record_sets, record_set_values, gen_rs_change, forward_zone
-from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse, RecordSetStatus
+from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
+from vinyldns.record import ListRecordSetChangesResponse, RecordSetStatus
 from vinyldns.serdes import to_json_string, from_json_string, parse_datetime
 
 
