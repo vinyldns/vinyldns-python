@@ -80,8 +80,8 @@ def test_update_record_set_bad_dates(txt_record_set, mocked_responses, vinyldns_
     rs.id = rs.name + 'id'
     rs.created = parse_datetime("2019-06-25T16:37:09+00:00")
     rs.updated = parse_datetime("2019-06-25T16:37:09+00:00")
-    rs.status = "Active"
-    rs.fqdn = "testfqdn"
+    rs.status = RecordSetStatus.Active
+    rs.fqdn = f'{rs.name}.bar.'
 
     change = gen_rs_change(rs)
 
@@ -109,10 +109,6 @@ def test_update_record_set_bad_dates(txt_record_set, mocked_responses, vinyldns_
 
     check_record_set_changes_are_equal(change, r)
     mocked_responses.reset()
-    # # assert not hasattr(r, "created")
-    # assert not hasattr(r, "updated")
-    # # assert not hasattr(r, "status")
-    # assert not hasattr(r, "fqdn")
 
 
 def test_delete_record_set(record_set, mocked_responses, vinyldns_client):
