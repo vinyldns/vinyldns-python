@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import copy
-
+import json
 import responses
 from sampledata import record_sets, record_set_values, gen_rs_change, forward_zone
-from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse, ListRecordSetChangesResponse
-from vinyldns.serdes import to_json_string, from_json_string
+from vinyldns.record import RecordSet, RecordSetChange, ListRecordSetsResponse
+from vinyldns.record import ListRecordSetChangesResponse, RecordSetStatus
+from vinyldns.serdes import to_json_string, from_json_string, parse_datetime
 
 
 def check_record_sets_are_equal(a, b):
@@ -73,6 +74,42 @@ def test_update_record_set(record_set, mocked_responses, vinyldns_client):
     mocked_responses.reset()
 
 
+def test_update_record_set_bad_dates(txt_record_set, mocked_responses, vinyldns_client):
+    rs = copy.deepcopy(txt_record_set)
+    rs.id = rs.name + 'id'
+    rs.created = parse_datetime("2019-06-25T16:37:09+00:00")
+    rs.updated = parse_datetime("2019-06-25T16:37:09+00:00")
+    rs.status = RecordSetStatus.Active
+    rs.fqdn = f'{rs.name}.bar.'
+
+    change = gen_rs_change(rs)
+
+    mocked_responses.add(
+        responses.PUT, f'http://test.com/zones/{rs.zone_id}/recordsets/{rs.id}',
+        body=to_json_string(change), status=200
+    )
+    r = vinyldns_client.update_record_set(rs)
+
+    payload = json.loads(
+        mocked_responses.calls[-1].request.body
+    )
+
+    assert payload['zoneId'] == rs.zone_id
+    assert payload['id'] == rs.id
+    assert payload['name'] == rs.name
+    assert payload['type'] == rs.type
+    assert payload['ttl'] == rs.ttl
+    assert payload['records']
+
+    assert 'created' not in payload
+    assert 'updated' not in payload
+    assert 'status' not in payload
+    assert 'fqdn' not in payload
+
+    check_record_set_changes_are_equal(change, r)
+    mocked_responses.reset()
+
+
 def test_delete_record_set(record_set, mocked_responses, vinyldns_client):
     rs = copy.deepcopy(record_set)
     rs.id = rs.name + 'id'
@@ -95,6 +132,7 @@ def test_get_record_set(record_set, mocked_responses, vinyldns_client):
         body=to_json_string(response), status=200
     )
     r = vinyldns_client.get_record_set(rs.zone_id, rs.id)
+
     check_record_sets_are_equal(rs, r)
     mocked_responses.reset()
 
