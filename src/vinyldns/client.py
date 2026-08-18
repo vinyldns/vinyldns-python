@@ -596,17 +596,37 @@ class VinylDNSClient(object):
 
     def update_record_set(self, record_set, **kwargs):
         """
-        Delete an existing record_set.
+        Update an existing record_set.
 
         :param record_set: the record_set to be updated
         :return: the content of the response
         """
         url = urljoin(self.index_url, u'/zones/{0}/recordsets/{1}'.format(record_set.zone_id, record_set.id))
 
+        payload = self._record_set_update_payload(record_set)
         response, data = self.__make_request(url, u'PUT', self.headers,
-                                             to_json_string(record_set), **kwargs)
+                                             to_json_string(payload), **kwargs)
 
         return RecordSetChange.from_dict(data)
+
+    @staticmethod
+    def _record_set_update_payload(record_set):
+        payload = {
+            "zoneId": record_set.zone_id,
+            "id": record_set.id,
+            "name": record_set.name,
+            "type": record_set.type,
+            "ttl": record_set.ttl,
+            "records": record_set.records,
+        }
+
+        if record_set.owner_group_id is not None:
+            payload["ownerGroupId"] = record_set.owner_group_id
+
+        if record_set.record_set_group_change is not None:
+            payload["recordSetGroupChange"] = record_set.record_set_group_change
+
+        return payload
 
     def get_record_set(self, zone_id, rs_id, **kwargs):
         """
