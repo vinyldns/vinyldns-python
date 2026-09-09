@@ -75,6 +75,9 @@ if [[ "$RELEASE_TEST_FAIL" == "twine-check" ]]; then
     if [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]] && [[ "$3" == "check" ]]; then
         echo "ERROR: twine check error" >&2
         exit 1
+    elif [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]] && [[ "$3" == "upload" ]]; then
+        echo "ERROR: twine upload should not happen after failed twine check" >&2
+        exit 1
     fi
 elif [[ "$RELEASE_TEST_FAIL" == "twine-upload" ]]; then
     if [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]] && [[ "$3" == "check" ]]; then
@@ -90,9 +93,15 @@ elif [[ "$RELEASE_TEST_FAIL" == "build" ]]; then
         exit 1
     fi
 else
-    if [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]]; then
+    if [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]] && [[ "$3" == "check" ]]; then
         echo "SUCCESS: Twine check passed" >&2
         exit 0
+    elif [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]] && [[ "$3" == "upload" ]]; then
+        echo "SUCCESS: Twine upload passed" >&2
+        exit 0
+    elif [[ "$1" == "-m" ]] && [[ "$2" == "twine" ]]; then
+        echo "ERROR: Unknown twine subcommand: $3" >&2
+        exit 1
     fi
 fi
 
@@ -103,7 +112,7 @@ exit 1
     fake_python.chmod(0o755)
 
 
-def create_fake_git(bin_dir: Path, log_file: Path, test_dir: Path, release_test_fail) -> None:
+def create_fake_git(bin_dir: Path, log_file: Path, release_test_fail) -> None:
     """Create a fake git executable that handles status, remote, and push commands."""
 
     fake_git = bin_dir / "git"
@@ -215,7 +224,8 @@ elif [[ "$RELEASE_TEST_FAIL" == "gpg-sign" ]]; then
     fi
 else
     if [[ "$2" == "-u" ]] && [[ "$4" == "--detach-sign" ]]; then
-            # Success - sign the file
+            # Simulate detached signature output produced by gpg.
+            touch "$5.asc"
             echo "SUCCESS: gpg --detach-sign" >&2
             exit 0
     fi
@@ -227,7 +237,7 @@ exit 1
     fake_gpg.chmod(0o755)
 
 
-def create_fake_bumpversion(bin_dir: Path, log_file: Path, test_dir: Path) -> None:
+def create_fake_bumpversion(bin_dir: Path, log_file: Path) -> None:
     """Create a fake bumpversion executable that simulates version bumping."""
 
     fake_bumpversion = bin_dir / "bumpversion"
@@ -245,8 +255,8 @@ exit 0
     fake_bumpversion.chmod(0o755)
 
 
-def run_release(tmp_path, fail_at):
-    """Test that when python3 -m build fails, the script does not sign, upload, or push."""
+def run_release(tmp_path, fail_at, production=False, remote_name="test-remote"):
+    """Run release.sh with fake executables and configurable mode flags."""
 
     # Setup test directory structure
     test_dir = tmp_path / "test_release_script"
@@ -262,9 +272,9 @@ def run_release(tmp_path, fail_at):
 
     # Create fake executables
     create_fake_python3(bin_dir, log_file, fail_at)
-    create_fake_git(bin_dir, log_file, test_dir, fail_at)
+    create_fake_git(bin_dir, log_file, fail_at)
     create_fake_gpg(bin_dir, log_file, fail_at)
-    create_fake_bumpversion(bin_dir, log_file, test_dir)
+    create_fake_bumpversion(bin_dir, log_file)
 
     # Copy release.sh to test directory
     project_root = Path(__file__).parent.parent
@@ -289,10 +299,14 @@ def run_release(tmp_path, fail_at):
     env["PATH"] = f"{bin_dir}:{env['PATH']}"
     env["RELEASE_TEST_LOG"] = str(log_file)
 
-    # Run release.sh in test mode (TestPyPI, no --production flag)
-    # This avoids git push requirement during preflight
+    command = ["bash", str(test_release_script), "--key-id", "test-key-123"]
+    if production:
+        command.extend(["--production", "--remote", remote_name])
+
+
+    # Run release.sh with explicit mode flags.
     result = subprocess.run(
-        ["bash", str(test_release_script), "--key-id", "test-key-123"],
+        command,
         cwd=test_dir,
         env=env,
         capture_output=True,
@@ -373,14 +387,20 @@ def test_failed_twine_check_stops_release(tmp_path):
     assert len(gpg_sign_commands) == 0, \
         f"Expected no GPG signing, but found:\n{chr(10).join(gpg_sign_commands)}"
 
-    # 4. No git push invocation
+    # 4. No twine upload invocation
+    twine_commands = [line for line in command_log.split('\n')
+                      if 'python3 -m twine upload' in line]
+    assert len(twine_commands) == 0, \
+        f"Expected no twine upload, but found:\n{chr(10).join(twine_commands)}"
+
+    # 5. No git push invocation
     # Note: git status and other preflight calls are expected
     git_push_commands = [line for line in command_log.split('\n')
                          if 'git push' in line]
     assert len(git_push_commands) == 0, \
         f"Expected no 'git push', but found:\n{chr(10).join(git_push_commands)}"
 
-    # 5. Script does not print successful-completion message
+    # 6. Script does not print successful-completion message
     assert "Release completed successfully" not in result.stdout, \
         f"Expected no success message, but stdout contains:\n{result.stdout}"
     assert "Release completed successfully" not in result.stderr, \
@@ -403,14 +423,20 @@ def test_failed_gpg_sign_stops_release(tmp_path):
             if 'gpg' in line and '--detach-sign' in line], \
         f"Expected 'gpg and --detach-sign' in log, but found:\n{command_log}"
 
-    # 3. No git push invocation
+    # 3. No twine upload invocation
+    twine_commands = [line for line in command_log.split('\n')
+                      if 'python3 -m twine upload' in line]
+    assert len(twine_commands) == 0, \
+        f"Expected no twine upload, but found:\n{chr(10).join(twine_commands)}"
+
+    # 4. No git push invocation
     # Note: git status and other preflight calls are expected
     git_push_commands = [line for line in command_log.split('\n')
                          if 'git push' in line]
     assert len(git_push_commands) == 0, \
         f"Expected no 'git push', but found:\n{chr(10).join(git_push_commands)}"
 
-    # 4. Script does not print successful-completion message
+    # 5. Script does not print successful-completion message
     assert "Release completed successfully" not in result.stdout, \
         f"Expected no success message, but stdout contains:\n{result.stdout}"
     assert "Release completed successfully" not in result.stderr, \
@@ -418,9 +444,9 @@ def test_failed_gpg_sign_stops_release(tmp_path):
 
 
 def test_failed_twine_upload_stops_release(tmp_path):
-    """Test that a failed twine upload stops the release and does not push to git."""
+    """Test that a failed twine upload in production mode prevents git push."""
     fail_at = 'twine-upload'
-    result, command_log = run_release(tmp_path, fail_at)
+    result, command_log = run_release(tmp_path, fail_at, production=True, remote_name="test-remote")
 
     # Assertions:
 
@@ -432,17 +458,46 @@ def test_failed_twine_upload_stops_release(tmp_path):
     assert "python3 -m twine upload" in command_log, \
         f"Expected 'python3 -m twine upload' in log, but found:\n{command_log}"
 
-    # 3. No git push invocation
+    # 3. Production mode should have validated the configured remote.
+    assert "git remote get-url test-remote" in command_log, \
+        f"Expected production remote validation in log, but found:\n{command_log}"
+
+    # 4. No git push invocation
     git_push_commands = [line for line in command_log.split('\n')
                          if 'git push' in line]
     assert len(git_push_commands) == 0, \
         f"Expected no 'git push', but found:\n{chr(10).join(git_push_commands)}"
 
-    # 4. Script does not print successful-completion message
+    # 5. Script does not print successful-completion message
     assert "Release completed successfully" not in result.stdout, \
         f"Expected no success message, but stdout contains:\n{result.stdout}"
     assert "Release completed successfully" not in result.stderr, \
         f"Expected no success message, but stderr contains:\n{result.stderr}"
+
+
+def test_production_release_pushes_with_atomic_git_push(tmp_path):
+    """Test that a successful production release uses atomic git push."""
+    fail_at = 'none'
+    result, command_log = run_release(tmp_path, fail_at, production=True, remote_name="test-remote")
+
+    # 1. Script should succeed.
+    assert result.returncode == 0, \
+        f"Expected zero exit code, got {result.returncode}\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+
+    # 2. Production mode remote validation should run.
+    assert "git remote get-url test-remote" in command_log, \
+        f"Expected production remote validation in log, but found:\n{command_log}"
+
+    # 3. Atomic git push should be attempted to the configured remote.
+    assert "git push --atomic test-remote" in command_log, \
+        f"Expected atomic git push in log, but found:\n{command_log}"
+
+    # 4. Upload should include signature files generated by gpg.
+    upload_commands = [line for line in command_log.split('\n')
+                       if 'python3 -m twine upload' in line]
+    assert upload_commands, f"Expected twine upload command, but found:\n{command_log}"
+    assert any('.asc' in line for line in upload_commands), \
+        f"Expected twine upload to include signature artifacts, but found:\n{chr(10).join(upload_commands)}"
 
 
 def test_missing_dependencies_stops_release(tmp_path):
