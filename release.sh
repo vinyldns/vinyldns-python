@@ -57,6 +57,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         -p | --production )
             RELEASE_URL=""
+            shift
             ;;
         -k | --key-id )
             if [ $# -lt 2 ]; then

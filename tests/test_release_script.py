@@ -303,14 +303,14 @@ def run_release(tmp_path, fail_at, production=False, remote_name="test-remote"):
     if production:
         command.extend(["--production", "--remote", remote_name])
 
-
     # Run release.sh with explicit mode flags.
     result = subprocess.run(
         command,
         cwd=test_dir,
         env=env,
         capture_output=True,
-        text=True
+        text=True,
+        timeout=30,
     )
 
     print("=== release.sh stdout ===")
